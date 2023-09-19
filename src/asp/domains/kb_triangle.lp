@@ -1,0 +1,1 @@
+:- state(State), holds(State, 4, 0).

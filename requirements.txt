@@ -1,0 +1,14 @@
+cffi==1.15.0
+clingo==5.5.1
+coloredlogs==15.0.1
+graphviz==0.20
+humanfriendly==10.0
+lxml==4.8.0
+networkit==9.1.1
+numpy==1.22.2
+ply==3.11
+psutil==5.9.0
+py-cpuinfo==8.0.0
+pycparser==2.21
+async-timeout
+scipy==1.8.0
