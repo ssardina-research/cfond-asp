@@ -111,11 +111,15 @@ not holds(NextState, Variable, Value) :- not holds(State, Variable, Value), vari
 :- mutexGroup(Group), state(State), not {holds(State, Variable, Value) : mutex(Group, Variable, Value)} 1.
 
 %*---------------------------------------------------------------------------------------------------------------
-:::Strong solution: This is specified by three constraints.
+:::Strong cyclic solution: Goal should be reachable from all states. This is specified by three constraints.
+
+S1. Goal is reachable from the goal state.
+S2. If goal is reachable from a state Y, then goal is reachable from all states X, such that Y is a successor of X.
+S3. It should not be the case that there is a state from where goal is unreachable.
 ---------------------------------------------------------------------------------------------------------------*%
-terminate(X) :- goalState(X).
-terminate(Y) :- state(Y), {not terminate(X): successor(Y,X)} 0.
-:- not terminate(X), state(X).
+reachableG(State) :- goalState(State).  % S1
+reachableG(State) :- successor(State, NextState), reachableG(NextState).  % S2
+:- not reachableG(State), state(State).  % S3
 
 %*---------------------------------------------------------------------------------------------------------------
 :::Output. Show transition, holds, and policy.

@@ -197,9 +197,9 @@ class SASProblem(object):
 
 @dataclass(slots=True)
 class FONDProblem(object):
-    id: str
     domain: str
     problem: str
+    root: str
     sas_translator: str
     translator_args: str
     controller_model: str
@@ -207,11 +207,9 @@ class FONDProblem(object):
     clingo_args: List[str]
     max_states: int = 1
     time_limit: int = 300
-    kb: str = None
-    seq_kb: str = None
-    classical_planner: str = None
-    controller_constraints: dict[str: str] = None
+    extra_kb: str = None
     filter_undo: bool = False
-    undo_action_type: bool = False
-    domain_knowledge: bool = False
+    classical_planner: str = None
+    domain_knowledge: str = None
+    controller_constraints: dict[str: str] = None
 

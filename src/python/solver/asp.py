@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import os
 import subprocess
 from typing import List, Tuple, Dict, Any
 import coloredlogs
@@ -18,6 +17,7 @@ from knowledge.tireworld import TireworldKnowledge
 from knowledge.miner import MinerKnowledge
 from knowledge.acrobatics import AcrobaticsKnowledge
 from knowledge.spiky import SpikyTireworldKnowledge
+import os
 
 
 def solve_with_backbone(fond_problem: FONDProblem, output_dir: str, only_size=False):
@@ -38,10 +38,6 @@ def solve_with_backbone(fond_problem: FONDProblem, output_dir: str, only_size=Fa
     file: str = f"{output_dir}/instance.lp"
     generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions)
    
-    # TODO:: This needs cleanup!
-    if fond_problem.domain_knowledge:
-        generate_knowledge(fond_problem, initial_state, goal_state, nd_actions, variables, output_dir, fond_problem.domain_knowledge)
-
     classical_planner = fond_problem.classical_planner
     clingo_inputs = [classical_planner, file]
     args = ["--stats"]
@@ -80,11 +76,35 @@ def solve(fond_problem: FONDProblem, output_dir: str):
 
     file: str = f"{output_dir}/instance.lp"
     generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False)
-
     preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd_actions, variables, file)
 
 
+def set_model(nd_actions, fond_problem: FONDProblem):
+    """
+    If the maximum degree of non determinism is only 2 then we can solve it slightly more efficiently.
+    """
+    match(fond_problem.controller_model):
+        case "fondsat":
+            name = "fondsat"
+        case "regression":
+            name = "reg"
+
+    max_nd = 0
+    for _, actions_list in nd_actions.items():
+        if len(actions_list) > max_nd:
+            max_nd = len(actions_list)
+
+    suffix = ""
+    if max_nd > 2:
+        suffix = "-gen"
+
+    controller = f"controller-{name}{suffix}.lp"
+    fond_problem.controller_model = os.path.join(fond_problem.root, "asp", controller)
+        
+
 def preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd_actions, variables, file, min_controller_size=1):
+    set_model(nd_actions, fond_problem)
+
     if fond_problem.filter_undo:
         compile_undo_actions(fond_problem, output_dir)
 
@@ -93,7 +113,7 @@ def preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd
 
     # solve the asp instance with a time limit
     time_limit: int = fond_problem.time_limit
-    if time_limit > 0:
+    if time_limit:
         asyncio.run(solve_asp_instance_async(fond_problem, file, output_dir, min_states=min_controller_size))
     else:
         solve_asp_instance(fond_problem, file, output_dir, min_states=min_controller_size)
@@ -170,7 +190,7 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
 
         # check if a solution was found or the process timed out
         if solution_found and direction == 1:
-            _logger.info(f"Solution found for id {fond_problem.id}!")
+            _logger.info(f"Solution found for id {fond_problem.domain}, {fond_problem.problem}!")
             stop = True
 
         elif not solution_found and direction == -1:
@@ -211,7 +231,7 @@ async def _run_clingo_async(fond_problem, instance, num_states, output_dir):
     return solution_found
 
 
-def _run_clingo(fond_problem, instance, num_states, output_dir):
+def _run_clingo(fond_problem: FONDProblem, instance, num_states, output_dir):
     """
     Run clingo with the given configuration
     :param fond_problem: FOND Problem
@@ -221,12 +241,12 @@ def _run_clingo(fond_problem, instance, num_states, output_dir):
     :return:
     """
     _logger: logging.Logger = _get_logger()
-    _logger.info(f" -Solving {fond_problem.id} with numStates={num_states}.")
+    _logger.info(f" -Solving with numStates={num_states}.")
     out_file = f"{output_dir}/{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
     args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
 
     controller = fond_problem.controller_model
-    kb = fond_problem.kb
+    kb = fond_problem.extra_kb
     constraints = fond_problem.controller_constraints.values()
 
     # input files for clingo

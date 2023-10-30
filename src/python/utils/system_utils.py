@@ -2,8 +2,7 @@ import os
 from cpuinfo import get_cpu_info
 import platform
 import psutil
-import imp
-import sys
+from pathlib import Path
 
 def print_system_info():
     print("------------------------------------------------------------------------------")
@@ -18,6 +17,15 @@ def print_system_info():
     print(f"Memory:{str(round(psutil.virtual_memory().total / (1024.0 **3)))} GB")
     print("------------------------------------------------------------------------------")
 
+def get_root() -> Path:
+    """
+    Returns the root of the source folder
+    :return: Root Path
+    """
+    loc: str =  os.path.abspath(__file__)
+    p: Path = Path(loc)
+    root: Path = p.parents[2]
+    return root
 
 if __name__ == "__main__":
     print_system_info()
