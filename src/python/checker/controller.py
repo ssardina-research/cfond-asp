@@ -80,7 +80,7 @@ class Controller(object):
         elements = self._extract_elements(info)
 
         for element in elements:
-            if type(element) is str and "initial" in element.lower():
+            if type(element) is str and "Initial" in element:
                 self._initial_state_num = int(element.split(":")[1])
 
             elif type(element) is str and "goal" in element.lower():

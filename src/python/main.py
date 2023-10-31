@@ -42,10 +42,9 @@ def init():
     if not os.path.exists(output):
         os.makedirs(output)
 
+
 def get_fond_problem() -> FONDProblem:
-    # determiniser
-    # translator = ~/Work/Software/translator-fond/translate.py
-    # translator_args = 1000 {domain} {instance} --outsas {sas_file}
+    # determiniser. We use a recent version of FD
     root:Path = get_root()
     translator: str = os.path.join(root, "translator-fond", "translate.py")
     translator_args: str = "{domain} {instance} --sas-file {sas_file}"
@@ -90,11 +89,10 @@ def main():
                         help="Maximum number of controller states", 
                         type=int,
                         default=100)
-    parser.add_argument("what_to_do",
-                        help="Functionality of the system to execute.",
-                        choices=[
-                        "solve", "verify", "determinise", "solve-with-backbone"],
-                        default="solver")
+    parser.add_argument("--what_to_do",
+                        help="Functionality of the system to execute. Currently, verification only works for strong cyclic plans.",
+                        choices=["solve", "verify", "determinise", "solve-with-backbone"],
+                        default="solve")
     parser.add_argument("--timeout",
                         help="timeout for solving the problem (in seconds).", 
                         type=int)
@@ -111,22 +109,21 @@ def main():
                         type=str,
                         default=None)
     parser.add_argument("--filter_undo",
-                        help="Filter undo actions from policy consideration",
+                        help="Filter undo actions from policy consideration.",
                         type=bool,
                         default=False)
     parser.add_argument("--domain_kb",
-                        help="Add domain knowledge (optional)",
-                        choices=[
-                        "blocksworld", "tireworld", "miner", "acrobatics", "spikytireworld"],
+                        help="Add domain knowledge.",
+                        choices=["blocksworld", "tireworld", "miner", "acrobatics", "spikytireworld"],
                         default=None)
     parser.add_argument("--output",
-                        help="location of output folder",
+                        help="location of output folder.",
                         type=str,
                         default="./output")
     
     args = parser.parse_args()
-    domain = args.domain
-    problem = args.problem
+    domain = os.path.abspath(args.domain)
+    problem = os.path.abspath(args.problem)
     what_to_do = args.what_to_do
     output = os.path.abspath(args.output)
     timeout = args.timeout
@@ -142,7 +139,6 @@ def main():
 
     start = timer()
     fond_problem = get_fond_problem()
-
 
     if what_to_do == "solve":
         solve(fond_problem, output)
