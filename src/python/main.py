@@ -55,7 +55,7 @@ def get_fond_problem() -> FONDProblem:
     # asp tools
     clingo = "clingo"
     if clingo_args_str:
-        clingo_args = clingo_args.split()
+        clingo_args = clingo_args_str.split()
     else:
         clingo_args = []
 
@@ -114,7 +114,7 @@ def main():
                         default=False)
     parser.add_argument("--domain_kb",
                         help="Add domain knowledge.",
-                        choices=["blocksworld", "tireworld", "miner", "acrobatics", "spikytireworld"],
+                        choices=["triangle-tireworld", "miner", "acrobatics", "spikytireworld"],
                         default=None)
     parser.add_argument("--output",
                         help="location of output folder.",
@@ -128,7 +128,7 @@ def main():
     output = os.path.abspath(args.output)
     timeout = args.timeout
     model = args.model
-    clingo_args_str = args.clingo_args
+    clingo_args_str = args.clingo_args.replace("'","").replace('"','')
     extra_kb = args.extra_constraints
     max_states = args.max_states
     filter_undo = args.filter_undo

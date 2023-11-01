@@ -147,16 +147,16 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
 
                 # check if a solution was found or the process timed out
                 if solution_found and direction == 1:
-                    _logger.info(f"Solution found for id {fond_problem.id}!")
+                    _logger.info(f"Solution found!")
                     stop = True
 
                 elif not solution_found and direction == -1:
-                    _logger.info(f"Solution found for id {fond_problem.id}!")
+                    _logger.info(f"Solution found!")
                     stop = True
 
                 num_states += direction
         except asyncio.CancelledError:
-            _logger.info(f"Timed Out for id {fond_problem.id} with numStates={num_states}.")
+            _logger.info(f"Timed Out with numStates={num_states}.")
             out_file = f"{output_dir}/{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
             with open(out_file, "w") as f:
                 f.write(f"TimedOut.")
@@ -200,7 +200,7 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
         num_states += direction
 
 
-async def _run_clingo_async(fond_problem, instance, num_states, output_dir):
+async def _run_clingo_async(fond_problem: FONDProblem, instance, num_states, output_dir):
     """
     Run clingo with the given configuration
     :param fond_problem: FOND Problem
@@ -210,12 +210,12 @@ async def _run_clingo_async(fond_problem, instance, num_states, output_dir):
     :return:
     """
     _logger: logging.Logger = _get_logger()
-    _logger.info(f" -Solving {fond_problem.id} with numStates={num_states}.")
+    _logger.info(f" -Solving with numStates={num_states}.")
     out_file = f"{output_dir}/{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
     args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
 
     controller = fond_problem.controller_model
-    kb = fond_problem.kb
+    kb = fond_problem.domain_knowledge
     constraints = fond_problem.controller_constraints.values()
 
     # input files for clingo
@@ -318,17 +318,14 @@ def compile_undo_actions(fond_problem: FONDProblem, output_dir: str):
 
     # create grounded file
     grounded_undo_file = f"{output_dir}/undo_actions.lp"
-    write_undo_actions(output_file, grounded_undo_file, process_action_type=fond_problem.undo_action_type)
+    write_undo_actions(output_file, grounded_undo_file, process_action_type=fond_problem.filter_undo)
 
     # replace the undo constraint with the precompiled one
     fond_problem.controller_constraints["undo"] = grounded_undo_file
 
 
 def generate_knowledge(fond_problem, initial_state, goal_state, nd_actions, variables, output_dir, domain_knowledge):
-    if domain_knowledge.lower() == "blocksworld":
-        kb = BlocksworldKnowledge(fond_problem, goal_state, variables, output_dir)
-        kb.add_knowledge()
-    elif domain_knowledge.lower() == "tireworld":
+    if domain_knowledge.lower() == "triangle-tireworld":
         kb = TireworldKnowledge(fond_problem, variables, output_dir)
         kb.add_knowledge()
     elif domain_knowledge.lower() == "miner":

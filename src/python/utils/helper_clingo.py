@@ -1,8 +1,22 @@
 import asyncio
+import logging
 import subprocess
 from asyncio.subprocess import Process
 from typing import List
+import coloredlogs
+import sys
 
+logger: logging.Logger = None
+
+def _get_logger():
+    global logger
+
+    if not logger:    
+        # set logger
+        logger = logging.getLogger("ClingoExecutor")
+        coloredlogs.install(level='INFO', logger=logger)
+
+    return logger
 
 def execute_asp(executable: str, args: List[str], input_files: List[str], output_dir: str, output_file: str) -> bool:
     """
@@ -15,9 +29,16 @@ def execute_asp(executable: str, args: List[str], input_files: List[str], output
     :return: If a solution is found, If the process timed out
     """
     executable_list = [executable] + input_files + args
+    logger = _get_logger()
     try:
         process = subprocess.Popen(executable_list, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
         stdout, stderr = process.communicate()
+
+        # check for any errors
+        if stderr:
+            _error = stderr.decode()
+            logger.error(_error)
+            sys.exit(1)
 
         # save output
         with open(output_file, "w") as f:

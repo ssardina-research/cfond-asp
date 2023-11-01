@@ -212,4 +212,5 @@ class FONDProblem(object):
     classical_planner: str = None
     domain_knowledge: str = None
     controller_constraints: dict[str: str] = None
+    seq_kb: str = None # use for weak plans (sequential knowledge base)
 
