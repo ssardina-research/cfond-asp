@@ -26,6 +26,8 @@ extra_kb = None
 max_states = None
 filter_undo = False
 domain_kb = None
+solution_type = "strong-cyclic"
+
 
 def init():
     # check python version
@@ -60,7 +62,7 @@ def get_fond_problem() -> FONDProblem:
         clingo_args = []
 
     # set the controller model
-    fond_problem = FONDProblem(domain=domain, problem=problem, root=root, sas_translator=translator, translator_args=translator_args, controller_model=model, clingo=clingo, clingo_args=clingo_args, max_states=max_states, time_limit=timeout, filter_undo=filter_undo, extra_kb=extra_kb, classical_planner=classical_planner, domain_knowledge=domain_kb)
+    fond_problem = FONDProblem(domain=domain, problem=problem, solution_type=solution_type, root=root, sas_translator=translator, translator_args=translator_args, controller_model=model, clingo=clingo, clingo_args=clingo_args, max_states=max_states, time_limit=timeout, filter_undo=filter_undo, extra_kb=extra_kb, classical_planner=classical_planner, domain_knowledge=domain_kb)
 
     fond_problem.controller_constraints = {}
     
@@ -75,7 +77,7 @@ def get_fond_problem() -> FONDProblem:
 
 
 def main():
-    global domain, problem, what_to_do, output, timeout, model, clingo_args_str, extra_kb, max_states, filter_undo, domain_kb
+    global domain, problem, what_to_do, output, timeout, model, clingo_args_str, extra_kb, max_states, filter_undo, domain_kb, solution_type
 
     # CLI options
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
@@ -91,13 +93,17 @@ def main():
                         default=100)
     parser.add_argument("--what_to_do",
                         help="Functionality of the system to execute. Currently, verification only works for strong cyclic plans.",
-                        choices=["solve", "verify", "determinise", "solve-with-backbone"],
+                        choices=["solve", "verify", "determinise"],
                         default="solve")
+    parser.add_argument("--solution_type",
+                        help="Should the planner look for strong or strong cyclic solutions",
+                        choices=["strong", "strong-cyclic"],
+                        default="strong-cyclic")
     parser.add_argument("--timeout",
                         help="timeout for solving the problem (in seconds).", 
                         type=int)
     parser.add_argument("--model",
-                        help="ASP model to use for FOND",
+                        help="ASP model to use for FOND (only relevant for strong cyclic solutions)",
                         choices=["fondsat", "regression"],
                         default="fondsat")
     parser.add_argument("--clingo_args",
@@ -110,6 +116,10 @@ def main():
                         default=None)
     parser.add_argument("--filter_undo",
                         help="Filter undo actions from policy consideration.",
+                        type=bool,
+                        default=False)
+    parser.add_argument("--use_backbone", 
+                        help="Use backbone size for minimum controller size",
                         type=bool,
                         default=False)
     parser.add_argument("--domain_kb",
@@ -133,6 +143,8 @@ def main():
     max_states = args.max_states
     filter_undo = args.filter_undo
     domain_kb = args.domain_kb
+    use_backbone = args.use_backbone
+    solution_type = args.solution_type
 
     # initialise
     init()
@@ -141,13 +153,14 @@ def main():
     fond_problem = get_fond_problem()
 
     if what_to_do == "solve":
-        solve(fond_problem, output)
+        if use_backbone:
+            solve_with_backbone(fond_problem, output, only_size=True)
+        else:
+            solve(fond_problem, output)
     elif what_to_do == "verify":
         verify(output)
     elif what_to_do == "determinise":
         parse(fond_problem, output)
-    elif what_to_do == "solve-with-backbone":
-        solve_with_backbone(fond_problem, output, only_size=True)
 
     end = timer()
     total_time = end - start

@@ -8,7 +8,7 @@ from base.config import ASP_CLINGO_OUTPUT_PREFIX
 from base.elements import FONDProblem, Action, Variable, State
 from utils.backbone import get_backbone_asp, create_backbone_constraint
 from utils.fd import compute_weak_plan
-from utils.helper_asp import write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
+from utils.helper_asp import write_goal, write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
 from utils.helper_clingo import execute_asp, execute_asp_async
 from utils.helper_sas import organize_actions
 from utils.translators import determinise, parse_sas
@@ -36,10 +36,12 @@ def solve_with_backbone(fond_problem: FONDProblem, output_dir: str, only_size=Fa
 
     # generate ASP instance
     file: str = f"{output_dir}/instance.lp"
+    file_weak_plan: str = f"{output_dir}/instance_inc.lp"
     generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions)
+    generate_asp_instance_inc(file_weak_plan, initial_state, goal_state, variables, mutexs, nd_actions)
    
     classical_planner = fond_problem.classical_planner
-    clingo_inputs = [classical_planner, file]
+    clingo_inputs = [classical_planner, file_weak_plan]
     args = ["--stats"]
     out_file = f"{output_dir}/weak_plan.out"
     if fond_problem.seq_kb:
@@ -83,22 +85,26 @@ def set_model(nd_actions, fond_problem: FONDProblem):
     """
     If the maximum degree of non determinism is only 2 then we can solve it slightly more efficiently.
     """
-    match(fond_problem.controller_model):
-        case "fondsat":
-            name = "fondsat"
-        case "regression":
-            name = "reg"
+    if fond_problem.solution_type == "strong":
+            controller = f"controller-strong.lp"
+    else:
+        match(fond_problem.controller_model):
+            case "fondsat":
+                name = "fondsat"
+            case "regression":
+                name = "reg"
 
-    max_nd = 0
-    for _, actions_list in nd_actions.items():
-        if len(actions_list) > max_nd:
-            max_nd = len(actions_list)
+        max_nd = 0
+        for _, actions_list in nd_actions.items():
+            if len(actions_list) > max_nd:
+                max_nd = len(actions_list)
 
-    suffix = ""
-    if max_nd > 2:
-        suffix = "-gen"
+        suffix = ""
+        if max_nd > 2:
+            suffix = "-gen"
 
-    controller = f"controller-{name}{suffix}.lp"
+        controller = f"controller-{name}{suffix}.lp"
+        
     fond_problem.controller_model = os.path.join(fond_problem.root, "asp", controller)
         
 
@@ -260,6 +266,27 @@ def _run_clingo(fond_problem: FONDProblem, instance, num_states, output_dir):
     solution_found = execute_asp(fond_problem.clingo, args, input_files, output_dir, out_file)
 
     return solution_found
+
+
+def generate_asp_instance_inc(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False):
+    """
+    Write planning instance to a logic programming as an input to Clingo for incremental solving. This is currently to generate a weak plan.
+    :param file: File to save the encoding
+    :param initial_state: Initial state
+    :param goal_state: Goal state
+    :param variables: Variables
+    :param mutexs: Mutually exclusive variable values (encoded as a state)
+    :param nd_actions: Dictionary mapping a non-deterministic action name to its deterministic actions
+    :param initial_state_encoding: Encoding for the initial state (negative, positive, or both)
+    :param action_var_affects: Mapping of action name to variables it affects in add or del effects
+    :return:
+    """
+
+    write_variables(file, variables)
+    write_mutex(file, mutexs)
+    write_initial_state(file, initial_state, encoding=initial_state_encoding)
+    write_goal(file, goal_state)
+    write_actions(file, nd_actions, variables, variable_mapping=action_var_affects)
 
 
 def generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False):

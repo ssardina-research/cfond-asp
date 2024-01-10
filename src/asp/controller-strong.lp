@@ -88,8 +88,7 @@ S4. Siblings should obey lexicographic ordering (more than two siblings version)
 -successor(K, J) :- successor(I, J), not sibling(K, I), J > I, not goalState(J), state(K), 1 < K < I. % S1
 :- successor(I, J), not goalState(J), J>I, J>1, {successor(K, J-1):state(K), state(J-1), K <= I} 0. % S2
 
-:- precedence(E1, E2), transition(S, E1, J1), J1>S, not goalState(J1), 1 {transition(S, E2, J2): J2<J1, J2>S, not goalState(J2)}. % S4
-% :- precedence(E1, E2), transition(S, E1, J1), transition(S, E2, J2), S < J2 < J1, not goalState(J1), {transition(S, E3, J2): precedence(E3, E2), not goalState(J2)}=0. % S5
+:- precedence(E1, E2), transition(S, E1, J1), transition(S, E2, J2), S < J2 < J1, not goalState(J1), {transition(S, E3, J2): precedence(E3, E2), not goalState(J2)}=0. % S5
 
 %*---------------------------------------------------------------------------------------------------------------
 :::Propagation of negative conditions.

@@ -85,6 +85,14 @@ def write_goal_state(file, state: State):
 
         f.write(os.linesep)
 
+def write_goal(file, state: State):
+    with open(file, "a") as f:
+        for var_idx, var in enumerate(state.variables):
+            val = state.values[var_idx]
+            if val != -1:
+                f.write(f"{ASP_GOAL_TERM}({var_idx}, {val}).{os.linesep}")
+
+        f.write(os.linesep)
 
 def write_actions(file, nd_actions, variables, variable_mapping=False, precedence=True):
     total_variables = set(range(len(variables)))

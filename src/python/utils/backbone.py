@@ -3,6 +3,7 @@ from typing import List
 import re
 
 re_policy_effect = r'policy\((?P<from>[\d]+),\"(?P<action>[\a-z-\(\d\,\)]+)\",\"(?P<effect>[e(\d\,\)]+)\"\)'
+DUMMY_POLICY = "policy(-1,-1,-1)"
 
 def create_backbone_constraint(backbone: List[tuple[str, str]], constraint_file: str, constraint_type = "loose"):
     """
@@ -125,6 +126,7 @@ def get_backbone_asp(clingo_output: str) -> List[tuple[str, str]]:
         return backbone
     
     policy_tuples = policy_str.split(" ")
+    policy_tuples.remove(DUMMY_POLICY)
     for _p in policy_tuples:
         result = re.match(re_policy_effect, _p)
         action = result.group("action")

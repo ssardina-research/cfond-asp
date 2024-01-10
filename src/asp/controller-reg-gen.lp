@@ -39,7 +39,6 @@ In general, an action with suffix _det_{i} will correspond to effect e{i+1} in o
 
 %*---------------------------------------------------------------------------------------------------------------
 :::Auxiliary terms based on transitions.
-
 - succesor(X,Y): Y is a succesor of X if there is a transition from X to Y.
 ---------------------------------------------------------------------------------------------------------------*%
 successor(X, Y) :- transition(X, _, Y).

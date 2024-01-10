@@ -7,6 +7,7 @@
 #program base.
 % Establish initial state
 initialState(0).
+policy(-1,-1,-1). % this is to avoid the initial error (no atoms over signature occur in program:  policy/3)
 
 #program step(t). % t=1,2,...
 

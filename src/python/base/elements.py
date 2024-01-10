@@ -199,6 +199,7 @@ class SASProblem(object):
 class FONDProblem(object):
     domain: str
     problem: str
+    solution_type: str
     root: str
     sas_translator: str
     translator_args: str
