@@ -6,8 +6,8 @@ re_1 = r"p(?P<num>[\d]+).pddl"
 HEADERS = f"scenario,domain,instance,output{os.linesep}"
 INSTANCES = [HEADERS]
 
-PROBLEMS_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, "problems"))
-OUTPUT_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, "output"))
+# PROBLEMS_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, "problems"))
+PROBLEMS_ROOT = "./benchmarking/problems"
 CUSTOM_REASONING = ['faults-ipc08'] # this scenario doesn't have a unique domain
 INSTANCE_FILE = os.path.join(PROBLEMS_ROOT, "instances.csv")
 
@@ -28,7 +28,7 @@ def add_instances(scenario):
 
     for _id in sorted(files_dictionary.keys()):
         _problem = os.path.join(PROBLEMS_ROOT, scenario, files_dictionary[_id])
-        _output = os.path.join(OUTPUT_ROOT, scenario, files_dictionary[_id][0:-5])
+        _output = os.path.join(scenario, files_dictionary[_id][0:-5])
         _domain = os.path.join(PROBLEMS_ROOT, scenario, domain_file)
         INSTANCES.append(f"{scenario},{_domain},{_problem},{_output}{os.linesep}")
 
@@ -54,7 +54,7 @@ def add_faults_instances():
     for _id in sorted(files_dictionary.keys()):
         _p, _d = files_dictionary[_id]
         _problem = os.path.join(PROBLEMS_ROOT, scenario, _p)
-        _output = os.path.join(OUTPUT_ROOT, scenario, _p[0:-5])
+        _output = os.path.join(scenario, _p[0:-5])
         _domain = os.path.join(PROBLEMS_ROOT, scenario, _d)
         INSTANCES.append(f"{scenario},{_domain},{_problem},{_output}{os.linesep}")
 
