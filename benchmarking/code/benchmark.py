@@ -1,4 +1,10 @@
 
+#TODO
+# --------
+# 1. Implement more precise is_solved
+# 2. Add report functionality
+# --------
+
 import argparse
 import asyncio
 import traceback
@@ -11,8 +17,6 @@ from datetime import datetime
 from monitor import Monitor
 from task import Task, TaskStatus
 import json
-from pathlib import Path
-import inspect
 from datetime import datetime
 
 PLANNER = "./src/python/main.py"
@@ -24,13 +28,13 @@ OUTPUT_ROOT: str = None
 TASK_QUEUE = Queue()
 TASKS = {}
 ACTIVE_TASKS = {}
+FINISHED_TASKS = {}
 TIME_LIMIT = None
 MEMORY_LIMIT = None
 CONFIG_FILE = str
 SOLVERS = {}
 SCENARIOS = []
 
-finished_count = 0
 total_count = 0
 lock = asyncio.Lock()
 monitor: Monitor
@@ -41,13 +45,6 @@ def create_folder(path: str, delete: bool = False):
         shutil.rmtree(path)
 
     os.makedirs(path, exist_ok=True)
-
-
-def get_current_path() -> Path:
-    """Get the path to the file where the function is called.
-    Source: PDDL python package
-    """
-    return Path(os.path.dirname(inspect.getfile(inspect.currentframe()))).parent 
 
 
 async def prepare_tasks(queue: Queue):
@@ -85,16 +82,17 @@ async def prepare_tasks(queue: Queue):
             _scenario = instance["scenario"]
             _domain = instance["domain"]
             _problem = instance["instance"]
+            _problem_id = _problem.split(os.sep)[-1][0:-5]
             _output = instance["output"]
 
             for solver_id, solver_info in SOLVERS.items():
                 _output_path = os.path.join(OUTPUT_ROOT, _output, solver_id)
                 _is_solved = os.path.exists(_output_path)
-                _should_run = not SKIP or not _is_solved
+                _should_run = (not SKIP or not _is_solved) and _scenario in SCENARIOS
 
                 # 5. add task to queue (if it should run)
                 if _should_run:
-                    solver_args = solver_info["args"] + f"--clingo_args '{solver_info['clingo_args']}'"
+                    solver_args = solver_info["args"]
 
                     for f in [_domain, _problem]:
                         if not os.path.exists(f):
@@ -102,14 +100,14 @@ async def prepare_tasks(queue: Queue):
                             exit(1)
 
                     cmd = f"python {PLANNER} {_domain} {_problem} {solver_args} --output {_output_path}"
-                    task = Task(_counter, _scenario, cmd, solver_id, _output_path)
+                    task = Task(_counter, _scenario, _problem_id, cmd, solver_id, _output_path)
                     await queue.put(task)
                     _counter += 1
 
     # 6. initialise monitor
     total_count = queue.qsize()
 
-    if input(f"About to run {total_count} tasks. To continue type 'Y' ") == "Y":
+    if input(f"About to run {total_count} tasks. To continue type 'Y' ").lower() == "y":
         monitor = Monitor(total_count)
         monitor.start()
     else:
@@ -122,14 +120,14 @@ async def run_tasks(queue: Queue):
     """
     task_runners = []
     for _i in range(BATCH_SIZE):
-        _consumer = asyncio.create_task(consume_task(queue))
+        _consumer = asyncio.create_task(consume_task(queue, f"q{_i}"))
         task_runners.append(_consumer)
 
     # wait for all conusmers to finish the allocated tasks
     await asyncio.gather(*task_runners, return_exceptions=True)
 
 
-async def consume_task(queue: Queue):
+async def consume_task(queue: Queue, name: str):
     """
     This function implements a consumer. A consumer in this context takes a pending task from the queue and runs it.
     It works as follows:
@@ -138,14 +136,14 @@ async def consume_task(queue: Queue):
     3. It then stores the pid (this is the pid of the shell), start time, the task status.
     4. It then waits for the task to finish
     """
-    global ACTIVE_TASKS
 
     # 1. While queue is not empty, pick a task from queue and run it
     while not queue.empty():
 
         ## get the next id and the assocated command to run
         task:Task = await queue.get()
-
+        task.queue = name
+        
         # 2. run the task by creating a subprocess
         try:
             # print(task.cmd)
@@ -163,7 +161,7 @@ async def consume_task(queue: Queue):
             await update_counts(task)
 
         except asyncio.TimeoutError:
-            # task timed out (ideally, shoul not happen as the underlying solver should quit on its own)
+            # task timed out (ideally, should not happen as the underlying solver should quit on its own)
             task.status = TaskStatus.ERROR
             await update_counts(task)
         except Exception:
@@ -175,8 +173,8 @@ async def update_counts(task: Task):
     """
     Keep track of tasks that are active or finished
     """
-    global ACTIVE_TASKS, finished_count
-    _id: str = f"{task.scenario}_{task.solver}"
+    global ACTIVE_TASKS, FINISHED_TASKS
+    _id: str = f"{task.scenario}_{task.solver}_{task.id}"
     async with lock:
         match task.status:
             case TaskStatus.RUNNING:
@@ -185,15 +183,15 @@ async def update_counts(task: Task):
             case TaskStatus.FINISHED:
                 if not task.memory_exceeded:
                     task.store_memory()  # store the last known max memory used by this task
-                finished_count += 1
+                FINISHED_TASKS[_id] = task
                 del ACTIVE_TASKS[_id]
 
             case TaskStatus.ERROR:
-                finished_count += 1
+                FINISHED_TASKS[_id] = task
                 del ACTIVE_TASKS[_id]
 
-    monitor.update(ACTIVE_TASKS, finished_count)
-    if finished_count == total_count:
+    monitor.update(ACTIVE_TASKS, len(FINISHED_TASKS))
+    if len(FINISHED_TASKS) == total_count:
         monitor.stop = True
 
 
@@ -213,9 +211,8 @@ def parse_config():
         # solvers information
         solvers_to_run = config["run"]
         for _id in solvers_to_run:
-            _clingo_args = config["solvers"][_id]["clingo_args"]
             _args = f"--timeout {TIME_LIMIT} {config['solvers'][_id]['args']}"
-            SOLVERS[_id] = {"clingo_args": _clingo_args, "args": _args}
+            SOLVERS[_id] = {"args": _args}
 
         # scenarios
         SCENARIOS = config["scenarios"][:]

@@ -12,9 +12,10 @@ class TaskStatus(Enum):
 class Task(object):
     memory_limit: int = 0
     time_limit: int = 0
-    def __init__(self, id, scenario, cmd, solver, output_path) -> None:
+    def __init__(self, id, scenario, problem, cmd, solver, output_path) -> None:
         self.id: str = id
         self.scenario: str = scenario
+        self.problem: str = problem
         self.cmd: str = cmd
         self.start_time = None
         self.pid = 0
@@ -23,6 +24,15 @@ class Task(object):
         self.memory = 0
         self.solver: str = solver
         self.status: TaskStatus = TaskStatus.NOT_STARTED
+        self._queue: str | None = None
+
+    @property
+    def queue(self):
+        return self._queue
+
+    @queue.setter
+    def queue(self, value):
+        self._queue = value
 
     def store_memory(self, exceeded=False):
         self.memory_exceeded = exceeded

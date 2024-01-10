@@ -90,8 +90,11 @@ class Monitor(object):
                 table.add_column("id")
                 table.add_column("pid")
                 table.add_column("solver")
+                table.add_column("scenario")
+                table.add_column("problem")
                 table.add_column(f"time (max {Task.time_limit}s)")
                 table.add_column(f"memory (max {Task.memory_limit}M)")
+                table.add_column("consumer")
 
                 for _id, _task in self.active_tasks.items():
                     _time = (datetime.now() - _task.start_time).total_seconds()
@@ -106,7 +109,7 @@ class Monitor(object):
                         prefix = "[#FFA500]"
                     memory_str = f"{prefix}{_memory:0.3f}"
 
-                    table.add_row(_task.id, str(_task.pid), _task.solver, time_str, memory_str)
+                    table.add_row(str(_task.id), str(_task.pid), _task.solver, _task.scenario, _task.problem, time_str, memory_str, _task.queue)
                     self.check_memory(_task)
 
                 with Live(self.layout, console=self.console, auto_refresh=False):
