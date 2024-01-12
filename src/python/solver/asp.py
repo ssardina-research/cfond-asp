@@ -257,8 +257,6 @@ def _run_clingo(fond_problem: FONDProblem, instance, num_states, output_dir):
 
     # input files for clingo
     input_files = [controller, instance]
-    if kb is not None:
-        input_files.append(kb)
     if constraints is not None:
         input_files += constraints
 

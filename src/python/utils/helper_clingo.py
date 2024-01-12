@@ -7,6 +7,15 @@ import coloredlogs
 import sys
 
 logger: logging.Logger = None
+ERROR_IGNORE = ["mutexgroup"]
+
+
+def _should_ignore_error(error) -> bool:
+    for _i in ERROR_IGNORE:
+        if _i in error.lower():
+            return True
+    return False
+
 
 def _get_logger():
     global logger
@@ -37,8 +46,11 @@ def execute_asp(executable: str, args: List[str], input_files: List[str], output
         # check for any errors
         if stderr:
             _error = stderr.decode()
-            logger.error(_error)
-            sys.exit(1)
+            if _should_ignore_error(_error):
+                logger.debug(_error)
+            else:
+                logger.error(_error)
+                sys.exit(1)
 
         # save output
         with open(output_file, "w") as f:

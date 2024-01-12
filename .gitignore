@@ -461,10 +461,7 @@ TSWLatexianTemp*
 # option is specified. Footnotes are the stored in a file with suffix Notes.bib.
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
-/benchmarking/metaconfigs/slurm/
 /output*
-/benchmarking/configs/
-/benchmarking/metaconfigs/hpc/
-/benchmarking/hpc/
-.DS_Storeoutput
+.DS_Store
+output
 weak_plan.csv

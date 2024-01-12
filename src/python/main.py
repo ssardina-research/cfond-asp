@@ -67,7 +67,7 @@ def get_fond_problem() -> FONDProblem:
     fond_problem.controller_constraints = {}
     
     if extra_kb:
-        fond_problem.controller_constraints["extra"] = extra_kb
+        fond_problem.controller_constraints["extra"] = os.path.abspath(extra_kb)
 
     if filter_undo:
         undo_constraint =os.path.join(root, "asp", "control", "undo.lp")
@@ -119,11 +119,11 @@ def main():
                         type=bool,
                         default=False)
     parser.add_argument("--use_backbone", 
-                        help="Use backbone size for minimum controller size",
+                        help="Use backbone size for minimum controller size estimation",
                         type=bool,
                         default=False)
     parser.add_argument("--domain_kb",
-                        help="Add domain knowledge.",
+                        help="Add pre-defined domain knowledge.",
                         choices=["triangle-tireworld", "miner", "acrobatics", "spikytireworld"],
                         default=None)
     parser.add_argument("--output",
