@@ -1,6 +1,0 @@
-(define (problem simple_1)
-  (:domain simple-domain)
-  (:objects b1 - block)
-  (:init (emptyhand) (on-table b1))
-  (:goal (and (emptyhand) (on-destination b1)))
-)

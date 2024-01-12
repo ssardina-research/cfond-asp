@@ -1,5 +1,0 @@
-(define (problem simple_1)
-  (:domain simple)
-  (:init (not (p)) (not (q)) (not (r)))
-  (:goal (r))
-)
