@@ -25,4 +25,15 @@ def is_solved(folder: str):
     """
     Check if the instance was solved given the output folder.
     """
+    if not os.path.exists(folder):
+        return False
+    _file, _ = _get_last_output_file(folder)
+    with open(os.path.join(folder, _file)) as _handle:
+        data = _handle.readlines()
+
+    for _l in data:
+        if "UNSATISFIABLE" in _l:
+            return False
+        
+    return True
 

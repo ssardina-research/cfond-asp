@@ -14,6 +14,7 @@ import csv
 import atexit
 from asyncio.queues import Queue
 from datetime import datetime
+from report import is_solved
 from monitor import Monitor
 from task import Task, TaskStatus
 import json
@@ -87,7 +88,7 @@ async def prepare_tasks(queue: Queue):
 
             for solver_id, solver_info in SOLVERS.items():
                 _output_path = os.path.join(OUTPUT_ROOT, _output, solver_id)
-                _is_solved = os.path.exists(_output_path)
+                _is_solved = is_solved(os.path.abspath(_output_path))
                 _should_run = (not SKIP or not _is_solved) and _scenario in SCENARIOS
 
                 # 5. add task to queue (if it should run)
