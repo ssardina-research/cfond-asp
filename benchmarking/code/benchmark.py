@@ -14,7 +14,7 @@ import csv
 import atexit
 from asyncio.queues import Queue
 from datetime import datetime
-from report import is_solved
+from report import get_stats, is_solved
 from monitor import Monitor
 from task import Task, TaskStatus
 import json
@@ -189,6 +189,7 @@ async def update_counts(task: Task):
 
             case TaskStatus.ERROR:
                 FINISHED_TASKS[_id] = task
+                task.store_memory()
                 del ACTIVE_TASKS[_id]
 
     monitor.update(ACTIVE_TASKS, len(FINISHED_TASKS))
@@ -229,6 +230,22 @@ async def run_experiment():
     """
     await prepare_tasks(TASK_QUEUE)
     await run_tasks(TASK_QUEUE)
+
+
+def report():
+    """
+    The report assumes the folder structure is the same as created by this benchmark: scenario/problem/solver
+    """
+    scenarios = [s for s in os.listdir(OUTPUT_ROOT) if os.path.isdir(os.path.join(OUTPUT_ROOT, s))]
+    for s in scenarios:
+        _d = os.path.join(OUTPUT_ROOT, s)
+        problems = [p for p in os.listdir(_d) if os.path.isdir(os.path.join(_d, p))]
+        for p in problems:
+            _p = os.path.join(os.path.join(OUTPUT_ROOT, s, p))
+            solvers = [s for s in os.listdir(_p) if os.path.isdir(os.pardir.join(_p, s))]
+            for sol in solvers:
+                _path = os.path.join(OUTPUT_ROOT, s, p, sol)
+                stats = get_stats(_path)
 
 
 def kill_tasks():
@@ -288,5 +305,5 @@ if __name__ == "__main__":
                 print("User cancelled.")
                 kill_tasks()
         case "report":
-            # report()
+            report()
             pass

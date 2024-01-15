@@ -4,8 +4,9 @@ import coloredlogs
 import re
 re_file_name = r"clingo_out_(?P<idx>[\d]+).out"
 ASP_CLINGO_OUTPUT_PREFIX = "clingo_out_"
-HEADERS = ["domain","instance","planner","type","solved","SAT","time","memory","timeout","memoryout","policysize"]
+HEADERS = ["domain","instance","planner","solved","SAT","time","memory","timeout","memoryout","policysize"]
 NA = "-1"
+OUTPUT = []
 
 def _get_file_id(f: str) -> int:
     result = re.match(re_file_name, f)
@@ -37,3 +38,35 @@ def is_solved(folder: str):
         
     return True
 
+
+def is_timed_out(folder: str):
+    _file, _ = _get_last_output_file(folder)
+    with open (_file) as _h:
+        data = _h.readlines()
+    
+    for _l in data:
+        if "timedout" in _l.lower():
+            return True
+        
+def is_memory_out(file: str):
+    with open(file) as _h:
+        data = _h.readlines()
+
+    
+ 
+def get_stats(folder: str):
+    if not os.path.exists(folder):
+        return {}
+
+    file_time = os.path.join(folder, "solve_time.out")
+    file_memory = os.path.join(folder, "memory.out")
+    file_unsat = os.path.join(folder, "unsat.out")
+
+    if os.path.isfile(file_unsat):
+        sat = "False"
+    elif is_solved(folder):
+        sat = "True"
+    else:
+        sat = NA
+
+    _time_out = is_timed_out(folder)
