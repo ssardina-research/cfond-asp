@@ -236,17 +236,26 @@ def report():
     """
     The report assumes the folder structure is the same as created by this benchmark: scenario/problem/solver
     """
+    HEADERS = ["domain","instance","planner","SAT","time","memory","timeout","memoryout","policysize"]
+    output = [f"{','.join(HEADERS)}{os.linesep}"]
     scenarios = [s for s in os.listdir(OUTPUT_ROOT) if os.path.isdir(os.path.join(OUTPUT_ROOT, s))]
     for s in scenarios:
         _d = os.path.join(OUTPUT_ROOT, s)
         problems = [p for p in os.listdir(_d) if os.path.isdir(os.path.join(_d, p))]
         for p in problems:
             _p = os.path.join(os.path.join(OUTPUT_ROOT, s, p))
-            solvers = [s for s in os.listdir(_p) if os.path.isdir(os.pardir.join(_p, s))]
+            solvers = [s for s in os.listdir(_p) if os.path.isdir(os.path.join(_p, s))]
             for sol in solvers:
                 _path = os.path.join(OUTPUT_ROOT, s, p, sol)
-                stats = get_stats(_path)
+                sat, time_solve, time_out, memory_used, memory_exceeded, policy_size = get_stats(_path)
 
+                row = f"{s},{p},{sol},{sat},{time_solve},{memory_used},{time_out},{memory_exceeded},{policy_size}{os.linesep}"
+                output.append(row)
+                
+    with open(os.path.join(OUTPUT_ROOT,"report.csv"), "w+") as f:
+        f.writelines(output)
+
+    print(f"Report generated and saved at {os.path.join(OUTPUT_ROOT, 'report.csv')}")
 
 def kill_tasks():
     for _, task in ACTIVE_TASKS.items():

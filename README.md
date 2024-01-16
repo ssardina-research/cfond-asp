@@ -70,7 +70,7 @@ $ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchma
 2024-01-12 15:05:45 nitin __main__[195707] INFO Time(s) taken:1.3016068750002887
 ```
 
-### Using backbone for minimum size estimation
+### Using backbone for minimum controller size estimation
 One can use backbone size estimation to reduce the number of iterations by using the `--use_backbone` argument. 
 
 ```
@@ -186,4 +186,4 @@ An `instances.csv` containing information about all instances in the problem fol
    ```
    $ python ./benchmarking/code/benchmark.py [options] instances.csv config.json --output <OUTPUT_DIR> --mode report
    ``` 
-   where `OUTPUT_DIR` is the location of output folder.
+   where `OUTPUT_DIR` is the location of output folder. Executing this will generate `report.csv` in the output directory.
