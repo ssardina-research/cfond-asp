@@ -1,7 +1,0 @@
-num,model,clingo
-1,controller.lp,custom
-2,controller-reg.lp,custom
-3,controllerI.lp,custom
-4,controller-regI.lp,custom
-5,controllerDual.lp,custom
-6,controllerDualI.lp,custom
