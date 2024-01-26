@@ -6,7 +6,7 @@ import logging
 import os
 import sys
 import shutil
-from checker.verify import verify
+from checker.verify import verify, build_controller
 from utils.system_utils import get_root
 from solver.asp import solve, parse, solve_with_backbone
 from timeit import default_timer as timer
@@ -18,7 +18,7 @@ logger: logging.Logger = None
 domain = None
 problem = None
 mode = None
-output_folder = None
+output_dir = None
 timeout = None
 model = None
 clingo_args_str = None
@@ -41,8 +41,8 @@ def init():
         sys.exit(1)
 
     # create output folder if it does not exist
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
 
 def get_fond_problem() -> FONDProblem:
@@ -77,7 +77,7 @@ def get_fond_problem() -> FONDProblem:
 
 
 def main():
-    global domain, problem, mode, output_folder, timeout, model, clingo_args_str, extra_kb, max_states, filter_undo, domain_kb, solution_type
+    global domain, problem, mode, output_dir, timeout, model, clingo_args_str, extra_kb, max_states, filter_undo, domain_kb, solution_type
 
     # CLI options
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
@@ -124,6 +124,9 @@ def main():
                         help="Add pre-defined domain knowledge (Default: %(default)s).",
                         choices=["triangle-tireworld", "miner", "acrobatics", "spikytireworld"],
                         default=None)
+    parser.add_argument("--dump_cntrl",
+                        help="Save controller in text and json files.",
+                        action='store_true')
     parser.add_argument("--output",
                         help="location of output folder (Default: %(default)s).",
                         type=str,
@@ -133,7 +136,7 @@ def main():
     domain = os.path.abspath(args.domain)
     problem = os.path.abspath(args.problem)
     mode = args.mode
-    output_folder = os.path.abspath(args.output)
+    output_dir = os.path.abspath(args.output)
     timeout = args.timeout
     model = args.model
     clingo_args_str = args.clingo_args.replace("'","").replace('"','')
@@ -143,9 +146,10 @@ def main():
     domain_kb = args.domain_kb
     use_backbone = args.use_backbone
     solution_type = args.solution_type
+    dump_cntrl = args.dump_cntrl
 
-    if mode == "verify" and not os.path.exists(output_folder):
-        logger.error(f"Output folder does not exist, cannot verify!: {output_folder}")
+    if mode == "verify" and not os.path.exists(output_dir):
+        logger.error(f"Output folder does not exist, cannot verify!: {output_dir}")
         exit(1)
 
     # initialise
@@ -156,19 +160,22 @@ def main():
 
     if mode == "solve":
         if use_backbone:
-            solve_with_backbone(fond_problem, output_folder, only_size=True)
+            solve_with_backbone(fond_problem, output_dir, only_size=True)
         else:
-            solve(fond_problem, output_folder)
+            solve(fond_problem, output_dir)
+        if dump_cntrl:
+            logger.info("Dumping controller...")
+            build_controller(output_dir)
     elif mode == "verify":
-            verify(output_folder)
+            verify(output_dir)
     elif mode == "determinise":
-        parse(fond_problem, output_folder)
+        parse(fond_problem, output_dir)
 
     end = timer()
     total_time = end - start
-    logger.info(f"Output folder: {output_folder}")
+    logger.info(f"Output folder: {output_dir}")
     logger.info(f"Time taken: {total_time}")
-    with open(os.path.join(output_folder, f"{mode}_time.out"), "w+") as f:
+    with open(os.path.join(output_dir, f"{mode}_time.out"), "w+") as f:
         f.write(f"Total time: {total_time}{os.linesep}")
 
 

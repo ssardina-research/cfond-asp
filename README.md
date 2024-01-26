@@ -37,6 +37,7 @@ The `main.py` script parses the input and solves the planning instance as follow
 Resulting output files will be left in the corresponding output directory (`./output` by default), including Clingo output for each iteration (wrt controller size), SAS encoding and output, ASP instance used, and stat file.
 
 For example to solve the `p03.pddl` problem from the `Acrobatics` domain:
+
 ```
 $ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchmarking/problems/acrobatics/p03.pddl
 
@@ -44,6 +45,9 @@ $ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchma
 2024-01-12 15:04:30 nitin FondASP[195427] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/p03.pddl!
 2024-01-12 15:04:30 nitin __main__[195427] INFO Time(s) taken:1.6477028469962534
 ```
+
+Use `--dump_ctrl` to dump controller found, if any, into text and JSON formats.
+
 
 ### Clingo parameters
 

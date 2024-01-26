@@ -172,7 +172,7 @@ def save_controller(controller: Controller, state_variables: dict, variables: li
         data["edges"].append({"source": str(e), "target": str(j), "label": action})
 
     with open(controller_file, "w+") as f:
-        f.write(json.dumps(data))
+        f.write(json.dumps(data, indent=4))
 
 
 def build_controller(output_dir: str):
@@ -188,6 +188,11 @@ def build_controller(output_dir: str):
     solution_file: str = os.path.join(output_dir, CONTROLLER_TXT_FILE)
     controller_file = os.path.join(output_dir, CONTROLLER_JSON_FILE)
     last_clingo_out_file = os.path.join(output_dir, _get_last_output_file(output_dir))
+
+    if _timed_out(last_clingo_out_file):
+        _logger = _get_logger()
+        _logger.warning(f"Solution timed out, cannot build controller: {last_clingo_out_file}")
+        return None, None, None
 
     # produce first part of solution controller file by parsing the answer model found in the the (last) clingo out file
     state_variables = parse_clingo_output(last_clingo_out_file, solution_file)
