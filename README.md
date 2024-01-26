@@ -30,7 +30,7 @@ Use `-h` to get all options available.
 
 The `main.py` script parses the input and solves the planning instance as follows:
 
-1. Ground the planning planning instance and generate corresponding [SAS](https://www.fast-downward.org/TranslatorOutputFormat) file.
+1. Ground the planning planning instance and generate corresponding [SAS](https://www.fast-downward.org/TranslatorOutputFormat) file (uses translator under [`src/translator-fond/`](src/translator-fond/)).
 2. Translate the SAS file to a ASP file `instance.lp`.
 3. Call Clingo with `instance.lp` and the chosen ASP planning solver model.
 
@@ -91,12 +91,12 @@ Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarking/problems/
 
 ### Verification of controller
 
-To _verify_ a strong-cyclic solution one can set the task to `verify` via option `--task`.
+To _verify_ a strong-cyclic solution one can set the mode to `verify` via option `--mode`.
 
 For example, to verify the solution for the `p03.pddl` problem from the `Acrobatics domain`:
 
 ```
-$ python src/python/main.py benchmarking/problems/beam-walk/domain.pddl benchmarking/problems/beam-walk/p03.pddl --task verify
+$ python src/python/main.py benchmarking/problems/beam-walk/domain.pddl benchmarking/problems/beam-walk/p03.pddl --mode verify
 
 2024-01-12 14:45:31 nitin FondASP[192070] INFO Solution is sound? True
 2024-01-12 14:45:31 nitin __main__[192070] INFO Time(s) taken:0.032270914001856
@@ -104,7 +104,19 @@ $ python src/python/main.py benchmarking/problems/beam-walk/domain.pddl benchmar
 
 This will first translate Clingo output to a readable controller format (see the file `solution.out` in the output directory), and then check the controller found is indeed strong-cyclic.
 
-Verification result will be left in file `verify.out`
+Verification result will be saved in file `verify.out`.
+
+### Determinisation of instance
+
+To only determinise the instance into the corresponding SAS encoding use the `determise` mode:
+
+```shell
+$ python src/python/main.py benchmarking/problems/beam-walk/domain.pddl benchmarking/problems/beam-walk/p03.pddl --mode determinise
+```
+
+This will just produce the corresponding SAS one-outcome determinised encoding of the problem instance, but it will not solve it.
+
+The determinisation and SAS encoder is done by the code under [`src/translator-fond/`](src/translator-fond/) which has been borrowed from PRP codebase.
 
 ## Benchmarking
 
