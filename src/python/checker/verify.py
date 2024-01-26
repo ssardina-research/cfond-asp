@@ -235,7 +235,7 @@ def _timed_out(output_file: str) -> bool:
         info = f.readlines()
 
     for _l in info:
-        if "timedout" in _l.lower():
+        if "timed out" in _l.lower():
             return True
 
     return False

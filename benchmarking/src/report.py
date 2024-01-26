@@ -51,7 +51,7 @@ def is_timed_out(folder: str):
         data = _h.readlines()
 
     for _l in data:
-        if "timedout" in _l.lower():
+        if "timed out" in _l.lower():
             return 1
 
     return 0
