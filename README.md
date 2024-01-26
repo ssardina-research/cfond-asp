@@ -127,7 +127,7 @@ The benchmarking system can run many problem instances using several solver conf
 The folders under benchmarking are:
 
 - `problems/`: FOND benchmarks.
-- `code/`: This folder contains scripts to runs the problems and parse the output into CSV file.
+- `src/`: This folder contains scripts to runs the problems and parse the output into CSV file.
 - `configs/`: This folder contains example JSON configuration files to benchmark different planner settings.
 
 The steps for benchmarking are:
@@ -178,7 +178,7 @@ Here, instances under four specific scenarios will be run against two solver con
 To run the benchmark use the following command:
 
 ```Shell
-$ python ./benchmarking/code/benchmark.py [options] instances_csv config_json
+$ python ./benchmarking/src/benchmark.py [options] instances_csv config_json
 ```
 
 where `instances_csv` if the CSV file containing instances to solve and `config_json` is the JSON file configuring the experiments. Use `-h` to see all options available.
@@ -190,7 +190,7 @@ It is recommended to run the benchmarking using a terminal multiplexer, like tmu
 For example:
 
 ```shell
-$ python ./benchmarking/code/benchmark.py -n 4 --output output-bench  benchmarking/problems/instances_single.csv benchmarking/configs/config.json
+$ python ./benchmarking/src/benchmark.py -n 4 --output output-bench  benchmarking/problems/instances_tiny.csv benchmarking/configs/config.json
 ```
 
 The script will display a progress screen with the current instances being run and the total number of instances left.
@@ -202,7 +202,7 @@ Once finished, a CSV file `report.csv` is also left in the output folder.
 To only re-generate the report we can use the report script directly on the output folder:
 
 ```shell
-$ python benchmarking/code/report.py output-bench
+$ python benchmarking/src/report.py output-bench
 ```
 
 The report assumes the structure produced by the benchmarking scripts in the output, namely,  `scenario/problem/solver`.

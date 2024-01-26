@@ -266,7 +266,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # store the passed arguments
-    mode = args.mode
     CSV_PATH = args.instance_csv
     OUTPUT_ROOT = args.output
     SKIP = args.skip
