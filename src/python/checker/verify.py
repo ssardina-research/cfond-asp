@@ -1,3 +1,4 @@
+import argparse
 import copy
 import json
 import logging
@@ -16,6 +17,10 @@ import networkit as nk
 
 re_file_name = r"clingo_out_(?P<idx>[\d]+).out"
 
+CONTROLLER_TXT_FILE = 'solution.out'
+CONTROLLER_JSON_FILE = 'controller.json'
+SAS_FILE = 'output.sas'
+VERIFY_OUT = 'verify.out'
 
 class SolutionSpace(object):
     def __init__(self, controller_node, domain_state, nd_actions, controller):
@@ -212,10 +217,10 @@ def _timed_out(output_file: str) -> bool:
 
 def verify(output_dir: str):
     _logger = _get_logger()
-    sas_file: str = f"{output_dir}/output.sas"
-    solution_file: str = f"{output_dir}/solution.out"
-    controller_file = f"{output_dir}/controller.json"
-    last_output_file = f"{output_dir}/{_get_last_output_file(output_dir)}"
+    sas_file: str = os.path.join(output_dir, SAS_FILE)
+    solution_file: str = os.path.join(output_dir, CONTROLLER_TXT_FILE)
+    controller_file = os.path.join(output_dir, CONTROLLER_JSON_FILE)
+    last_output_file = os.path.join(output_dir, _get_last_output_file(output_dir))
 
     if not _timed_out(last_output_file):
         state_variables = parse_clingo_output(last_output_file, solution_file)
@@ -227,10 +232,10 @@ def verify(output_dir: str):
         timed_out = True
         _logger.info(f"Solution is sound? {sound} because of time out.")
 
-    output_file = f"{output_dir}/verify.out"
+    output_file = os.path.join(output_dir, VERIFY_OUT)
     with open(output_file, "w") as f:
-        f.write(f"Solution is sound:{sound}{os.linesep}")
-        f.write(f"TimedOut: {timed_out}")
+        f.write(f"Solution is sound: {sound}{os.linesep}")
+        f.write(f"Timed Out: {timed_out}")
 
 
 def _get_logger() -> logging.Logger:
@@ -239,8 +244,27 @@ def _get_logger() -> logging.Logger:
     return logger
 
 
-if __name__ == "__main__":
-    solution_file = "./output/controller.out"
-    sas_file = "./output/output.sas"
-    is_solution = verify_solution(solution_file, sas_file)
-    print(f"Controller is a solution? {is_solution}")
+#  Does not work as a script alone as it is dependent on modules
+# if __name__ == "__main__":
+#     # CLI options
+#     parser: argparse.ArgumentParser = argparse.ArgumentParser(
+#         description="Verify a solution already produced."
+#     )
+#     parser.add_argument("output_folder",
+#         help="Path to output directory were files were saved.")
+#     parser.add_argument("--sas_file",
+#         type=str,
+#         default=SAS_FILE,
+#         help="Path to SAS output file (Default: %(default)s).")
+#     parser.add_argument("--solution_file",
+#         type=str,
+#         default=CONTROLLER_TXT_FILE,
+#         help="Path to controller solution file (Default: %(default)s).")
+
+#     args = parser.parse_args()
+
+#     solution_file = os.path.join(args.output_folder, args.solution_file)
+#     sas_file = os.path.join(args.output_folder, args.sas_file)
+
+#     is_solution = verify_solution(solution_file, sas_file)
+#     print(f"Controller is a solution? {is_solution}")

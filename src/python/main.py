@@ -18,7 +18,7 @@ logger: logging.Logger = None
 domain = None
 problem = None
 mode = None
-output = None
+output_folder = None
 timeout = None
 model = None
 clingo_args_str = None
@@ -41,8 +41,8 @@ def init():
         sys.exit(1)
 
     # create output folder if it does not exist
-    if not os.path.exists(output):
-        os.makedirs(output)
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
 
 def get_fond_problem() -> FONDProblem:
@@ -77,7 +77,7 @@ def get_fond_problem() -> FONDProblem:
 
 
 def main():
-    global domain, problem, mode, output, timeout, model, clingo_args_str, extra_kb, max_states, filter_undo, domain_kb, solution_type
+    global domain, problem, mode, output_folder, timeout, model, clingo_args_str, extra_kb, max_states, filter_undo, domain_kb, solution_type
 
     # CLI options
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
@@ -135,7 +135,7 @@ def main():
     domain = os.path.abspath(args.domain)
     problem = os.path.abspath(args.problem)
     mode = args.mode
-    output = os.path.abspath(args.output)
+    output_folder = os.path.abspath(args.output)
     timeout = args.timeout
     model = args.model
     clingo_args_str = args.clingo_args.replace("'","").replace('"','')
@@ -146,6 +146,10 @@ def main():
     use_backbone = args.use_backbone
     solution_type = args.solution_type
 
+    if mode == "verify" and not os.path.exists(output_folder):
+        logger.error(f"Output folder does not exist, cannot verify!: {output_folder}")
+        exit(1)
+
     # initialise
     init()
 
@@ -154,19 +158,19 @@ def main():
 
     if mode == "solve":
         if use_backbone:
-            solve_with_backbone(fond_problem, output, only_size=True)
+            solve_with_backbone(fond_problem, output_folder, only_size=True)
         else:
-            solve(fond_problem, output)
+            solve(fond_problem, output_folder)
     elif mode == "verify":
-        verify(output)
+            verify(output_folder)
     elif mode == "determinise":
-        parse(fond_problem, output)
+        parse(fond_problem, output_folder)
 
     end = timer()
     total_time = end - start
-    logger.info(f"Output folder: {output}")
+    logger.info(f"Output folder: {output_folder}")
     logger.info(f"Time taken: {total_time}")
-    with open(f"{output}/{mode}_time.out", "w+") as f:
+    with open(f"{output_folder}/{mode}_time.out", "w+") as f:
         f.write(f"Total time: {total_time}{os.linesep}")
 
 
