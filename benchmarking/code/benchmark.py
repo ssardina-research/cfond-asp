@@ -14,7 +14,7 @@ import csv
 import atexit
 from asyncio.queues import Queue
 from datetime import datetime
-from report import get_stats, is_solved
+from report import get_stats, is_solved, report
 from monitor import Monitor
 from task import Task, TaskStatus
 import json
@@ -232,31 +232,6 @@ async def run_experiment():
     await run_tasks(TASK_QUEUE)
 
 
-def report():
-    """
-    The report assumes the folder structure is the same as created by this benchmark: scenario/problem/solver
-    """
-    HEADERS = ["domain","instance","planner","SAT","time","memory","timeout","memoryout","policysize"]
-    output = [f"{','.join(HEADERS)}{os.linesep}"]
-    scenarios = [s for s in os.listdir(OUTPUT_ROOT) if os.path.isdir(os.path.join(OUTPUT_ROOT, s))]
-    for s in scenarios:
-        _d = os.path.join(OUTPUT_ROOT, s)
-        problems = [p for p in os.listdir(_d) if os.path.isdir(os.path.join(_d, p))]
-        for p in problems:
-            _p = os.path.join(os.path.join(OUTPUT_ROOT, s, p))
-            solvers = [s for s in os.listdir(_p) if os.path.isdir(os.path.join(_p, s))]
-            for sol in solvers:
-                _path = os.path.join(OUTPUT_ROOT, s, p, sol)
-                sat, time_solve, time_out, memory_used, memory_exceeded, policy_size = get_stats(_path)
-
-                row = f"{s},{p},{sol},{sat},{time_solve},{memory_used},{time_out},{memory_exceeded},{policy_size}{os.linesep}"
-                output.append(row)
-                
-    with open(os.path.join(OUTPUT_ROOT,"report.csv"), "w+") as f:
-        f.writelines(output)
-
-    print(f"Report generated and saved at {os.path.join(OUTPUT_ROOT, 'report.csv')}")
-
 def kill_tasks():
     for _, task in ACTIVE_TASKS.items():
         task.kill()
@@ -272,47 +247,38 @@ if __name__ == "__main__":
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
         description="Benchmarking script to run FOND instances using CFONDASP planner."
     )
-    parser.add_argument("csv",
+    parser.add_argument("instance_csv",
                         help="Path to csv file containing information about instances.")
-    parser.add_argument("config",
+    parser.add_argument("config_json",
                         help="Path to config file containing information about solvers.")
     parser.add_argument("--output",
                         default=os.path.join(".", "output"),
-                        help="Path to root output directory where all solving information will be stored.")
-    parser.add_argument("--mode",
-                        default="run",
-                        help="Functionality of the system to execute %(default)s.",
-                        choices=["run", "report"])
+                        help="Path to root output directory where all solving information will be stored (Default: %(default)s).")
     parser.add_argument('-n', '--num',
                         dest="batch_size",
                         type=int,
                         default=2,
-                        help='Number of instances to solve in parallel %(default)s')
+                        help='Number of instances to solve in parallel (Default: %(default)s).')
     parser.add_argument('--skip',
-                        default=False,
                         action='store_true',
                         help='If solved instances should be skipped')
 
     args = parser.parse_args()
 
     # store the passed arguments
-    what_to_do = args.mode
-    CSV_PATH = args.csv
+    mode = args.mode
+    CSV_PATH = args.instance_csv
     OUTPUT_ROOT = args.output
     SKIP = args.skip
     BATCH_SIZE = args.batch_size
-    CONFIG_FILE = args.config
+    CONFIG_FILE = args.config_json
 
     # parse the config before doing anything
     parse_config()
 
-    match what_to_do:
-        case "run":
-            try:
-                asyncio.run(run_experiment())
-            except KeyboardInterrupt:
-                print("User cancelled.")
-                kill_tasks()
-        case "report":
-            report()
-            pass
+    try:
+        asyncio.run(run_experiment())
+        report(OUTPUT_ROOT)
+    except KeyboardInterrupt:
+        print("User cancelled.")
+        kill_tasks()
