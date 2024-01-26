@@ -170,7 +170,7 @@ def main():
     total_time = end - start
     logger.info(f"Output folder: {output_folder}")
     logger.info(f"Time taken: {total_time}")
-    with open(f"{output_folder}/{mode}_time.out", "w+") as f:
+    with open(os.path.join(output_folder, f"{mode}_time.out"), "w+") as f:
         f.write(f"Total time: {total_time}{os.linesep}")
 
 
