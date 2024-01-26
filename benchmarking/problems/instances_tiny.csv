@@ -1,4 +1,4 @@
-scenario,domain,instance,output
+scenario,domain,problem,output
 miner,./benchmarking/problems/miner/domain.pddl,./benchmarking/problems/miner/p01.pddl,miner/p01
 miner,./benchmarking/problems/miner/domain.pddl,./benchmarking/problems/miner/p02.pddl,miner/p02
 miner,./benchmarking/problems/miner/domain.pddl,./benchmarking/problems/miner/p03.pddl,miner/p03

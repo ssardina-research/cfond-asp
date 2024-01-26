@@ -3,7 +3,7 @@ import re
 
 re_1 = r"p(?P<num>[\d]+).pddl"
 
-HEADERS = f"scenario,domain,instance,output{os.linesep}"
+HEADERS = f"scenario,domain,problem,output{os.linesep}"
 INSTANCES = [HEADERS]
 
 # PROBLEMS_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, "problems"))

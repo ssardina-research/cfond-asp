@@ -1,4 +1,4 @@
-scenario,domain,instance,output
+scenario,domain,problem,output
 triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p01.pddl,triangle-tireworld/p01
 triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p02.pddl,triangle-tireworld/p02
 triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/blocksworld-new,./benchmarking/problems/blocksworld-new/domain.pddl,./benchmarking/problems/blocksworld-new/p1.pddl,blocksworld-new/p1
