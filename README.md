@@ -121,13 +121,26 @@ The folders under benchmarking are:
 The steps for benchmarking are:
 
 1. Design experiment configuration and instance files.
-2. Executing the benchmarks.
+2. Run the benchmarking experiment.
 
 We now describe each of these steps in more detail.
 
-### 1. Configuration & files
+### 1. Configuration & instance files
 
-The config file specifies benchmark parameters such as the time (in seconds) and memory (in MB) limits, the planning domains to test on, and the configurations of the planner. A sample config file is shown below.
+First, define all the **instances available** in a CSV file. File `benchmarking/problems/instances.csv` contains _all_ problems available under `./benchmarking/problems`:
+
+```csv
+scenario,domain,instance,output
+triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p01.pddl,triangle-tireworld/p01
+triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p02.pddl,triangle-tireworld/p02
+triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p03.pddl,triangle-tireworld/p03
+...
+...
+...
+```
+
+
+Secondly, define the **experimental configuration** in a JSON file. This file will contain resource limits, scenarios to use, and solvers to run (with their specific configurations). Memory is in MB and time is in seconds. A sample config file is as follows:
 
 ```JSON
 {
@@ -146,9 +159,9 @@ The config file specifies benchmark parameters such as the time (in seconds) and
 }
 ```
 
-Under this configuration, instances under four scenarios will be run against two solver configurations named `asp1` and `asp2`. Limits on time and memory usage can also be specified.
+Here, instances under four specific scenarios will be run against two solver configurations named `asp1` and `asp2`. Limits on time and memory usage can also be specified.
 
-### 2. Executing Benchmarks
+### 2. Run benchmarking experiment
 
 To run the benchmark use the following command:
 
@@ -158,19 +171,9 @@ $ python ./benchmarking/code/benchmark.py [options] instances_csv config_json
 
 where `instances_csv` if the CSV file containing instances to solve and `config_json` is the JSON file configuring the experiments. Use `-h` to see all options available.
 
-File `benchmarking/problems/instances.csv` contains _all_ problems available under `./benchmarking/problems` can be found:
+To solve _many_ instances at the same time, use the batch option `-n` (default is 2). Please note that the batch size option should be carefully set based on the number of threads configured for the planners (as each thread will take already one CPU core by itself).
 
-```csv
-scenario,domain,instance,output
-triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p01.pddl,triangle-tireworld/p01
-triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p02.pddl,triangle-tireworld/p02
-triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p03.pddl,triangle-tireworld/p03
-...
-```
-
-Note the path to each domain and problem file is relative to the root of the project. The output column specifies the folder where results for the particular output should be saved.
-
-To solve _many_ instances at the same time, use the batch option `-n`. The default is to run two at the same time. Please note that the batch size option should be carefully set based on the number of threads configured for the planners (as each thread will take already one CPU core by itself).
+It is recommended to run the benchmarking using a terminal multiplexer, like tmux.
 
 For example:
 
@@ -180,31 +183,15 @@ $ python ./benchmarking/code/benchmark.py -n 4 --output output-bench  benchmarki
 
 The script will display a progress screen with the current instances being run and the total number of instances left.
 
-It is recommended to run the benchmarking using a terminal multiplexer, like tmux.
+It will also save the output of each run using folder structure `scenario/problem/solver`.
 
+Once finished, a CSV file `report.csv` is also left in the output folder.
 
-### 3. **Generating CSVs from output.**
+To only re-generate the report we can use the report script directly on the output folder:
 
-Finally, to export benchmarking results run the script under `report` mode:
-
+```shell
+$ python benchmarking/code/report.py output-bench
 ```
-$ python ./benchmarking/code/benchmark.py [options] instances.csv config.json --output <OUTPUT_DIR> --mode report
-```
 
-where `OUTPUT_DIR` is the location of output folder. Executing this will generate `report.csv` in the output directory.
+The report assumes the structure produced by the benchmarking scripts in the output, namely,  `scenario/problem/solver`.
 
-```csv
-domain,instance,planner,SAT,time,memory,timeout,memoryout,policysize
-miner,p01,asp4,True,3.8785169249749742,294.44921875,0,0,18
-miner,p01,asp1,True,4.386864872998558,284.40234375,0,0,18
-miner,p02,asp4,True,3.09084887400968,247.86328125,0,0,15
-miner,p02,asp1,True,3.511407638026867,263.8125,0,0,15
-miner,p03,asp4,True,3.870103912020568,289.55859375,0,0,14
-miner,p03,asp1,True,4.439991983002983,291.48828125,0,0,14
-doors,p01,asp4,True,0.07492873800219968,165.1015625,0,0,5
-doors,p01,asp1,True,0.08289377903565764,80.80859375,0,0,5
-doors,p02,asp4,True,0.1647808289853856,128.55078125,0,0,7
-doors,p02,asp1,True,0.1554079789784737,179.66015625,0,0,7
-doors,p03,asp4,True,0.30981518898624927,180.0,0,0,9
-doors,p03,asp1,True,0.32008328498341143,138.09765625,0,0,9
-```
