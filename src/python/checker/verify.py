@@ -17,7 +17,7 @@ import networkit as nk
 
 re_file_name = r"clingo_out_(?P<idx>[\d]+).out"
 
-CONTROLLER_TXT_FILE = 'solution.out'
+CONTROLLER_TXT_FILE = 'controller.out'
 CONTROLLER_JSON_FILE = 'controller.json'
 SAS_FILE = 'output.sas'
 VERIFY_OUT = 'verify.out'
@@ -131,7 +131,13 @@ def execute_controller(controller: Controller, planning_state: State, nd_actions
     return solution_space
 
 
-def add_variable_info(variables: list[Variable], sol_file):
+def add_variable_info(variables: list[Variable], solution_file: str):
+    """add variable info to the output file
+
+    Args:
+        variables (list[Variable]): variables to add
+        sol_file (_type_): solution file
+    """
     info = [f"DomainVariables:{os.linesep}"]
     for var in variables:
         name = var.name
@@ -139,7 +145,7 @@ def add_variable_info(variables: list[Variable], sol_file):
         values = [d.replace("Atom", "").replace("Negated", "-").strip() for d in domain]
         info.append(f"{name}: {values}{os.linesep}")
 
-    with open(sol_file, "a+") as f:
+    with open(solution_file, "a+") as f:
         f.writelines(info)
 
 
@@ -169,25 +175,40 @@ def save_controller(controller: Controller, state_variables: dict, variables: li
         f.write(json.dumps(data))
 
 
-def verify_solution(sol_file: str, sas_file: str, state_variables: dict, controller_file: str):
+def build_controller(output_dir: str):
+    """Reads an ASP model and SAS file and produces controller solution files in txt and json format.
+
+    Args:
+        output_dir (str): output of a solver run
+
+    Returns:
+        tuple: controller, initial state, and ND actions
+    """
+    sas_file: str = os.path.join(output_dir, SAS_FILE)
+    solution_file: str = os.path.join(output_dir, CONTROLLER_TXT_FILE)
+    controller_file = os.path.join(output_dir, CONTROLLER_JSON_FILE)
+    last_clingo_out_file = os.path.join(output_dir, _get_last_output_file(output_dir))
+
+    # produce first part of solution controller file by parsing the answer model found in the the (last) clingo out file
+    state_variables = parse_clingo_output(last_clingo_out_file, solution_file)
+
+    # extract data from SAS file
     initial_state, goal_state, actions, variables, mutexs = parse_sas(sas_file)
     det_actions, nd_actions = organize_actions(actions)
 
-    # add variable info to the output file
-    add_variable_info(variables, sol_file)
+    # add variable info to the solution controller file
+    add_variable_info(variables, solution_file)
 
     sample_state: State = copy.copy(initial_state)
     for i in range(len(sample_state.values)):
         sample_state.values[i] = -1
 
-    controller: Controller = Controller(sol_file, sample_state)
-    goal_node, _ = controller.goal_state()
-    solution_space = execute_controller(controller, initial_state, nd_actions)
+    controller: Controller = Controller(solution_file, sample_state)
 
-    # save the graph
+    # save the graph into a controller JSON file
     save_controller(controller, state_variables, variables, controller_file)
 
-    return solution_space.is_strong_cyclic(goal_node)
+    return controller, initial_state, nd_actions
 
 
 def _get_last_output_file(output_dir) -> str:
@@ -214,17 +235,19 @@ def _timed_out(output_file: str) -> bool:
 
     return False
 
-
 def verify(output_dir: str):
     _logger = _get_logger()
-    sas_file: str = os.path.join(output_dir, SAS_FILE)
-    solution_file: str = os.path.join(output_dir, CONTROLLER_TXT_FILE)
-    controller_file = os.path.join(output_dir, CONTROLLER_JSON_FILE)
-    last_output_file = os.path.join(output_dir, _get_last_output_file(output_dir))
 
-    if not _timed_out(last_output_file):
-        state_variables = parse_clingo_output(last_output_file, solution_file)
-        sound = verify_solution(solution_file, sas_file, state_variables, controller_file)
+    last_clingo_out_file = os.path.join(output_dir, _get_last_output_file(output_dir))
+    if not _timed_out(last_clingo_out_file):
+
+        # build controller from ASP model and SAS file (write controller to txt and json files)
+        controller, initial_state, nd_actions = build_controller(output_dir)
+        goal_node, _ = controller.goal_state()
+
+        solution_space = execute_controller(controller, initial_state, nd_actions)
+        sound = solution_space.is_strong_cyclic(goal_node)
+
         timed_out = False
         _logger.info(f"Solution is sound? {sound}")
     else:

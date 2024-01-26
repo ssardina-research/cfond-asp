@@ -102,7 +102,7 @@ $ python src/python/main.py benchmarking/problems/beam-walk/domain.pddl benchmar
 2024-01-12 14:45:31 nitin __main__[192070] INFO Time(s) taken:0.032270914001856
 ```
 
-This will first translate Clingo output to a readable controller format (see the file `solution.out` in the output directory), and then check the controller found is indeed strong-cyclic.
+This will first translate Clingo output to a readable controller format (see the file `controller.out` in the output directory), and then check the controller found is indeed strong-cyclic.
 
 Verification result will be saved in file `verify.out`.
 

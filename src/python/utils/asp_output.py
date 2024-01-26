@@ -23,6 +23,7 @@ def parse_undo_actions(clingo_output_file: str):
 
 
 def parse_clingo_output(log_file: str, out_file: str):
+    """Parse a Clingo output answer model and produce corresponding controller solution file"""
     if os.path.exists(out_file):
         os.remove(out_file)
     atoms_dict = get_atoms(log_file)
