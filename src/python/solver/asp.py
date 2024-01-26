@@ -35,15 +35,15 @@ def solve_with_backbone(fond_problem: FONDProblem, output_dir: str, only_size=Fa
     initial_state, goal_state, det_actions, nd_actions, variables, mutexs = parse(fond_problem, output_dir)
 
     # generate ASP instance
-    file: str = f"{output_dir}/instance.lp"
-    file_weak_plan: str = f"{output_dir}/instance_inc.lp"
+    file: str = os.path.join(output_dir, "instance.lp")
+    file_weak_plan: str = os.path.join(output_dir, "instance_inc.lp")
     generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions)
     generate_asp_instance_inc(file_weak_plan, initial_state, goal_state, variables, mutexs, nd_actions)
    
     classical_planner = fond_problem.classical_planner
     clingo_inputs = [classical_planner, file_weak_plan]
     args = ["--stats"]
-    out_file = f"{output_dir}/weak_plan.out"
+    out_file = os.path.join(output_dir, "weak_plan.out")
     if fond_problem.seq_kb:
         clingo_inputs.append(fond_problem.seq_kb)
     execute_asp(fond_problem.clingo, args, clingo_inputs, output_dir, out_file)
@@ -55,14 +55,14 @@ def solve_with_backbone(fond_problem: FONDProblem, output_dir: str, only_size=Fa
     if min_controller_size == 0:
         # problem is unsatisfiable
         _logger.info(f"Problem does not have a solution, since backbone could not be found!")
-        with open (f"{output_dir}/unsat.out", "w+") as f:
+        with open (os.path.join(output_dir, "unsat.out"), "w+") as f:
             f.write("Unsat")
         return
     
     _logger.info(f"Backbone is of size {min_controller_size}.")
 
     if not only_size:
-        constraint_file = f"{output_dir}/backbone.lp"
+        constraint_file = os.path.join(output_dir, "backbone.lp")
         create_backbone_constraint(backbone, constraint_file)
         fond_problem.controller_constraints["backbone"] = constraint_file
 
@@ -76,7 +76,7 @@ def solve(fond_problem: FONDProblem, output_dir: str):
     # determinise, translate to SAS and parse the SAS file
     initial_state, goal_state, det_actions, nd_actions, variables, mutexs = parse(fond_problem, output_dir)
 
-    file: str = f"{output_dir}/instance.lp"
+    file: str = os.path.join(output_dir, "instance.lp")
     generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False)
     preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd_actions, variables, file)
 
@@ -163,7 +163,7 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
                 num_states += direction
         except asyncio.CancelledError:
             _logger.info(f"Timed Out with numStates={num_states}.")
-            out_file = f"{output_dir}/{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
+            out_file = os.path.join(output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out")
             with open(out_file, "w") as f:
                 f.write(f"TimedOut.")
 
@@ -217,7 +217,7 @@ async def _run_clingo_async(fond_problem: FONDProblem, instance, num_states, out
     """
     _logger: logging.Logger = _get_logger()
     _logger.info(f" -Solving with numStates={num_states}.")
-    out_file = f"{output_dir}/{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
+    out_file = os.path.join(output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out")
     args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
 
     controller = fond_problem.controller_model
@@ -248,7 +248,7 @@ def _run_clingo(fond_problem: FONDProblem, instance, num_states, output_dir):
     """
     _logger: logging.Logger = _get_logger()
     _logger.info(f" -Solving with numStates={num_states}.")
-    out_file = f"{output_dir}/{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
+    out_file = os.path.join(output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out")
     args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
 
     controller = fond_problem.controller_model
@@ -316,8 +316,8 @@ def parse(fond_problem: FONDProblem, output_dir: str) -> (State, State, dict[str
     :param temp_dir: Path to the temporary directory
     :return: Parsed PDDL domain, PDDL problem, SAS initial state, SAS goal state, dictionary of deterministic actions, dictionary of non-deterministic actions
     """
-    sas_stats_file = f"{output_dir}/sas_stats.txt"
-    sas_file = f"{output_dir}/output.sas"
+    sas_stats_file = os.path.join(output_dir, "sas_stats.txt")
+    sas_file = os.path.join(output_dir, "output.sas")
 
     # determinise!
     determinise(fond_problem, output_dir, sas_stats_file)
@@ -330,8 +330,8 @@ def parse(fond_problem: FONDProblem, output_dir: str) -> (State, State, dict[str
 
 def compile_undo_actions(fond_problem: FONDProblem, output_dir: str):
     undo_controller = fond_problem.controller_constraints["undo"]
-    instance_file = f"{output_dir}/instance.lp"
-    output_file = f"{output_dir}/undo_actions.out"
+    instance_file = os.path.join(output_dir, "instance.lp")
+    output_file = os.path.join(output_dir, "undo_actions.out")
     executable_list = [fond_problem.clingo, instance_file, undo_controller, "--stats"]
 
     process = subprocess.Popen(executable_list, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
@@ -342,7 +342,7 @@ def compile_undo_actions(fond_problem: FONDProblem, output_dir: str):
         f.write(stdout.decode())
 
     # create grounded file
-    grounded_undo_file = f"{output_dir}/undo_actions.lp"
+    grounded_undo_file = os.path.join(output_dir, "undo_actions.lp")
     write_undo_actions(output_file, grounded_undo_file, process_action_type=fond_problem.filter_undo)
 
     # replace the undo constraint with the precompiled one
