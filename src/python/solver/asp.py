@@ -137,6 +137,7 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
        """
     _logger: logging.Logger = _get_logger()
     stop = False
+    # if fond_problem.time_limit == None, no timeout is enforced
     async with timeout(fond_problem.time_limit):
         try:
             # check if a solution exists with the given minimum states

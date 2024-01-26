@@ -115,13 +115,11 @@ def main():
                         type=str,
                         default=None)
     parser.add_argument("--filter_undo",
-                        help="Filter undo actions from policy consideration (Default: %(default)s).",
-                        type=bool,
-                        default=False)
+                        help="Filter undo actions from policy consideration.",
+                        action='store_true')
     parser.add_argument("--use_backbone",
                         help="Use backbone size for minimum controller size estimation.",
-                        type=bool,
-                        default=False)
+                        action='store_true')
     parser.add_argument("--domain_kb",
                         help="Add pre-defined domain knowledge (Default: %(default)s).",
                         choices=["triangle-tireworld", "miner", "acrobatics", "spikytireworld"],
