@@ -1,0 +1,7 @@
+scenario,domain,instance,output
+miner,./benchmarking/problems/miner/domain.pddl,./benchmarking/problems/miner/p01.pddl,miner/p01
+miner,./benchmarking/problems/miner/domain.pddl,./benchmarking/problems/miner/p02.pddl,miner/p02
+miner,./benchmarking/problems/miner/domain.pddl,./benchmarking/problems/miner/p03.pddl,miner/p03
+doors,./benchmarking/problems/doors/domain.pddl,./benchmarking/problems/doors/p01.pddl,doors/p01
+doors,./benchmarking/problems/doors/domain.pddl,./benchmarking/problems/doors/p02.pddl,doors/p02
+doors,./benchmarking/problems/doors/domain.pddl,./benchmarking/problems/doors/p03.pddl,doors/p03
