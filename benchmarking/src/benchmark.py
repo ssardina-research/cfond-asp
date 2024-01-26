@@ -14,11 +14,13 @@ import csv
 import atexit
 from asyncio.queues import Queue
 from datetime import datetime
-from report import get_stats, is_solved, report
 from monitor import Monitor
 from task import Task, TaskStatus
 import json
 from datetime import datetime
+
+import domain_spec
+from report import report
 
 PLANNER = "./src/python/main.py"
 RESULTS_FILE = "results.csv"
@@ -88,7 +90,7 @@ async def prepare_tasks(queue: Queue):
 
             for solver_id, solver_info in SOLVERS.items():
                 _output_path = os.path.join(OUTPUT_ROOT, _output, solver_id)
-                _is_solved = is_solved(os.path.abspath(_output_path))
+                _is_solved = domain_spec.is_solved(os.path.abspath(_output_path))
                 _should_run = (not SKIP or not _is_solved) and _scenario in SCENARIOS
 
                 # 5. add task to queue (if it should run)
@@ -144,7 +146,7 @@ async def consume_task(queue: Queue, name: str):
         ## get the next id and the assocated command to run
         task:Task = await queue.get()
         task.queue = name
-        
+
         # 2. run the task by creating a subprocess
         try:
             # print(task.cmd)
