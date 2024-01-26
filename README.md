@@ -47,10 +47,10 @@ $ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchma
 
 ### Clingo parameters
 
-To pass specific argument to Clingo use `--clingo_args` as a quoted string. For example, to tell Clingo to use 4 threads:
+To pass specific argument to Clingo use `--clingo_args` as a quoted string. For example, to tell Clingo to use 4 threads and tell Clingo this is a single-shot task:
 
 ```shell
-$ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchmarking/problems/acrobatics/p03.pddl  --clingo_args '-t 4'
+$ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchmarking/problems/acrobatics/p03.pddl  --clingo_args '-t 4 --single-shot'
 
 ...
 2024-01-12 15:05:45 nitin FondASP[195707] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/p03.pddl!

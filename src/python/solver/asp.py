@@ -39,7 +39,7 @@ def solve_with_backbone(fond_problem: FONDProblem, output_dir: str, only_size=Fa
     file_weak_plan: str = os.path.join(output_dir, "instance_inc.lp")
     generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions)
     generate_asp_instance_inc(file_weak_plan, initial_state, goal_state, variables, mutexs, nd_actions)
-   
+
     classical_planner = fond_problem.classical_planner
     clingo_inputs = [classical_planner, file_weak_plan]
     args = ["--stats"]
@@ -51,14 +51,14 @@ def solve_with_backbone(fond_problem: FONDProblem, output_dir: str, only_size=Fa
     # get the backbone
     backbone: List[tuple[str, str]] = get_backbone_asp(out_file)
     min_controller_size = len(backbone)
-  
+
     if min_controller_size == 0:
         # problem is unsatisfiable
         _logger.info(f"Problem does not have a solution, since backbone could not be found!")
         with open (os.path.join(output_dir, "unsat.out"), "w+") as f:
             f.write("Unsat")
         return
-    
+
     _logger.info(f"Backbone is of size {min_controller_size}.")
 
     if not only_size:
@@ -104,9 +104,9 @@ def set_model(nd_actions, fond_problem: FONDProblem):
             suffix = "-gen"
 
         controller = f"controller-{name}{suffix}.lp"
-        
+
     fond_problem.controller_model = os.path.join(fond_problem.root, "asp", controller)
-        
+
 
 def preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd_actions, variables, file, min_controller_size=1):
     set_model(nd_actions, fond_problem)
@@ -165,7 +165,7 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
             _logger.info(f"Timed Out with numStates={num_states}.")
             out_file = os.path.join(output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out")
             with open(out_file, "w") as f:
-                f.write(f"TimedOut.")
+                f.write(f"Timed out.")
 
 
 def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str, min_states: int = 1):

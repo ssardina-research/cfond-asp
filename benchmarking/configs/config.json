@@ -5,10 +5,10 @@
  "scenarios": ["miner", "doors", "islands", "spiky-tireworld"],
  "solvers": {
     "asp1": {
-        "args": "--clingo_args '-t 1'"
+        "args": "--clingo_args '-t 1 --single-shot'"
     },
     "asp4": {
-        "args": "--clingo_args '-t 4'"
+        "args": "--clingo_args '-t 4 --single-shot'"
     }
  }
 }
