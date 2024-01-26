@@ -17,7 +17,7 @@ logger: logging.Logger = None
 # instance values
 domain = None
 problem = None
-what_to_do = None
+mode = None
 output = None
 timeout = None
 model = None
@@ -65,19 +65,19 @@ def get_fond_problem() -> FONDProblem:
     fond_problem = FONDProblem(domain=domain, problem=problem, solution_type=solution_type, root=root, sas_translator=translator, translator_args=translator_args, controller_model=model, clingo=clingo, clingo_args=clingo_args, max_states=max_states, time_limit=timeout, filter_undo=filter_undo, extra_kb=extra_kb, classical_planner=classical_planner, domain_knowledge=domain_kb)
 
     fond_problem.controller_constraints = {}
-    
+
     if extra_kb:
         fond_problem.controller_constraints["extra"] = os.path.abspath(extra_kb)
 
     if filter_undo:
         undo_constraint =os.path.join(root, "asp", "control", "undo.lp")
         fond_problem.controller_constraints["undo"] = undo_constraint
-    
+
     return fond_problem
 
 
 def main():
-    global domain, problem, what_to_do, output, timeout, model, clingo_args_str, extra_kb, max_states, filter_undo, domain_kb, solution_type
+    global domain, problem, mode, output, timeout, model, clingo_args_str, extra_kb, max_states, filter_undo, domain_kb, solution_type
 
     # CLI options
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
@@ -88,53 +88,53 @@ def main():
     parser.add_argument("problem",
                         help="Problem PDDL file")
     parser.add_argument("--max_states",
-                        help="Maximum number of controller states", 
+                        help="Maximum number of controller states (Default: %(default)s).",
                         type=int,
                         default=100)
-    parser.add_argument("--what_to_do",
-                        help="Functionality of the system to execute. Currently, verification only works for strong cyclic plans.",
+    parser.add_argument("--mode",
+                        help="Functionality of the system to execute. Currently, verification only works for strong-cyclic plans (Default: %(default)s).",
                         choices=["solve", "verify", "determinise"],
                         default="solve")
     parser.add_argument("--solution_type",
-                        help="Should the planner look for strong or strong cyclic solutions",
+                        help="Select type of plan solutions the planner should look for (Default: %(default)s).",
                         choices=["strong", "strong-cyclic"],
                         default="strong-cyclic")
     parser.add_argument("--timeout",
-                        help="timeout for solving the problem (in seconds).", 
+                        help="Timeout for solving the problem (in seconds).",
                         type=int)
     parser.add_argument("--model",
-                        help="ASP model to use for FOND (only relevant for strong cyclic solutions)",
+                        help="ASP model to use for FOND (only relevant for strong-cyclic solutions) (Default: %(default)s)",
                         choices=["fondsat", "regression"],
                         default="fondsat")
     parser.add_argument("--clingo_args",
-                        help="Arguments to Clingo",
+                        help="Arguments to pass to Clingo.",
                         type=str,
                         default="")
     parser.add_argument("--extra_constraints",
-                        help="Addtional asp constraints (as input file to clingo)",
+                        help="Additional asp constraints (as input file to Clingo)",
                         type=str,
                         default=None)
     parser.add_argument("--filter_undo",
-                        help="Filter undo actions from policy consideration.",
+                        help="Filter undo actions from policy consideration (Default: %(default)s).",
                         type=bool,
                         default=False)
-    parser.add_argument("--use_backbone", 
-                        help="Use backbone size for minimum controller size estimation",
+    parser.add_argument("--use_backbone",
+                        help="Use backbone size for minimum controller size estimation.",
                         type=bool,
                         default=False)
     parser.add_argument("--domain_kb",
-                        help="Add pre-defined domain knowledge.",
+                        help="Add pre-defined domain knowledge (Default: %(default)s).",
                         choices=["triangle-tireworld", "miner", "acrobatics", "spikytireworld"],
                         default=None)
     parser.add_argument("--output",
-                        help="location of output folder.",
+                        help="location of output folder (Default: %(default)s).",
                         type=str,
                         default="./output")
-    
+
     args = parser.parse_args()
     domain = os.path.abspath(args.domain)
     problem = os.path.abspath(args.problem)
-    what_to_do = args.what_to_do
+    mode = args.mode
     output = os.path.abspath(args.output)
     timeout = args.timeout
     model = args.model
@@ -152,21 +152,22 @@ def main():
     start = timer()
     fond_problem = get_fond_problem()
 
-    if what_to_do == "solve":
+    if mode == "solve":
         if use_backbone:
             solve_with_backbone(fond_problem, output, only_size=True)
         else:
             solve(fond_problem, output)
-    elif what_to_do == "verify":
+    elif mode == "verify":
         verify(output)
-    elif what_to_do == "determinise":
+    elif mode == "determinise":
         parse(fond_problem, output)
 
     end = timer()
     total_time = end - start
-    logger.info(f"Time(s) taken:{total_time}")
-    with open(f"{output}/{what_to_do}_time.out", "w+") as f:
-        f.write(f"Totaltime(s):{total_time}{os.linesep}")
+    logger.info(f"Output folder: {output}")
+    logger.info(f"Time taken: {total_time}")
+    with open(f"{output}/{mode}_time.out", "w+") as f:
+        f.write(f"Total time: {total_time}{os.linesep}")
 
 
 if __name__ == "__main__":
