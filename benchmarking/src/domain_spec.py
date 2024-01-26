@@ -4,9 +4,11 @@ import os
 import coloredlogs
 import re
 
+PLANNER = "./src/python/main.py"
 
 REPORT_FILE = "report.csv"
 NA = "-1"
+
 
 
 
@@ -27,6 +29,31 @@ def _get_file_id(f: str) -> int:
 ###############################################
 # PUBLIC API
 ###############################################
+
+def get_exec_cmd(instance, solver_args, output_path, time_limit, mem_limit):
+    domain = instance["domain"]
+    problem = instance["problem"]
+
+    if time_limit > 0:
+        solver_args = f"--timeout {time_limit} {solver_args}"
+
+    cmd = f"python {PLANNER} {domain} {problem} {solver_args} --output {output_path}"
+
+    return cmd
+
+def get_outdir_instance(instance):
+    return instance["output"]
+
+def get_scenario_instance(instance):
+    return instance["scenario"]
+
+def get_id_instance(instance):
+    problem = get_scenario_instance(instance)
+    problem_id = problem.split(os.sep)[-1][0:-5]
+
+    return problem_id
+
+
 
 def get_last_output_file(output_dir) -> str:
     files = os.listdir(output_dir)
