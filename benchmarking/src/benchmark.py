@@ -14,14 +14,14 @@ import csv
 import atexit
 from asyncio.queues import Queue
 from datetime import datetime
-from report import get_stats, is_solved, report
 from monitor import Monitor
 from task import Task, TaskStatus
 import json
 from datetime import datetime
 
-PLANNER = "./src/python/main.py"
-RESULTS_FILE = "results.csv"
+import domain_spec
+from report import report
+
 SKIP: bool = False
 CSV_PATH: str = None
 BATCH_SIZE: int = 0
@@ -61,7 +61,8 @@ async def prepare_tasks(queue: Queue):
     """
     global monitor, total_count
 
-    # 1. set the time and memory limits
+    # 1. set the time and memory limits to the Task class (static data, applies to all objects)
+    #   the limits apply to all instances and solvers across the board, global to experiment
     Task.time_limit = TIME_LIMIT
     Task.memory_limit = MEMORY_LIMIT
 
@@ -80,28 +81,23 @@ async def prepare_tasks(queue: Queue):
     with open(CSV_PATH) as instances:
         _counter = 1
         for instance in csv.DictReader(instances):
-            _scenario = instance["scenario"]
-            _domain = instance["domain"]
-            _problem = instance["instance"]
-            _problem_id = _problem.split(os.sep)[-1][0:-5]
-            _output = instance["output"]
+            inst_scenario = domain_spec.get_scenario_instance(instance)
+            inst_id = domain_spec.get_id_instance(instance)
 
+            # next, for the particular instance we iterate on each solver to be run
             for solver_id, solver_info in SOLVERS.items():
-                _output_path = os.path.join(OUTPUT_ROOT, _output, solver_id)
-                _is_solved = is_solved(os.path.abspath(_output_path))
-                _should_run = (not SKIP or not _is_solved) and _scenario in SCENARIOS
+                # the full path to the output directory for the instance + solver run
+                # format from root output: scenario/problem/solver/
+                output_path = os.path.join(OUTPUT_ROOT, inst_scenario, inst_id, solver_id)
+
+                _is_solved = domain_spec.is_solved(os.path.abspath(output_path))
+                _should_run = (not SKIP or not _is_solved) and  inst_scenario in SCENARIOS
 
                 # 5. add task to queue (if it should run)
                 if _should_run:
-                    solver_args = solver_info["args"]
-
-                    for f in [_domain, _problem]:
-                        if not os.path.exists(f):
-                            print(f"File {f} does not exist. Aborting..")
-                            exit(1)
-
-                    cmd = f"python {PLANNER} {_domain} {_problem} {solver_args} --output {_output_path}"
-                    task = Task(_counter, _scenario, _problem_id, cmd, solver_id, _output_path)
+                    # get the actual execution command for the run
+                    cmd = domain_spec.get_exec_cmd(instance, solver_info["args"], output_path, TIME_LIMIT, MEMORY_LIMIT)
+                    task = Task(_counter, inst_scenario, inst_id, cmd, solver_id, output_path)
                     await queue.put(task)
                     _counter += 1
 
@@ -144,7 +140,7 @@ async def consume_task(queue: Queue, name: str):
         ## get the next id and the assocated command to run
         task:Task = await queue.get()
         task.queue = name
-        
+
         # 2. run the task by creating a subprocess
         try:
             # print(task.cmd)
@@ -213,8 +209,7 @@ def parse_config():
         # solvers information
         solvers_to_run = config["run"]
         for _id in solvers_to_run:
-            _args = f"--timeout {TIME_LIMIT} {config['solvers'][_id]['args']}"
-            SOLVERS[_id] = {"args": _args}
+            SOLVERS[_id] = {"args": config['solvers'][_id]['args']}
 
         # scenarios
         SCENARIOS = config["scenarios"][:]
