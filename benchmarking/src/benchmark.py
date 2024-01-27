@@ -20,7 +20,6 @@ import json
 from datetime import datetime
 
 import domain_spec
-from domain_spec import PLANNER
 from report import report
 
 SKIP: bool = False

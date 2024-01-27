@@ -1,22 +1,16 @@
 # A Declarative Approach to Compact Controllers for FOND Planning via Answer Set Programming
 
-A FOND planner based on Answer Set Programming, inspired by a synthesis between [FOND-SAT](https://github.com/tomsons22/FOND-SAT) and [PRP](https://github.com/QuMuLab/planner-for-relevant-policies) planners. 
+A FOND planner based on Answer Set Programming, inspired by a synthesis between [FOND-SAT](https://github.com/tomsons22/FOND-SAT) and [PRP](https://github.com/QuMuLab/planner-for-relevant-policies) planners.
 
 The planner and its underlying technique were reported in the following paper:
 
 * Nitin Yadav, Sebastian Sardiña: [A Declarative Approach to Compact Controllers for FOND Planning via Answer Set Programming](https://doi.org/10.3233/FAIA230593). ECAI 2023: 2818-2825
 
-
 ## Requirements
 
-- Python 3.11 with dependencies as per `requirements.txt`. 
+- Python 3.11 with dependencies as per `requirements.txt`.
   - The listed Python packages may have other dependencies (e.g., `libxml2` and `libxslt` development packages).
 - [Clingo](https://potassco.org/clingo/) ASP solver.
-
-## File structure
-
-- [`benchmarking/`](benchmarking/) contains scripts and FOND domains for benchmarking this planner
-- [`src`/](src/) contains the python and ASP source files for the planner.
 
 ## Usage
 
@@ -124,90 +118,9 @@ The determinisation and SAS encoder is done by the code under [`src/translator-f
 
 ## Benchmarking
 
-The `benchmarking/` folder contains scripts to facilitate running benchmarks, possibly on a cluster or HPC. The scripts are sensitive to the current working directory and should be called from the root of this project.
+The `benchmarking/` folder contains scripts to facilitate running benchmarks, possibly on a cluster or HPC. Refer to file [BENCHMARKING.md](BENCHMARKING.md) for more information.
 
-The benchmarking system can run many problem instances using several solver configurations and using multiple CPU cores by running many instances simultaneously.
+## Contributors
 
-The folders under benchmarking are:
-
-- `problems/`: FOND benchmarks.
-- `src/`: This folder contains scripts to runs the problems and parse the output into CSV file.
-- `configs/`: This folder contains example JSON configuration files to benchmark different planner settings.
-
-The steps for benchmarking are:
-
-1. Design experiment configuration and instance files.
-2. Run the benchmarking experiment.
-
-We now describe each of these steps in more detail.
-
-### 1. Configuration & instance files
-
-First, define all the **instances available** in a CSV file. File `benchmarking/problems/instances.csv` contains _all_ problems available under `./benchmarking/problems`:
-
-```csv
-scenario,domain,instance,output
-triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p01.pddl,triangle-tireworld/p01
-triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p02.pddl,triangle-tireworld/p02
-triangle-tireworld,./benchmarking/problems/triangle-tireworld/domain.pddl,./benchmarking/problems/triangle-tireworld/p03.pddl,triangle-tireworld/p03
-...
-...
-...
-```
-
-
-Secondly, define the **experimental configuration** in a JSON file. This file will contain resource limits, scenarios to use, and solvers to run (with their specific configurations). Memory is in MB and time is in seconds. A sample config file is as follows:
-
-```JSON
-{
- "time_limit": 14400,
- "memory_limit": 4096,
- "run": ["asp1", "asp4"],
- "scenarios": ["miner", "doors", "islands", "spiky-tireworld"],
- "solvers": {
-    "asp1": {
-        "args": "--clingo_args '-t 1'"
-    },
-    "asp4": {
-        "args": "--clingo_args '-t 4'"
-    }
- }
-}
-```
-
-Here, instances under four specific scenarios will be run against two solver configurations named `asp1` and `asp2`. Limits on time and memory usage can also be specified.
-
-### 2. Run benchmarking experiment
-
-To run the benchmark use the following command:
-
-```Shell
-$ python ./benchmarking/src/benchmark.py [options] instances_csv config_json
-```
-
-where `instances_csv` if the CSV file containing instances to solve and `config_json` is the JSON file configuring the experiments. Use `-h` to see all options available.
-
-To solve _many_ instances at the same time, use the batch option `-n` (default is 2). Please note that the batch size option should be carefully set based on the number of threads configured for the planners (as each thread will take already one CPU core by itself).
-
-It is recommended to run the benchmarking using a terminal multiplexer, like tmux.
-
-For example:
-
-```shell
-$ python ./benchmarking/src/benchmark.py -n 4 --output output-bench  benchmarking/problems/instances_tiny.csv benchmarking/configs/config.json
-```
-
-The script will display a progress screen with the current instances being run and the total number of instances left.
-
-It will also save the output of each run using folder structure `scenario/problem/solver`.
-
-Once finished, a CSV file `report.csv` is also left in the output folder.
-
-To only re-generate the report we can use the report script directly on the output folder:
-
-```shell
-$ python benchmarking/src/report.py output-bench
-```
-
-The report assumes the structure produced by the benchmarking scripts in the output, namely,  `scenario/problem/solver`.
-
+- Nitin Yadav (nitin.yadav@unimelb.edu.au)
+- Sebastia Sardina (ssardina@gmail.com)

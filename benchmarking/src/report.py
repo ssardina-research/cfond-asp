@@ -2,8 +2,8 @@ import argparse
 import os
 import csv
 
-import domain_spec
-from domain_spec import REPORT_FILE
+# these are domain-setting dependent
+from domain_spec import REPORT_FILE, REPORT_HEADER, get_report_row
 
 OUTPUT = []
 
@@ -31,13 +31,13 @@ def report(output_folder):
             for sol in solvers:
                 _path = os.path.join(output_folder, s, p, sol)
 
-                row = [s, p, sol] + [*domain_spec.get_stats(_path)]
+                row = [s, p, sol] + get_report_row(_path)
                 report_csv_lines.append(row)
 
     # write the csv report
     with open(os.path.join(output_folder, REPORT_FILE), 'w', newline='') as csvfile:
         # first one is header of csv report
-        header_names = ["domain","instance","solver"] + domain_spec.REPORT_HEADER
+        header_names = ["scenario", "id", "solver"] + REPORT_HEADER
         writer = csv.writer(csvfile)
 
         writer.writerow(header_names)
@@ -47,7 +47,7 @@ def report(output_folder):
 if __name__ == "__main__":
     # CLI options
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
-        description="Benchmarking script to run FOND instances using CFONDASP planner."
+        description="Benchmarking script to run problem instances."
     )
     parser.add_argument("output_folder",
         help="Path to root output directory where all solving information has been saved.")

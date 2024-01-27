@@ -31,7 +31,6 @@ def add_instances(scenario):
         _problem = os.path.join(PROBLEMS_ROOT, scenario, files_dictionary[_id])
         _id = _problem.split(os.sep)[-1][0:-5]
         _domain = os.path.join(PROBLEMS_ROOT, scenario, domain_file)
-        print([scenario, _id, _domain, _problem])
         INSTANCES.append([scenario, _id, _domain, _problem])
 
 
