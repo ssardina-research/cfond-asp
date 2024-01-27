@@ -1,15 +1,12 @@
-import argparse
-import logging
 import os
-import coloredlogs
 import re
 
 PLANNER = "./src/python/main.py"
 
 REPORT_FILE = "report.csv"
+REPORT_HEADER = ["SAT", "time", "memory", "timeout", "memoryout", "policysize"]
+
 NA = "-1"
-
-
 
 
 ###############################################
@@ -26,9 +23,11 @@ def _get_file_id(f: str) -> int:
     return idx
 
 
+
 ###############################################
 # PUBLIC API
 ###############################################
+
 
 def get_exec_cmd(instance, solver_args, output_path, time_limit, mem_limit):
     domain = instance["domain"]
@@ -41,18 +40,20 @@ def get_exec_cmd(instance, solver_args, output_path, time_limit, mem_limit):
 
     return cmd
 
+
 def get_outdir_instance(instance):
     return instance["output"]
 
+
 def get_scenario_instance(instance):
     return instance["scenario"]
+
 
 def get_id_instance(instance):
     problem = get_scenario_instance(instance)
     problem_id = problem.split(os.sep)[-1][0:-5]
 
     return problem_id
-
 
 
 def get_last_output_file(output_dir) -> str:
@@ -63,6 +64,7 @@ def get_last_output_file(output_dir) -> str:
         return NA, NA
     last_id = ids.index(max(ids))
     return clingo_output_files[last_id], ids[last_id]
+
 
 def is_solved(folder: str):
     """
@@ -87,7 +89,7 @@ def is_solved(folder: str):
 
 def is_timed_out(folder: str):
     _file, _ = get_last_output_file(folder)
-    with open (os.path.join(folder,_file)) as _h:
+    with open(os.path.join(folder, _file)) as _h:
         data = _h.readlines()
 
     for _l in data:
@@ -95,6 +97,7 @@ def is_timed_out(folder: str):
             return 1
 
     return 0
+
 
 def get_time(folder: str):
     solve_time = NA
@@ -161,5 +164,4 @@ def get_stats(folder: str):
         policy_size = NA
 
     return sat, time_solve, time_out, memory_used, memory_exceeded, policy_size
-
 

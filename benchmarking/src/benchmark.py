@@ -96,9 +96,8 @@ async def prepare_tasks(queue: Queue):
 
                 # 5. add task to queue (if it should run)
                 if _should_run:
-                    solver_args = solver_info["args"]
-
-                    cmd = domain_spec.get_exec_cmd(instance, solver_args, output_path, TIME_LIMIT, MEMORY_LIMIT)
+                    # get the actual execution command for the run
+                    cmd = domain_spec.get_exec_cmd(instance, solver_info["args"], output_path, TIME_LIMIT, MEMORY_LIMIT)
                     task = Task(_counter, inst_scenario, inst_id, cmd, solver_id, output_path)
                     await queue.put(task)
                     _counter += 1
