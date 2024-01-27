@@ -50,10 +50,7 @@ def get_scenario_instance(instance):
 
 
 def get_id_instance(instance):
-    problem = get_scenario_instance(instance)
-    problem_id = problem.split(os.sep)[-1][0:-5]
-
-    return problem_id
+    return instance['id']
 
 
 def get_last_output_file(output_dir) -> str:

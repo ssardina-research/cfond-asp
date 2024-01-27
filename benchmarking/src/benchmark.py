@@ -82,14 +82,14 @@ async def prepare_tasks(queue: Queue):
     with open(CSV_PATH) as instances:
         _counter = 1
         for instance in csv.DictReader(instances):
-            inst_out_dir = domain_spec.get_outdir_instance(instance)
             inst_scenario = domain_spec.get_scenario_instance(instance)
             inst_id = domain_spec.get_id_instance(instance)
 
             # next, for the particular instance we iterate on each solver to be run
             for solver_id, solver_info in SOLVERS.items():
                 # the full path to the output directory for the instance + solver run
-                output_path = os.path.join(OUTPUT_ROOT, inst_out_dir, solver_id)
+                # format from root output: scenario/problem/solver/
+                output_path = os.path.join(OUTPUT_ROOT, inst_scenario, inst_id, solver_id)
 
                 _is_solved = domain_spec.is_solved(os.path.abspath(output_path))
                 _should_run = (not SKIP or not _is_solved) and  inst_scenario in SCENARIOS

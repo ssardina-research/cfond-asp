@@ -32,7 +32,6 @@ def report(output_folder):
                 _path = os.path.join(output_folder, s, p, sol)
 
                 row = [s, p, sol] + [*domain_spec.get_stats(_path)]
-                print(row)
                 report_csv_lines.append(row)
 
     # write the csv report
