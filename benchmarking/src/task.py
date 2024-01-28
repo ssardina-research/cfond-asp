@@ -38,7 +38,7 @@ class Task(object):
         self.memory_exceeded = exceeded
         with open(os.path.join(self.output_path, "memory.out"), "w+") as f:
             f.write(f"Memory limit: {self.memory_limit}{os.linesep}")
-            f.write(f"Memory used:{self.memory}{os.linesep}")
+            f.write(f"Memory used: {self.memory}{os.linesep}")
             f.write(f"Memory exceeded: {exceeded}{os.linesep}")
 
     def kill(self):
