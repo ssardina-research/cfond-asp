@@ -3,6 +3,7 @@ from cpuinfo import get_cpu_info
 import platform
 import psutil
 from pathlib import Path
+import datetime
 
 def print_system_info():
     print("------------------------------------------------------------------------------")
@@ -26,6 +27,10 @@ def get_root() -> Path:
     p: Path = Path(loc)
     root: Path = p.parents[2]
     return root
+
+def get_now():
+    return datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S.%f")
+
 
 if __name__ == "__main__":
     print_system_info()

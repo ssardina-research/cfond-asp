@@ -9,7 +9,7 @@ from base.elements import FONDProblem, Action, Variable, State
 from utils.backbone import get_backbone_asp, create_backbone_constraint
 from utils.fd import compute_weak_plan
 from utils.helper_asp import write_goal, write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
-from utils.helper_clingo import execute_asp, execute_asp_async
+from utils.helper_clingo import execute_asp, execute_asp_async, set_logger
 from utils.helper_sas import organize_actions
 from utils.translators import determinise, parse_sas
 from knowledge.blocksworld import BlocksworldKnowledge
@@ -197,7 +197,7 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
 
         # check if a solution was found or the process timed out
         if solution_found and direction == 1:
-            _logger.info(f"Solution found for id {fond_problem.domain}, {fond_problem.problem}!")
+            _logger.info(f"Solution found for instance ({fond_problem.domain}, {fond_problem.problem})!")
             stop = True
 
         elif not solution_found and direction == -1:
@@ -369,3 +369,5 @@ def _get_logger() -> logging.Logger:
     logger = logging.getLogger("FondASP")
     coloredlogs.install(level='INFO')
     return logger
+
+set_logger(_get_logger())
