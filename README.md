@@ -120,11 +120,14 @@ The determinisation and SAS encoder is done by the code under [`src/translator-f
 
 ## Solvers available
 
-The various ASP solvers available, as reported in the ECAI23 paper, can be found under folder [src/asp/](src/asp/):
+The various ASP solvers available, as reported in the ECAI23 paper, can be found under folder [src/asp/](src/asp/).
+
+For strong-cyclic solutions (chosen via `--mode`):
 
 - `controller-fondsat`: encoding following FONDSAT in propagating negative propositions forward.
 - `controller-reg`: encoding implementing weakest-precondition via regression (like PRP).
-- `controller-strong`: encoding to find strong solutions.
+
+For strong solutions (via `--solution_type strong`), the encoding solver used is [`controller-strong.lp`](src/asp/controller-strong.lp).
 
 
 ## Contributors
