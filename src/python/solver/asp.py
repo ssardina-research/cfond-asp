@@ -20,12 +20,13 @@ from knowledge.spiky import SpikyTireworldKnowledge
 import os
 
 
-def solve_with_backbone(fond_problem: FONDProblem, output_dir: str, only_size=False):
+def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size=False):
     """
     First we generate a backbone using classical planner and then use that to constrain the controller.
     :param fond_problem: FOND problem
     :param output_dir:
-    :param only_size: If True, only the size of the backbone is considered as a lower bound to the controller
+    :param back_bone: Use backbone technique
+    :param only_size: Only the size of the backbone is considered as a lower bound to the controller
     :return:
     """
     _logger: logging.Logger = _get_logger()
@@ -36,50 +37,42 @@ def solve_with_backbone(fond_problem: FONDProblem, output_dir: str, only_size=Fa
 
     # generate ASP instance
     file: str = os.path.join(output_dir, "instance.lp")
-    file_weak_plan: str = os.path.join(output_dir, "instance_inc.lp")
-    generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions)
-    generate_asp_instance_inc(file_weak_plan, initial_state, goal_state, variables, mutexs, nd_actions)
+    generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False)
 
-    classical_planner = fond_problem.classical_planner
-    clingo_inputs = [classical_planner, file_weak_plan]
-    args = ["--stats"]
-    out_file = os.path.join(output_dir, "weak_plan.out")
-    if fond_problem.seq_kb:
-        clingo_inputs.append(fond_problem.seq_kb)
-    execute_asp(fond_problem.clingo, args, clingo_inputs, output_dir, out_file)
+    min_controller_size = 1
+    if back_bone:
 
-    # get the backbone
-    backbone: List[tuple[str, str]] = get_backbone_asp(out_file)
-    min_controller_size = len(backbone)
+        file_weak_plan: str = os.path.join(output_dir, "instance_inc.lp")
+        generate_asp_instance_inc(file_weak_plan, initial_state, goal_state, variables, mutexs, nd_actions)
 
-    if min_controller_size == 0:
-        # problem is unsatisfiable
-        _logger.info(f"Problem does not have a solution, since backbone could not be found!")
-        with open (os.path.join(output_dir, "unsat.out"), "w+") as f:
-            f.write("Unsat")
-        return
+        classical_planner = fond_problem.classical_planner
+        clingo_inputs = [classical_planner, file_weak_plan]
+        args = ["--stats"]
+        out_file = os.path.join(output_dir, "weak_plan.out")
+        if fond_problem.seq_kb:
+            clingo_inputs.append(fond_problem.seq_kb)
+        execute_asp(fond_problem.clingo, args, clingo_inputs, output_dir, out_file)
 
-    _logger.info(f"Backbone is of size {min_controller_size}.")
+        # get the backbone
+        backbone: List[tuple[str, str]] = get_backbone_asp(out_file)
+        min_controller_size = len(backbone)
 
-    if not only_size:
-        constraint_file = os.path.join(output_dir, "backbone.lp")
-        create_backbone_constraint(backbone, constraint_file)
-        fond_problem.controller_constraints["backbone"] = constraint_file
+        if min_controller_size == 0:
+            # problem is unsatisfiable
+            _logger.info(f"Problem does not have a solution, since backbone could not be found!")
+            with open (os.path.join(output_dir, "unsat.out"), "w+") as f:
+                f.write("Unsat")
+            return
+
+        _logger.info(f"Backbone is of size {min_controller_size}.")
+
+        if not only_size:
+            constraint_file = os.path.join(output_dir, "backbone.lp")
+            create_backbone_constraint(backbone, constraint_file)
+            fond_problem.controller_constraints["backbone"] = constraint_file
+
 
     preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd_actions, variables, file, min_controller_size)
-
-
-def solve(fond_problem: FONDProblem, output_dir: str):
-    _logger: logging.Logger = _get_logger()
-    _logger.info(f"Solving {fond_problem.domain} with problem {fond_problem.problem} using ASP.")
-
-    # determinise, translate to SAS and parse the SAS file
-    initial_state, goal_state, det_actions, nd_actions, variables, mutexs = parse(fond_problem, output_dir)
-
-    file: str = os.path.join(output_dir, "instance.lp")
-    generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False)
-    preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd_actions, variables, file)
-
 
 def set_model(nd_actions, fond_problem: FONDProblem):
     """

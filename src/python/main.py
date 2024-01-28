@@ -8,7 +8,7 @@ import sys
 import shutil
 from checker.verify import verify, build_controller
 from utils.system_utils import get_root
-from solver.asp import solve, parse, solve_with_backbone
+from solver.asp import solve, parse, solve
 from timeit import default_timer as timer
 
 PYTHON_MINOR_VERSION = 10
@@ -159,10 +159,8 @@ def main():
     fond_problem = get_fond_problem()
 
     if mode == "solve":
-        if use_backbone:
-            solve_with_backbone(fond_problem, output_dir, only_size=True)
-        else:
-            solve(fond_problem, output_dir)
+        solve(fond_problem, output_dir, back_bone=use_backbone, only_size=True)
+
         if dump_cntrl:
             logger.info("Dumping controller...")
             build_controller(output_dir)
