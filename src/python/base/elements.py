@@ -207,6 +207,8 @@ class FONDProblem(object):
     clingo: str
     clingo_args: List[str]
     max_states: int = 1
+    min_states: int = 1
+    inc_states: int = 1
     time_limit: int = 300
     extra_kb: str = None
     filter_undo: bool = False

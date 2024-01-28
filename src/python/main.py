@@ -24,6 +24,8 @@ model = None
 clingo_args_str = None
 extra_kb = None
 max_states = None
+min_states = None
+inc_states = None
 filter_undo = False
 domain_kb = None
 solution_type = "strong-cyclic"
@@ -62,7 +64,9 @@ def get_fond_problem() -> FONDProblem:
         clingo_args = []
 
     # set the controller model
-    fond_problem = FONDProblem(domain=domain, problem=problem, solution_type=solution_type, root=root, sas_translator=translator, translator_args=translator_args, controller_model=model, clingo=clingo, clingo_args=clingo_args, max_states=max_states, time_limit=timeout, filter_undo=filter_undo, extra_kb=extra_kb, classical_planner=classical_planner, domain_knowledge=domain_kb)
+    fond_problem = FONDProblem(domain=domain, problem=problem, solution_type=solution_type, root=root, sas_translator=translator, translator_args=translator_args, 
+                               controller_model=model, clingo=clingo, clingo_args=clingo_args, max_states=max_states, min_states=min_states, inc_states=inc_states,
+                                time_limit=timeout, filter_undo=filter_undo, extra_kb=extra_kb, classical_planner=classical_planner, domain_knowledge=domain_kb)
 
     fond_problem.controller_constraints = {}
 
@@ -77,7 +81,7 @@ def get_fond_problem() -> FONDProblem:
 
 
 def main():
-    global domain, problem, mode, output_dir, timeout, model, clingo_args_str, extra_kb, max_states, filter_undo, domain_kb, solution_type
+    global domain, problem, mode, output_dir, timeout, model, clingo_args_str, extra_kb, max_states, min_states, inc_states, filter_undo, domain_kb, solution_type
 
     # CLI options
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
@@ -91,6 +95,15 @@ def main():
                         help="Maximum number of controller states (Default: %(default)s).",
                         type=int,
                         default=100)
+    parser.add_argument("--min_states",
+                        help="Minimum number of controller states (Default: %(default)s).",
+                        type=int,
+                        default=1)
+    parser.add_argument("--inc_states",
+                        help="Step size of controller size iteration (Default: %(default)s).",
+                        type=int,
+                        default=1)
+    
     parser.add_argument("--mode",
                         help="Functionality of the system to execute. Currently, verification only works for strong-cyclic plans (Default: %(default)s).",
                         choices=["solve", "verify", "determinise"],
@@ -142,6 +155,8 @@ def main():
     clingo_args_str = args.clingo_args.replace("'","").replace('"','')
     extra_kb = args.extra_constraints
     max_states = args.max_states
+    min_states = args.min_states
+    inc_states = args.inc_states
     filter_undo = args.filter_undo
     domain_kb = args.domain_kb
     use_backbone = args.use_backbone

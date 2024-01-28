@@ -39,7 +39,7 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
     file: str = os.path.join(output_dir, "instance.lp")
     generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False)
 
-    min_controller_size = 1
+    min_controller_size = fond_problem.min_states
     if back_bone:
 
         file_weak_plan: str = os.path.join(output_dir, "instance_inc.lp")
@@ -55,16 +55,18 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
 
         # get the backbone
         backbone: List[tuple[str, str]] = get_backbone_asp(out_file)
-        min_controller_size = len(backbone)
+        backbone_size = len(backbone)
 
-        if min_controller_size == 0:
+        if backbone_size == 0:
             # problem is unsatisfiable
             _logger.info(f"Problem does not have a solution, since backbone could not be found!")
             with open (os.path.join(output_dir, "unsat.out"), "w+") as f:
                 f.write("Unsat")
             return
+        else:
+            min_controller_size = max(fond_problem.min_states, backbone_size)
 
-        _logger.info(f"Backbone is of size {min_controller_size}.")
+        _logger.info(f"Backbone is of size {backbone_size}.")
 
         if not only_size:
             constraint_file = os.path.join(output_dir, "backbone.lp")
@@ -134,11 +136,12 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
     async with timeout(fond_problem.time_limit):
         try:
             # check if a solution exists with the given minimum states
-            solution_found = await _run_clingo_async(fond_problem, instance, min_states, output_dir)
+            num_states = min_states # time out may occur in the next step, hence we need to initialise the num_states for later reporting
+            solution_found = await _run_clingo_async(fond_problem, instance, num_states, output_dir)
             if solution_found:
-                direction = -1
+                direction = -1 * fond_problem.inc_states
             else:
-                direction = 1
+                direction = 1 * fond_problem.inc_states
 
             num_states = min_states + direction
 
@@ -146,11 +149,11 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
                 solution_found = await _run_clingo_async(fond_problem, instance, num_states, output_dir)
 
                 # check if a solution was found or the process timed out
-                if solution_found and direction == 1:
+                if solution_found and direction > 0:
                     _logger.info(f"Solution found!")
                     stop = True
 
-                elif not solution_found and direction == -1:
+                elif not solution_found and direction < 0:
                     _logger.info(f"Solution found!")
                     stop = True
 
@@ -179,9 +182,9 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
     # check if a solution exists with the given minimum states
     solution_found = _run_clingo(fond_problem, instance, min_states, output_dir)
     if solution_found:
-        direction = -1
+        direction = -1 * fond_problem.inc_states
     else:
-        direction = 1
+        direction = 1 * fond_problem.inc_states
 
     num_states = min_states + direction
 
@@ -189,12 +192,12 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
         solution_found = _run_clingo(fond_problem, instance, num_states, output_dir)
 
         # check if a solution was found or the process timed out
-        if solution_found and direction == 1:
+        if solution_found and direction > 0:
             _logger.info(f"Solution found for instance ({fond_problem.domain}, {fond_problem.problem})!")
             stop = True
 
-        elif not solution_found and direction == -1:
-            _logger.info(f"Solution found for id {fond_problem.id}!")
+        elif not solution_found and direction < 0:
+            _logger.info(f"Solution found for instance ({fond_problem.domain}, {fond_problem.problem})!")
             stop = True
 
         num_states += direction
