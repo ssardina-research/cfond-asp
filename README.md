@@ -6,6 +6,8 @@ The planner and its underlying technique were reported in the following paper:
 
 * Nitin Yadav, Sebastian Sardiña: [A Declarative Approach to Compact Controllers for FOND Planning via Answer Set Programming](https://doi.org/10.3233/FAIA230593). ECAI 2023: 2818-2825
 
+The `benchmarking/` folder contains scripts to facilitate running benchmarks, possibly on a cluster or HPC. Refer to file [BENCHMARKING.md](BENCHMARKING.md) for more information.
+
 ## Requirements
 
 - Python 3.11 with dependencies as per `requirements.txt`.
@@ -116,9 +118,14 @@ This will just produce the corresponding SAS one-outcome determinised encoding o
 
 The determinisation and SAS encoder is done by the code under [`src/translator-fond/`](src/translator-fond/) which has been borrowed from PRP codebase.
 
-## Benchmarking
+## Solvers available
 
-The `benchmarking/` folder contains scripts to facilitate running benchmarks, possibly on a cluster or HPC. Refer to file [BENCHMARKING.md](BENCHMARKING.md) for more information.
+The various ASP solvers available, as reported in the ECAI23 paper, can be found under folder [src/asp/](src/asp/):
+
+- `controller-fondsat`: encoding following FONDSAT in propagating negative propositions forward.
+- `controller-reg`: encoding implementing weakest-precondition via regression (like PRP).
+- `controller-strong`: encoding to find strong solutions.
+
 
 ## Contributors
 
