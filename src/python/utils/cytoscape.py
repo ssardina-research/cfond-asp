@@ -7,7 +7,7 @@ from typing import List
 from utils.backbone import get_backbone_sas
 
 SEP = ";"
-EDGE_HEADERS = f"source{SEP}target{SEP}name{SEP}type{os.linesep}"
+EDGE_HEADERS = f"source{SEP}target{SEP}name{SEP}type\n"
 
 
 def get_transitions(solution):
@@ -24,7 +24,7 @@ def get_transitions(solution):
             source = tokens[0]
             action = tokens[1]
             target = tokens[2][1:].strip()
-            tx_info.append(f"{source}{SEP}{target}{SEP}{action}{SEP}c{os.linesep}")
+            tx_info.append(f"{source}{SEP}{target}{SEP}{action}{SEP}c\n")
 
             if source not in transitions:
                 transitions[source] = []
@@ -42,16 +42,16 @@ def compare(transitions, backbone):
         for tx in txs:
             if action == tx[1]:
                 # common_txs.append(tx)
-                common_txs.append(f"{tx[0]}{SEP}{tx[2]}{SEP}{tx[1]}{SEP}c{os.linesep}")
+                common_txs.append(f"{tx[0]}{SEP}{tx[2]}{SEP}{tx[1]}{SEP}c\n")
                 start_state = tx[2]
                 counter += 1
 
     different_txs = []
     next_state = max([int(s) for s in transitions.keys()]) + 2
-    #different_txs.append(f"{counter}{SEP}{next_state}{SEP}{backbone[counter]}{SEP}b{os.linesep}")
+    #different_txs.append(f"{counter}{SEP}{next_state}{SEP}{backbone[counter]}{SEP}b\n")
     for i in range(counter+1, len(backbone)):
         action = backbone[i]
-        different_txs.append(f"{next_state}{SEP}{next_state+1}{SEP}{action}{SEP}b{os.linesep}")
+        different_txs.append(f"{next_state}{SEP}{next_state+1}{SEP}{action}{SEP}b\n")
         next_state += 1
 
     return common_txs, different_txs
@@ -68,11 +68,11 @@ def solution_to_cytoscape(solution, plan_file, cytoscape_input):
 
     # common_txs = []
     # for c in common_edges:
-    #     common_txs.append(f"{c[0]},{c[1]},{c[1]}a{os.linesep}")
+    #     common_txs.append(f"{c[0]},{c[1]},{c[1]}a\n")
     #
     # different_ctrl_txs = []
     # for c in different_ctrl_edges:
-    #     different_ctrl_txs.append(f"{c[0]},{c[1]},{c[1]}c{os.linesep}")
+    #     different_ctrl_txs.append(f"{c[0]},{c[1]},{c[1]}c\n")
 
     with open(cytoscape_input, "w") as f:
         f.write(EDGE_HEADERS)

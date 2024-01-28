@@ -18,13 +18,13 @@ class SpikyTireworldKnowledge(object):
         self.add_control_knowledge()
 
     def add_weakplan_knowledge(self):
-        constraints = [f"#program check(t). {os.linesep}"]
+        constraints = [f"#program check(t). \n"]
         # parse
         not_has_spare = [i for i in self.variables if "not-hasspare" in i.domain[0]][0]
         var_idx = self.variables.index(not_has_spare)
 
 
-        line = f':- state(State), State=t, holds(State, {var_idx}, {0}), policy(State, A), actionType(A, "move-car-spiky").{os.linesep}'
+        line = f':- state(State), State=t, holds(State, {var_idx}, {0}), policy(State, A), actionType(A, "move-car-spiky").\n'
         constraints.append(line)
 
         with open(self.weakplan_kb_file, "w+") as f:
@@ -41,9 +41,9 @@ class SpikyTireworldKnowledge(object):
         # :- state(State), holds(State, 0, 0).
         for _name, _action in self.nd_actions.items():
             if "move-car-spiky" in _name:
-                line = f':- state(State), holds(State, {var_idx}, {0}), policy(State, "{_name}").{os.linesep}'
+                line = f':- state(State), holds(State, {var_idx}, {0}), policy(State, "{_name}").\n'
                 constraints.append(line)
-        # line = f':- state(State), holds(State, {var_idx}, {0}), policy(State, A), actionType(A, "move-car-spiky").{os.linesep}'
+        # line = f':- state(State), holds(State, {var_idx}, {0}), policy(State, A), actionType(A, "move-car-spiky").\n'
         # constraints.append(line)
 
         with open(self.controller_kb_file, "w+") as f:

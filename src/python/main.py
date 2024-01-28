@@ -174,7 +174,7 @@ def main():
     logger.info(f"Output folder: {output_dir}")
     logger.info(f"Time taken: {total_time}")
     with open(os.path.join(output_dir, f"{mode}_time.out"), "w+") as f:
-        f.write(f"Total time: {total_time}{os.linesep}")
+        f.write(f"Total time: {total_time}\n")
 
 
 if __name__ == "__main__":

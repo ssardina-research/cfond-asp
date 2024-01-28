@@ -21,17 +21,17 @@ class BlocksworldKnowledge(object):
         # parse
         on_table, on_blocks, clear = self.parse()
         counter = 0
-        constraints = [f"#program check(t). {os.linesep}"]
+        constraints = [f"#program check(t). \n"]
 
         for _on, (var, val) in on_table.items():
             counter += 1
             # subgoal(1).
-            constraint = f"subgoal({counter}).{os.linesep}"
+            constraint = f"subgoal({counter}).\n"
             constraints.append(constraint)
 
             # first subgoal
             subgoal_num = 1
-            constraint = f"subgoal(State, {subgoal_num}, {counter}) :- holds(State, {var}, {val}), State=t.{os.linesep}"
+            constraint = f"subgoal(State, {subgoal_num}, {counter}) :- holds(State, {var}, {val}), State=t.\n"
             constraints.append(constraint)
             subgoal_num += 1
             next_block = _on
@@ -39,7 +39,7 @@ class BlocksworldKnowledge(object):
                 _block, var, val = on_blocks[next_block]
 
                 # subgoal(State, 2, 1) :- subgoal(State, 1, 1), holds(State, 8, 5), State=t.
-                constraint = f"subgoal(State, {subgoal_num}, {counter}) :- subgoal(State, {subgoal_num - 1}, {counter}), holds(State, {var}, {val}), State=t.{os.linesep}"
+                constraint = f"subgoal(State, {subgoal_num}, {counter}) :- subgoal(State, {subgoal_num - 1}, {counter}), holds(State, {var}, {val}), State=t.\n"
                 constraints.append(constraint)
                 next_block = _block
                 subgoal_num += 1
@@ -47,11 +47,11 @@ class BlocksworldKnowledge(object):
             # last subgoal
             var, val = clear[next_block]
             # subgoal(State, 7, 1) :- subgoal(State, 6, 1), holds(State, 5, 0), State=t.
-            constraint = f"subgoal(State, {subgoal_num}, {counter}) :- subgoal(State, {subgoal_num - 1}, {counter}), holds(State, {var}, {val}), State=t.{os.linesep}"
+            constraint = f"subgoal(State, {subgoal_num}, {counter}) :- subgoal(State, {subgoal_num - 1}, {counter}), holds(State, {var}, {val}), State=t.\n"
             constraints.append(constraint)
 
 
-        constraint = f":- query(t), subgoal(State1, G1, X), G1>1, {{ subgoal(State2, G2, X): G2 < G1, State2 <= State1 }} 0.{os.linesep}"
+        constraint = f":- query(t), subgoal(State1, G1, X), G1>1, {{ subgoal(State2, G2, X): G2 < G1, State2 <= State1 }} 0.\n"
         constraints.append(constraint)
         
         with open(self.weakplan_kb_file, "w+") as f:
@@ -68,12 +68,12 @@ class BlocksworldKnowledge(object):
         for _on, (var, val) in on_table.items():
             counter += 1
             # subgoal(1).
-            constraint = f"subgoal({counter}).{os.linesep}"
+            constraint = f"subgoal({counter}).\n"
             constraints.append(constraint)
 
             # first subgoal
             subgoal_num = 1
-            constraint = f"subgoal(State, {subgoal_num}, {counter}) :- holds(State, {var}, {val}).{os.linesep}"
+            constraint = f"subgoal(State, {subgoal_num}, {counter}) :- holds(State, {var}, {val}).\n"
             constraints.append(constraint)
             subgoal_num += 1
             next_block = _on
@@ -81,7 +81,7 @@ class BlocksworldKnowledge(object):
                 _block, var, val = on_blocks[next_block]
 
                 # subgoal(State, 2, 1) :- subgoal(State, 1, 1), holds(State, 8, 5).
-                constraint = f"subgoal(State, {subgoal_num}, {counter}) :- subgoal(State, {subgoal_num - 1}, {counter}), holds(State, {var}, {val}).{os.linesep}"
+                constraint = f"subgoal(State, {subgoal_num}, {counter}) :- subgoal(State, {subgoal_num - 1}, {counter}), holds(State, {var}, {val}).\n"
                 constraints.append(constraint)
                 next_block = _block
                 subgoal_num += 1
@@ -90,18 +90,18 @@ class BlocksworldKnowledge(object):
             var, val = clear[next_block]
             # subgoal(State, 7, 1) :- subgoal(State, 6, 1), holds(State, 5, 0).
             goal_sequence.append(subgoal_num)
-            constraint = f"subgoal(State, {subgoal_num}, {counter}) :- subgoal(State, {subgoal_num - 1}, {counter}), holds(State, {var}, {val}).{os.linesep}"
+            constraint = f"subgoal(State, {subgoal_num}, {counter}) :- subgoal(State, {subgoal_num - 1}, {counter}), holds(State, {var}, {val}).\n"
             constraints.append(constraint)
 
 
-        constraint = f":- subgoal(State1, G1, X), G1>1, {{ subgoal(State2, G2, X): G2 < G1, State2 <= State1 }} 0.{os.linesep}"
+        constraint = f":- subgoal(State1, G1, X), G1>1, {{ subgoal(State2, G2, X): G2 < G1, State2 <= State1 }} 0.\n"
         constraints.append(constraint)
 
         for i in range(len(goal_sequence)-1):
             # :- subgoal(State1, 6, 1), subgoal(State2, 3, 2), State1 > State2.
             _i = goal_sequence[i]
             _j = goal_sequence[i+1]
-            constraint = f":- subgoal(State1, {_i}, {i+1}), subgoal(State2, {_j}, {i+2}), State1 > State2.{os.linesep}"
+            constraint = f":- subgoal(State1, {_i}, {i+1}), subgoal(State2, {_j}, {i+2}), State1 > State2.\n"
             constraints.append(constraint)
         
         with open(self.controller_kb_file, "w+") as f:

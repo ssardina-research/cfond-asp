@@ -76,45 +76,45 @@ def get_parent_name(action):
 
 def write_output(answer, state_variables, transitions, policy, out_file: str):
     with open(out_file, "a+") as f:
-        f.write(f"ANSWER:{answer}{os.linesep}")
-        f.write(f"{ASP_OUT_DIVIDER}{os.linesep}")
+        f.write(f"ANSWER:{answer}\n")
+        f.write(f"{ASP_OUT_DIVIDER}\n")
 
-        f.write(f"Initial State:0{os.linesep}")
-        f.write(f"{ASP_OUT_DIVIDER}{os.linesep}")
+        f.write(f"Initial State:0\n")
+        f.write(f"{ASP_OUT_DIVIDER}\n")
 
-        f.write(f"Goal State:{len(state_variables)-1}{os.linesep}")
-        f.write(f"{ASP_OUT_DIVIDER}{os.linesep}")
+        f.write(f"Goal State:{len(state_variables)-1}\n")
+        f.write(f"{ASP_OUT_DIVIDER}\n")
 
-        # f.write(f"{ASP_OUT_LINE_END}{os.linesep}")
+        # f.write(f"{ASP_OUT_LINE_END}\n")
         for state in sorted(state_variables.keys()):
-            f.write(f"State:{state}{os.linesep}")
+            f.write(f"State:{state}\n")
             for key in sorted(state_variables[state]):
                 variable, value = key
-                line = f"{variable}={value}{os.linesep}"
+                line = f"{variable}={value}\n"
                 f.write(line)
 
-        f.write(f"{ASP_OUT_DIVIDER}{os.linesep}")
+        f.write(f"{ASP_OUT_DIVIDER}\n")
 
         # sort them for better readability
         states = sorted(transitions.keys())
-        f.write(f"Transitions:{os.linesep}")
+        f.write(f"Transitions:\n")
         for state in states:
             txs = transitions[state]
             for t in txs:
                 state, effect, next_state = t
                 action = policy[state]
-                line = f"{state}--{action},{effect}-->{next_state}{os.linesep}"
+                line = f"{state}--{action},{effect}-->{next_state}\n"
                 f.write(f"{line}")
 
-        f.write(f"{ASP_OUT_DIVIDER}{os.linesep}")
+        f.write(f"{ASP_OUT_DIVIDER}\n")
 
-        f.write(f"Policy:{os.linesep}")
+        f.write(f"Policy:\n")
         for state in states:
             action = policy[state]
-            line = f"{state}-->{action}{os.linesep}"
+            line = f"{state}-->{action}\n"
             f.write(line)
 
-        f.write(f"{ASP_OUT_DIVIDER}{os.linesep}")
+        f.write(f"{ASP_OUT_DIVIDER}\n")
 
 
 def get_transition_info(atom):

@@ -32,18 +32,18 @@ def write_strict_constraints(backbone, constraint_file):
         state = counter
         next_state = counter + 1
 
-        policy_constraint = f'policy({state}, "{action}").{os.linesep}'
+        policy_constraint = f'policy({state}, "{action}").\n'
         if next_state == len(backbone):
-            transition_constraint = f'transition({state}, "{effect}", X) :- goalState(X).{os.linesep}'
+            transition_constraint = f'transition({state}, "{effect}", X) :- goalState(X).\n'
         else:
-            transition_constraint = f'transition({state}, "{effect}", {next_state}).{os.linesep}'
+            transition_constraint = f'transition({state}, "{effect}", {next_state}).\n'
 
         counter += 1
         backbone_constraints.append(policy_constraint)
         backbone_constraints.append(transition_constraint)
 
-    backbone_constraints.append(f"backboneState(0..{counter - 1}).{os.linesep}")
-    backbone_constraints.append(f"backboneState(X) :- goalState(X).{os.linesep}")
+    backbone_constraints.append(f"backboneState(0..{counter - 1}).\n")
+    backbone_constraints.append(f"backboneState(X) :- goalState(X).\n")
 
     with open(constraint_file, "w") as f:
         f.writelines(backbone_constraints)
@@ -54,7 +54,7 @@ def write_loose_constraints(backbone, constraint_file):
     num_actions = len(backbone)
     labels: List[str] = [f"A{i}" for i in range(1, num_actions + 1)]
     for action, effect in backbone:
-        policy_constraint = f':- {{policy(State, Action): state(State), Action = "{action}"}} 0.{os.linesep}'
+        policy_constraint = f':- {{policy(State, Action): state(State), Action = "{action}"}} 0.\n'
         policy_constraints.append(policy_constraint)
     backbone_constraints = []
     counter = 1
@@ -62,9 +62,9 @@ def write_loose_constraints(backbone, constraint_file):
         action = backbone[i - 1]
         next_action = backbone[i]
         #  :-  policy(S1,"walk-on-beam_DETDUP_0(p0,p1)"), {policy(S2, "walk-on-beam_DETDUP_0(p1,p2)"): successor(S1, S2)} 0.
-        backbone_term = f':- policy(S1,"{action}"), {{policy(S2, "{next_action}"): successor(S1, S2) }} 0.{os.linesep}'
-        # backbone_term = f'backbone{counter} :- transition(S{i},"{action}",S{i+1}), S{i+1} < S{i} + 4, policy(S{i+1}, "{next_action}").{os.linesep}'
-        # cardinality_term = f":- {{backbone{counter} }} 0. {os.linesep}"
+        backbone_term = f':- policy(S1,"{action}"), {{policy(S2, "{next_action}"): successor(S1, S2) }} 0.\n'
+        # backbone_term = f'backbone{counter} :- transition(S{i},"{action}",S{i+1}), S{i+1} < S{i} + 4, policy(S{i+1}, "{next_action}").\n'
+        # cardinality_term = f":- {{backbone{counter} }} 0. \n"
         # counter += 1
         #
         backbone_constraints.append(backbone_term)

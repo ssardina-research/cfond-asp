@@ -125,7 +125,7 @@ def determinise_scenario(folder: str):
 
 
 def run_fd(folder: str, output_file: str):
-    data = [f"scenario,instance,weak_plan,fd_time{os.linesep}"]
+    data = [f"scenario,instance,weak_plan,fd_time\n"]
 
     scenarios = [s for s in os.listdir(folder) if os.path.isdir(f"{folder}/{s}")]
     for scenario in scenarios:
@@ -142,7 +142,7 @@ def run_fd(folder: str, output_file: str):
                     plan_output = f"{SRC_ROOT}/{instance_path}/{s}/plan.sas"
                     cwd = f"{SRC_ROOT}/{instance_path}/{s}"
                     plan_length, time = compute_weak_plan(fd_input, plan_output, FD_PATH, cwd)
-                    data.append(f"{scenario},{instance},{plan_length},{time}{os.linesep}")
+                    data.append(f"{scenario},{instance},{plan_length},{time}\n")
                     continue
 
     with open(output_file, "w") as f:

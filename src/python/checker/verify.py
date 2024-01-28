@@ -138,12 +138,12 @@ def add_variable_info(variables: list[Variable], solution_file: str):
         variables (list[Variable]): variables to add
         sol_file (_type_): solution file
     """
-    info = [f"DomainVariables:{os.linesep}"]
+    info = [f"DomainVariables:\n"]
     for var in variables:
         name = var.name
         domain = var.domain
         values = [d.replace("Atom", "").replace("Negated", "-").strip() for d in domain]
-        info.append(f"{name}: {values}{os.linesep}")
+        info.append(f"{name}: {values}\n")
 
     with open(solution_file, "a+") as f:
         f.writelines(info)
@@ -262,7 +262,7 @@ def verify(output_dir: str):
 
     output_file = os.path.join(output_dir, VERIFY_OUT)
     with open(output_file, "w") as f:
-        f.write(f"Solution is sound: {sound}{os.linesep}")
+        f.write(f"Solution is sound: {sound}\n")
         f.write(f"Timed Out: {timed_out}")
 
 

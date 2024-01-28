@@ -148,7 +148,7 @@ class Action(object):
             dels = self.delete[i]
             if len(dels) > 0:
                 del_list += [f"(var{i}={j})" for j in dels]
-        return f"name:{action_name}{os.linesep}prec:{prec}{os.linesep}add:{add_list}{os.linesep}del:{del_list}"
+        return f"name:{action_name}\nprec:{prec}\nadd:{add_list}\ndel:{del_list}"
 
     def __repr__(self):
         return self.__str__()

@@ -38,7 +38,7 @@ def extract_properties(config: str):
 
 
 def extract(folder: str):
-    data = [f"scenario,instance,num_variables,num_det_actions,num_nd_actions{os.linesep}"]
+    data = [f"scenario,instance,num_variables,num_det_actions,num_nd_actions\n"]
     scenarios = os.listdir(folder)
     for scenario in scenarios:
         scenario_path = f"{folder}/{scenario}"
@@ -52,7 +52,7 @@ def extract(folder: str):
                 for c in config_files:
                     instance = c.split("_")[0]
                     num_variables, num_det_actions, num_nd_actions = extract_properties(f"{solver_path}/{c}")
-                    data.append(f"{scenario},{instance},{num_variables},{num_det_actions},{num_nd_actions}{os.linesep}")
+                    data.append(f"{scenario},{instance},{num_variables},{num_det_actions},{num_nd_actions}\n")
             continue
 
     with open(OUTPUT_FILE, "w") as f:

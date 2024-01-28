@@ -17,7 +17,7 @@ class TireworldKnowledge(object):
         self.add_control_knowledge()
 
     def add_weakplan_knowledge(self):
-        constraints = [f"#program check(t). {os.linesep}"]
+        constraints = [f"#program check(t). \n"]
         # parse
         locations_with_spare = self.parse()
 
@@ -25,11 +25,11 @@ class TireworldKnowledge(object):
         # has-spare(X) :- X=1.
         # :- holds(State, 18, X), not initialState(State), not goalState(State), not has-spare(X).
         for loc, (_idx, val) in locations_with_spare.items():
-            line = f'hasSpare(X) :- X={val}.{os.linesep}'
+            line = f'hasSpare(X) :- X={val}.\n'
             constraints.append(line)
         
         # :- query(t), holds(State, 70, X), 0< State<t, not hasSpare(X).
-        line = f':- query(t), holds(State, {_idx}, X), 0<State<t, not hasSpare(X).{os.linesep}'
+        line = f':- query(t), holds(State, {_idx}, X), 0<State<t, not hasSpare(X).\n'
         constraints.append(line)
 
 
@@ -50,14 +50,14 @@ class TireworldKnowledge(object):
         for _from, _to in adjacent_positions:
             _f = vehicle_at_var.domain.index(f'Atom vehicle-at({_from})')
             _t = vehicle_at_var.domain.index(f'Atom vehicle-at({_to})')
-            line = f"adjacent({_f}, {_t}).{os.linesep}"
+            line = f"adjacent({_f}, {_t}).\n"
             constraints.append(line)
 
-            line = f"adjacent({_f}, {_f}).{os.linesep}"
+            line = f"adjacent({_f}, {_f}).\n"
             constraints.append(line)
 
         # :- holds(S1, 1, X), not goalState(S1), {holds(S2, 1, Y): successor(S1, S2), adjacent(X, Y)} =0.
-        line = f':- holds(S1, {vehicle_at_var_idx}, X), not goalState(S1), {{holds(S2, {vehicle_at_var_idx}, Y): successor(S1, S2), adjacent(X, Y)}}=0. {os.linesep}'
+        line = f':- holds(S1, {vehicle_at_var_idx}, X), not goalState(S1), {{holds(S2, {vehicle_at_var_idx}, Y): successor(S1, S2), adjacent(X, Y)}}=0. \n'
         constraints.append(line)
 
 
@@ -68,10 +68,10 @@ class TireworldKnowledge(object):
         # has-spare(X) :- X=1.
         # :- holds(State, 18, X), not initialState(State), not goalState(State), not has-spare(X).
         for loc, (_idx, val) in locations_with_spare.items():
-            line = f'hasSpare(X) :- X={val}.{os.linesep}'
+            line = f'hasSpare(X) :- X={val}.\n'
             constraints.append(line)
         
-        line = f':- holds(State, {_idx}, X), not initialState(State), not goalState(State), not hasSpare(X).{os.linesep}'
+        line = f':- holds(State, {_idx}, X), not initialState(State), not goalState(State), not hasSpare(X).\n'
         constraints.append(line)
 
 
