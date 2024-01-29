@@ -184,13 +184,19 @@ def build_controller(output_dir: str):
     Returns:
         tuple: controller, initial state, and ND actions
     """
+    _logger = _get_logger()
     sas_file: str = os.path.join(output_dir, SAS_FILE)
     solution_file: str = os.path.join(output_dir, CONTROLLER_TXT_FILE)
     controller_file = os.path.join(output_dir, CONTROLLER_JSON_FILE)
-    last_clingo_out_file = os.path.join(output_dir, _get_last_output_file(output_dir))
+    _last_output_file = _get_last_output_file(output_dir)
+
+    if not _last_output_file:
+        _logger.warning(f"No clingo output, cannot build controller.")
+        return None, None, None
+
+    last_clingo_out_file = os.path.join(output_dir, _last_output_file)
 
     if _timed_out(last_clingo_out_file):
-        _logger = _get_logger()
         _logger.warning(f"Solution timed out, cannot build controller: {last_clingo_out_file}")
         return None, None, None
 
@@ -216,10 +222,12 @@ def build_controller(output_dir: str):
     return controller, initial_state, nd_actions
 
 
-def _get_last_output_file(output_dir) -> str:
+def _get_last_output_file(output_dir) -> str | None:
     files = os.listdir(output_dir)
     clingo_output_files = [f for f in files if ASP_CLINGO_OUTPUT_PREFIX in f]
     ids = [_get_file_id(f) for f in clingo_output_files]
+    if not ids:
+        return None
     last_id = ids.index(max(ids))
     return clingo_output_files[last_id]
 

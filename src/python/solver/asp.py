@@ -6,8 +6,8 @@ import coloredlogs
 from async_timeout import timeout
 from base.config import ASP_CLINGO_OUTPUT_PREFIX
 from base.elements import FONDProblem, Action, Variable, State
+from base.logic_operators import entails
 from utils.backbone import get_backbone_asp, create_backbone_constraint
-from utils.fd import compute_weak_plan
 from utils.helper_asp import write_goal, write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
 from utils.helper_clingo import execute_asp, execute_asp_async, set_logger
 from utils.helper_sas import organize_actions
@@ -33,7 +33,14 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
     _logger.info(f"Solving {fond_problem.domain} with problem {fond_problem.problem} using backbone.")
 
     # determinise, translate to SAS and parse the SAS file
+    initial_state: State = None
+    goal_state: State = None
     initial_state, goal_state, det_actions, nd_actions, variables, mutexs = parse(fond_problem, output_dir)
+
+    # check if initial state is the goal state
+    if entails(initial_state, goal_state):
+        _logger.info("Goal met in the initial state!")
+        return
 
     # generate ASP instance
     file: str = os.path.join(output_dir, "instance.lp")
