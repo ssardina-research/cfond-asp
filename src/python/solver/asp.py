@@ -96,17 +96,7 @@ def set_model(nd_actions, fond_problem: FONDProblem):
                 name = "fondsat"
             case "regression":
                 name = "reg"
-
-        max_nd = 0
-        for _, actions_list in nd_actions.items():
-            if len(actions_list) > max_nd:
-                max_nd = len(actions_list)
-
-        suffix = ""
-        if max_nd > 2:
-            suffix = "-gen"
-
-        controller = f"controller-{name}{suffix}.lp"
+        controller = f"controller-{name}.lp"
 
     fond_problem.controller_model = os.path.join(fond_problem.root, "asp", controller)
 
