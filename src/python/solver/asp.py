@@ -31,7 +31,7 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
     :return:
     """
     _logger: logging.Logger = _get_logger()
-    _logger.info(f"Solving {fond_problem.domain} with problem {fond_problem.problem} using backbone.")
+    _logger.info(f"Solving {fond_problem.domain} with problem {fond_problem.problem} using backbone={back_bone}.")
 
     # determinise, translate to SAS and parse the SAS file
     initial_state: State = None
