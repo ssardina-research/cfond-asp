@@ -32,5 +32,11 @@ def get_now():
     return datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S.%f")
 
 
+def remove_files(output_dir: str, prefix:str):
+    for file in os.listdir(os.path.join(output_dir)):
+        if prefix in file:
+            os.remove(os.path.join(output_dir, file))
+
+
 if __name__ == "__main__":
     print_system_info()

@@ -7,6 +7,7 @@ from async_timeout import timeout
 from base.config import ASP_CLINGO_OUTPUT_PREFIX
 from base.elements import FONDProblem, Action, Variable, State
 from base.logic_operators import entails
+from utils.system_utils import remove_files
 from utils.backbone import get_backbone_asp, create_backbone_constraint
 from utils.helper_asp import write_goal, write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
 from utils.helper_clingo import execute_asp, execute_asp_async, set_logger
@@ -111,6 +112,10 @@ def set_model(nd_actions, fond_problem: FONDProblem):
 
 
 def preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd_actions, variables, file, min_controller_size=1):
+    # remove any old clingo output files
+    remove_files(output_dir, ASP_CLINGO_OUTPUT_PREFIX)
+
+    # set the solver model
     set_model(nd_actions, fond_problem)
 
     if fond_problem.filter_undo:
@@ -168,8 +173,8 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
         except asyncio.CancelledError:
             _logger.info(f"Timed Out with numStates={num_states}.")
             out_file = os.path.join(output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out")
-            with open(out_file, "w") as f:
-                f.write(f"Timed out.")
+            with open(out_file, "a") as f:
+                f.write(f"Timed out with time limit={fond_problem.time_limit}.\n")
 
 
 def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str, min_states: int = 1):
