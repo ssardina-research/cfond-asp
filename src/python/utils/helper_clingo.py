@@ -96,7 +96,7 @@ async def execute_asp_async(executable: str, args: List[str], input_files: List[
     executable_list = [executable] + input_files + args
     cmd_executable = ' '.join(executable_list)
 
-    file_out = open(output_file, "w")
+    file_out = open(output_file, "a")
     time_start = get_now()
     file_out.write(f"Time start: {time_start}\n\n")
     file_out.write(cmd_executable)
