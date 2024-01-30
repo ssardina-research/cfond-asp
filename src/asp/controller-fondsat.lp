@@ -63,6 +63,8 @@ CONSTRAINTS:
 
 P1. Preconditions must be forced when an action is executed in a controller State.
     Action precondition: (n, a) -> p(n) if p in prec(a)
+    See we use an integrity constraint because it is faster than a rule deriving holds.
+    This works ONLY because holds is justified via G1 generation rule; by itself it will not generate holds. See https://github.com/ssardina-research/cfond-asp-private/wiki/Controller:-Generating-holds-via-choice-rule-vs-constraints
 
 N1-N3. Propagation of negative conditions.
 
@@ -75,7 +77,7 @@ NOTE:: The use of not holds in implication increases the grounding speed but red
 ---------------------------------------------------------------------------------------------------------------*%
 0 {holds(State,Variable,Value) : variableValue(Variable,Value)} 1 :- state(State), variable(Variable). % G1
 
-:- policy(State, Action), precondition(Action, Variable, Value), not holds(State, Variable, Value). % P1
+:- policy(State, Action), precondition(Action, Variable, Value), not holds(State, Variable, Value). % P1 (faster than a rule for holds; works because of G1)
 
 not holds(NextState, Variable, Value) :- % N1
     transition(State, Effect, NextState),
