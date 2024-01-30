@@ -81,11 +81,16 @@ holds(State, Variable, Value) :-
 - succesor(X,Y): Y is a succesor of X if there is a transition from X to Y.
 
 Note: The symmetry breaking produces a labelling as per breadth first search.
+S1. If J is a successor of I, then all non-sibling states K, where K < I, cannot connect to J.
 S2. If J is a successor of I, then all states K, where K <= I, should not have connection to J-1.
 S3. Siblings should obey lexicographic ordering (two siblings version)
 S4. Siblings should obey lexicographic ordering (more than two siblings version)
 ---------------------------------------------------------------------------------------------------------------*%
 successor(X, Y) :- transition(X, _, Y).
+
+% Left out; seems to be making it slower
+% -successor(K, J) :- successor(I, J), not sibling(K, I), J > I, not goalState(J), state(K), 1 < K < I. % S1
+% sibling(X, Y) :- successor(Z, X), successor(Z, Y), X != Y.
 
 :- successor(I, J), not goalState(J), J > I, J > 1, {successor(K, J-1): state(K), state(J-1), K <= I} 0. % S2
 
