@@ -14,6 +14,13 @@ The `benchmarking/` folder contains scripts to facilitate running benchmarks, po
   - The listed Python packages may have other dependencies (e.g., `libxml2` and `libxslt` development packages).
 - [Clingo](https://potassco.org/clingo/) ASP solver.
 
+#### FOND Translator to SAS
+
+The planner uses a translator determinization system, which converts a FOND PDDL instance to a SAS one-effect determinized version (i.e., every effect of an action becomes an action).
+
+The FOND translator is under [src/translator-fond/](src/translator-fond/) and is a dump of commit [792f331](https://github.com/ssardina-research/translator-fond/tree/792f3317d3a8d7978a13cc41a48b7fd12f7690bc) in branch [fd22.12](https://github.com/ssardina-research/translator-fond/tree/fd22.12) in the [translator-fond](https://github.com/ssardina-research/translator-fond/) GH repo. Note this is version is a modification of [Fast-downard release 22.12](https://github.com/aibasel/downward/tree/release-22.12.0) (December 16, 2022) SAS translator for FOND determinization. This is different from the PRP's translator, which is based on the 2011 SAS FD translator (available, with fixes, in release [2011 PRP](https://github.com/ssardina-research/translator-fond/releases/tag/2011-prp) in [translator-fond repo](https://github.com/ssardina-research/translator-fond/)).
+
+
 ## Usage
 
 The planner can be executed with the following command:
