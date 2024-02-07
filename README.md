@@ -49,7 +49,7 @@ $ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchma
 2024-01-12 15:04:30 nitin __main__[195427] INFO Time(s) taken:1.6477028469962534
 ```
 
-Use `--dump_ctrl` to dump controller found, if any, into text and JSON formats.
+Use `--dump_cntrl` to dump controller found, if any, into text and JSON formats.
 
 
 ### Clingo parameters
@@ -129,7 +129,7 @@ The determinisation and SAS encoder is done by the code under [`src/translator-f
 
 The various ASP solvers available, as reported in the ECAI23 paper, can be found under folder [src/asp/](src/asp/).
 
-For strong-cyclic solutions (chosen via `--mode`):
+For strong-cyclic solutions (chosen via `--model`):
 
 - `controller-fondsat`: encoding following FONDSAT in propagating negative propositions forward.
 - `controller-reg`: encoding implementing weakest-precondition via regression (like PRP).
