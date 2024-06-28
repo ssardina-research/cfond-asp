@@ -12,7 +12,8 @@ The `benchmarking/` folder contains scripts to facilitate running benchmarks, po
 
 - Python 3.11 with dependencies as per `requirements.txt`.
   - The listed Python packages may have other dependencies (e.g., `libxml2` and `libxslt` development packages).
-- [Clingo](https://potassco.org/clingo/) ASP solver.
+- [Clingo](https://potassco.org/clingo/) 5.5+ ASP solver.
+  - Note version 5.4 does not support chained comparisons used of the form `X < Y < Z`.
 
 #### FOND Translator to SAS
 
