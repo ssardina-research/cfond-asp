@@ -141,4 +141,4 @@ For strong solutions (via `--solution_type strong`), the encoding solver used is
 ## Contributors
 
 - Nitin Yadav (nitin.yadav@unimelb.edu.au)
-- Sebastia Sardina (ssardina@gmail.com)
+- Sebastian Sardina (ssardina@gmail.com - sebastian.sardina@rmit.edu.au)
