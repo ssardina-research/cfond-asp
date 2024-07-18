@@ -465,3 +465,4 @@ TSWLatexianTemp*
 .DS_Store
 output
 weak_plan.csv
+.python-version

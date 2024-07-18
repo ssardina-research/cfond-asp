@@ -1,0 +1,7 @@
+format_version: "2.0"
+input_files:
+- ../../../benchmarks/first-responders-ipc08/domain.pddl
+- ../../../benchmarks/first-responders-ipc08/p17.pddl
+
+options:
+    output: first-responders-ipc08/17

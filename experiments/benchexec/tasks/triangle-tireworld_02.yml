@@ -1,0 +1,7 @@
+format_version: "2.0"
+input_files:
+- ../../../benchmarks/triangle-tireworld/domain.pddl
+- ../../../benchmarks/triangle-tireworld/p02.pddl
+
+options:
+    output: triangle-tireworld/02

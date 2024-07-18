@@ -1,0 +1,7 @@
+format_version: "2.0"
+input_files:
+- ../../../benchmarks/miner/domain.pddl
+- ../../../benchmarks/miner/p21.pddl
+
+options:
+    output: miner/21
