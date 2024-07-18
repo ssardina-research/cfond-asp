@@ -19,7 +19,6 @@ SPDX-License-Identifier: Apache-2.0
     <!-- command-line options to send to the solver -->
     <option name="-search">ITERATIVE_DFS_PRUNING</option>
     <option name="-heuristic">HMAX</option>
-    <option name="--output_prefix">benchexec_output/paladinus/</option>
   </rundefinition>
 
 

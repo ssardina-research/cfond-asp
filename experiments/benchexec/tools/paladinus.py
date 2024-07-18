@@ -30,7 +30,7 @@ class Tool(BaseTool2):
 
     def __init__(self) -> None:
         super().__init__()
-        self._output_dir = None
+        self._output_dir = "./benchexec_output/paladinus"
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("paladinus")
@@ -44,14 +44,6 @@ class Tool(BaseTool2):
         )
 
     def cmdline(self, executable, options, task, rlimits):
-        for i in range(len(options)):
-            option = options[i]
-            if option == "--output_prefix":
-                options[i] = "--output"
-                self._output_dir = options[i + 1] + task.options["output"]
-                options[i + 1] = self._output_dir
-                break
-            
         options += ["-timeout", str(rlimits.cputime), "-exportPolicy", f"{self._output_dir}/policy.out"]
         return [executable] + options + list(task.input_files)
 
