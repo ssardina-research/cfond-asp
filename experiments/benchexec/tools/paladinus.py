@@ -33,7 +33,7 @@ class Tool(BaseTool2):
         self._output_dir = None
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("padalinus")
+        return tool_locator.find_executable("paladinus")
 
     def name(self):
         return "Paladinus"
