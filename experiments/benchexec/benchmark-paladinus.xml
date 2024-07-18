@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
 <!-- Example file for benchmark definition for BenchExec. -->
-<benchmark tool="benchexe.tools.fond"
+<benchmark tool="benchexec.tools.paladinus"
   displayName="Agent planning programs Paladinus FOND solver"
   timelimit="14400s"
   hardtimelimit="14405s"
