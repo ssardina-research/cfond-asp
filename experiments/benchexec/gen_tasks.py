@@ -22,6 +22,7 @@ re_1 = r"p(?P<num>[\d]+).pddl"
 # default location - can be overridden by CLI --benchmarks
 ROOT_BENCHMARKS = "./benchmarks/"
 DOMAIN_FILE = "domain.pddl"
+KB = {"miner": "miner", "spiky-tireworld": "spikytireworld"}
 
 # scenarios/domains where there is one domain per planning problem
 NON_UNIQUE_DOMAIN = ["faults-ipc08"]
@@ -57,7 +58,9 @@ def gen_tasks():
                 f.write(f"- {PREFIX_DIR}/{_domain}/{_value[2]}\n")
                 f.write("\n")
                 f.write("options:\n")
-                f.write(f"    output: {_domain}/{_key}")
+                f.write(f"    output: {_domain}/{_key}\n")
+                if _domain in KB.keys():
+                    f.write(f"    kb: {KB[_domain]}")
 
 
 if __name__ == "__main__":

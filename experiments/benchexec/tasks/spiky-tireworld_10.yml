@@ -5,3 +5,4 @@ input_files:
 
 options:
     output: spiky-tireworld/10
+    kb: spikytireworld

@@ -5,3 +5,4 @@ input_files:
 
 options:
     output: miner/36
+    kb: miner

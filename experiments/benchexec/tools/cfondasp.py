@@ -29,6 +29,8 @@ class Tool(BaseTool2):
         """
         ./src/cfondasp ./benchmarks/acrobatics/domain.pddl ./benchmarks/acrobatics/p03.pddl --model fondsat --use_backbone --filter_undo --clingo_args "-t 2" --output ./output 
         """
+        if "kb" in task.options:
+            options += ["--domain_kb", task.options["kb"]]
         options += ["--timeout", str(rlimits.cputime)]
         return [executable] + options + list(task.input_files) + ["--output", f"{self._output_dir}/{task.options['output']}"]
 
