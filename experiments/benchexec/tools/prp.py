@@ -59,7 +59,7 @@ class Tool(BaseTool2):
         --jic-limit
         """
         options += ["--jic-limit", str(rlimits.cputime)]
-        return [executable] + options + list(task.input_files)
+        return [executable] + list(task.input_files) + options 
 
     def determine_result(self, run):
         """
