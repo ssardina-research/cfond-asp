@@ -42,7 +42,7 @@ class Tool(BaseTool2):
         ./src/fondsat ./F-domains/zenotravel/domain.pddl ./F-domains/zenotravel/p01.pddl --solver glucose --time-limit 10000 --end 100         
         """
         options += ["--time-limit", str(rlimits.cputime)]
-        return [executable] + options + list(task.input_files) ["--show-policy"]
+        return [executable] + options + list(task.input_files) + ["--show-policy"]
 
     def determine_result(self, run):
         """
