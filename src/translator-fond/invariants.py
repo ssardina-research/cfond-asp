@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from collections import defaultdict
 import itertools
 
@@ -28,7 +30,7 @@ def instantiate_factored_mapping(pairs):
 
 def find_unique_variables(action, invariant):
     # find unique names for invariant variables
-    params = {p.name for p in action.parameters}
+    params = set([p.name for p in action.parameters])
     for eff in action.effects:
         params.update([p.name for p in eff.parameters])
     inv_vars = []
@@ -46,7 +48,8 @@ def get_literals(condition):
     if isinstance(condition, pddl.Literal):
         yield condition
     elif isinstance(condition, pddl.Conjunction):
-        yield from condition.parts
+        for literal in condition.parts:
+            yield literal
 
 
 def ensure_conjunction_sat(system, *parts):
@@ -85,9 +88,6 @@ def ensure_cover(system, literal, invariant, inv_vars):
     """Modifies the constraint system such that it is only solvable if the
        invariant covers the literal"""
     a = invariant.get_covering_assignments(inv_vars, literal)
-    assert len(a) == 1
-    # if invariants could contain several parts of one predicate, this would
-    # not be true but the depending code in parts relies on this assumption
     system.add_assignment_disjunction(a)
 
 
@@ -96,8 +96,8 @@ def ensure_inequality(system, literal1, literal2):
        literal instantiations are not equal (ignoring whether one is negated and
        the other is not)"""
     if (literal1.predicate == literal2.predicate and
-        literal1.args):
-        parts = list(zip(literal1.args, literal2.args))
+        literal1.parts):
+        parts = list(zip(literal1.parts, literal2.parts))
         system.add_negative_clause(constraints.NegativeClause(parts))
 
 
@@ -194,8 +194,8 @@ class Invariant:
 
     def __init__(self, parts):
         self.parts = frozenset(parts)
-        self.predicates = {part.predicate for part in parts}
-        self.predicate_to_part = {part.predicate: part for part in parts}
+        self.predicates = set([part.predicate for part in parts])
+        self.predicate_to_part = dict([(part.predicate, part) for part in parts])
         assert len(self.parts) == len(self.predicates)
 
     def __eq__(self, other):
@@ -250,7 +250,7 @@ class Invariant:
     def operator_too_heavy(self, h_action):
         add_effects = [eff for eff in h_action.effects
                        if not eff.literal.negated and
-                       self.predicate_to_part.get(eff.literal.predicate)]
+                          self.predicate_to_part.get(eff.literal.predicate)]
         inv_vars = find_unique_variables(h_action, self)
 
         if len(add_effects) <= 1:
@@ -320,8 +320,8 @@ class Invariant:
             lhs_by_pred[lit.predicate].append(lit)
 
         for del_effect in del_effects:
-            minimal_renamings = self.unbalanced_renamings(
-                del_effect, add_effect, inv_vars, lhs_by_pred, minimal_renamings)
+            minimal_renamings = self.unbalanced_renamings(del_effect, add_effect,
+                inv_vars, lhs_by_pred, minimal_renamings)
             if not minimal_renamings:
                 return False
 
@@ -339,43 +339,16 @@ class Invariant:
                                                    del_eff.literal):
                     enqueue_func(Invariant(self.parts.union((match,))))
 
-    def unbalanced_renamings(self, del_effect, add_effect, inv_vars,
-                             lhs_by_pred, unbalanced_renamings):
+    def unbalanced_renamings(self, del_effect, add_effect,
+        inv_vars, lhs_by_pred, unbalanced_renamings):
         """returns the renamings from unbalanced renamings for which
            the del_effect does not balance the add_effect."""
-
         system = constraints.ConstraintSystem()
-        ensure_cover(system, del_effect.literal, self, inv_vars)
-
-        # Since we may only rename the quantified variables of the delete effect
-        # we need to check that "renamings" of constants are already implied by
-        # the unbalanced_renaming (of the of the operator parameters). The
-        # following system is used as a helper for this. It builds a conjunction
-        # that formulates that the constants are NOT renamed accordingly. We
-        # below check that this is impossible with each unbalanced renaming.
-        check_constants = False
-        constant_test_system = constraints.ConstraintSystem()
-        for a, b in system.combinatorial_assignments[0][0].equalities:
-            # first 0 because the system was empty before we called ensure_cover
-            # second 0 because ensure_cover only adds assignments with one entry
-            if b[0] != "?":
-                check_constants = True
-                neg_clause = constraints.NegativeClause([(a, b)])
-                constant_test_system.add_negative_clause(neg_clause)
-
         ensure_inequality(system, add_effect.literal, del_effect.literal)
+        ensure_cover(system, del_effect.literal, self, inv_vars)
 
         still_unbalanced = []
         for renaming in unbalanced_renamings:
-            if check_constants:
-                new_sys = constant_test_system.combine(renaming)
-                if new_sys.is_solvable():
-                    # it is possible that the operator arguments are not
-                    # mapped to constants as required for covering the delete
-                    # effect
-                    still_unbalanced.append(renaming)
-                    continue
-
             new_sys = system.combine(renaming)
             if self.lhs_satisfiable(renaming, lhs_by_pred):
                 implies_system = self.imply_del_effect(del_effect, lhs_by_pred)

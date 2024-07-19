@@ -1,5 +1,7 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
 
+from __future__ import print_function
 
 import sys
 import itertools
@@ -69,8 +71,8 @@ class JoinRule(BuildRule):
         self.conditions = conditions
         left_args = conditions[0].args
         right_args = conditions[1].args
-        left_vars = {var for var in left_args if isinstance(var, int)}
-        right_vars = {var for var in right_args if isinstance(var, int)}
+        left_vars = set([var for var in left_args if isinstance(var, int)])
+        right_vars = set([var for var in right_args if isinstance(var, int)])
         common_vars = sorted(left_vars & right_vars)
         self.common_var_positions = [
             [args.index(var) for var in common_vars]
@@ -81,12 +83,12 @@ class JoinRule(BuildRule):
         left_args = self.conditions[0].args
         right_args = self.conditions[1].args
         eff_args = self.effect.args
-        left_vars = {v for v in left_args
-                     if isinstance(v, int) or v[0] == "?"}
-        right_vars = {v for v in right_args
-                      if isinstance(v, int) or v[0] == "?"}
-        eff_vars = {v for v in eff_args
-                    if isinstance(v, int) or v[0] == "?"}
+        left_vars = set([v for v in left_args
+                         if isinstance(v, int) or v[0] == "?"])
+        right_vars = set([v for v in right_args
+                          if isinstance(v, int) or v[0] == "?"])
+        eff_vars = set([v for v in eff_args
+                        if isinstance(v, int) or v[0] == "?"])
         assert left_vars & right_vars, self
         assert (left_vars | right_vars) == (left_vars & right_vars) | eff_vars, self
     def update_index(self, new_atom, cond_index):
@@ -117,12 +119,12 @@ class ProductRule(BuildRule):
         self.empty_atom_list_no = len(self.conditions)
     def validate(self):
         assert len(self.conditions) >= 2, self
-        cond_vars = [{v for v in cond.args
-                      if isinstance(v, int) or v[0] == "?"}
+        cond_vars = [set([v for v in cond.args
+                          if isinstance(v, int) or v[0] == "?"])
                      for cond in self.conditions]
         all_cond_vars = reduce(set.union, cond_vars)
-        eff_vars = {v for v in self.effect.args
-                    if isinstance(v, int) or v[0] == "?"}
+        eff_vars = set([v for v in self.effect.args
+                        if isinstance(v, int) or v[0] == "?"])
         assert len(all_cond_vars) == len(eff_vars), self
         assert len(all_cond_vars) == sum([len(c) for c in cond_vars])
     def update_index(self, new_atom, cond_index):
@@ -279,8 +281,8 @@ class Queue:
     def __init__(self, atoms):
         self.queue = atoms
         self.queue_pos = 0
-        self.enqueued = {(atom.predicate,) + tuple(atom.args)
-                         for atom in self.queue}
+        self.enqueued = set([(atom.predicate,) + tuple(atom.args)
+                             for atom in self.queue])
         self.num_pushes = len(atoms)
     def __bool__(self):
         return self.queue_pos < len(self.queue)
@@ -295,6 +297,8 @@ class Queue:
         result = self.queue[self.queue_pos]
         self.queue_pos += 1
         return result
+    def popped_elements(self):
+        return self.queue[:self.queue_pos]
 
 def compute_model(prog):
     with timers.timing("Preparing model"):
@@ -326,18 +330,20 @@ def compute_model(prog):
     return queue.queue
 
 if __name__ == "__main__":
-    import pddl_parser
-    import normalize
+    import sys
     import pddl_to_prolog
+    silent = False
+    if len(sys.argv) >= 2 and sys.argv[1] == "--silent":
+        silent = True
+        del sys.argv[1]
 
     print("Parsing...")
-    task = pddl_parser.open()
-    print("Normalizing...")
-    normalize.normalize(task)
+    task = pddl.open()
     print("Writing rules...")
     prog = pddl_to_prolog.translate(task)
 
     model = compute_model(prog)
-    for atom in model:
-        print(atom)
+    if not silent:
+        for atom in model:
+            print(atom)
     print("%d atoms" % len(model))

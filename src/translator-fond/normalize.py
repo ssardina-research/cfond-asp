@@ -1,10 +1,12 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
+
+from itertools import product
 
 import copy
 
 import pddl
 
-class ConditionProxy:
+class ConditionProxy(object):
     def clone_owner(self):
         clone = copy.copy(self)
         clone.owner = copy.copy(clone.owner)
@@ -23,7 +25,8 @@ class PreconditionProxy(ConditionProxy):
     def build_rules(self, rules):
         action = self.owner
         rule_head = get_action_predicate(action)
-        rule_body = condition_to_rule_body(action.parameters, self.condition)
+        rule_body = list(condition_to_rule_body(action.parameters,
+                                                self.condition))
         rules.append((rule_body, rule_head))
     def get_type_map(self):
         return self.owner.type_map
@@ -62,7 +65,7 @@ class AxiomConditionProxy(ConditionProxy):
     def build_rules(self, rules):
         axiom = self.owner
         app_rule_head = get_axiom_predicate(axiom)
-        app_rule_body = condition_to_rule_body(axiom.parameters, self.condition)
+        app_rule_body = list(condition_to_rule_body(axiom.parameters, self.condition))
         rules.append((app_rule_body, app_rule_head))
         params = axiom.parameters[:axiom.num_external_parameters]
         eff_rule_head = pddl.Atom(axiom.name, [par.name for par in params])
@@ -89,7 +92,7 @@ class GoalConditionProxy(ConditionProxy):
         assert False, "Disjunctive goals not (yet) implemented."
     def build_rules(self, rules):
         rule_head = pddl.Atom("@goal-reachable", [])
-        rule_body = condition_to_rule_body([], self.condition)
+        rule_body = list(condition_to_rule_body([], self.condition))
         rules.append((rule_body, rule_head))
     def get_type_map(self):
         # HACK!
@@ -126,7 +129,7 @@ def all_conditions(task):
         yield AxiomConditionProxy(axiom)
     yield GoalConditionProxy(task)
 
-# [1] Remove universal quantifications from conditions.
+# [1.1] Remove universal quantifications from conditions using axioms.
 #
 # Replace, in a top-down fashion, <forall(vars, phi)> by <not(not-all-phi)>,
 # where <not-all-phi> is a new axiom.
@@ -135,18 +138,18 @@ def all_conditions(task):
 # translated to NNF. The parameters of the new axioms are exactly the free
 # variables of <forall(vars, phi)>.
 
-def remove_universal_quantifiers(task):
+def remove_universal_quantifiers_with_axioms(task):
     def recurse(condition):
         # Uses new_axioms_by_condition and type_map from surrounding scope.
         if isinstance(condition, pddl.UniversalCondition):
             axiom_condition = condition.negate()
             parameters = sorted(axiom_condition.free_variables())
-            typed_parameters = tuple(pddl.TypedObject(v, type_map[v]) for v in parameters)
-            axiom = new_axioms_by_condition.get((axiom_condition, typed_parameters))
+            axiom = new_axioms_by_condition.get(axiom_condition)
             if not axiom:
+                typed_parameters = [pddl.TypedObject(v, type_map[v]) for v in parameters]
                 condition = recurse(axiom_condition)
-                axiom = task.add_axiom(list(typed_parameters), condition)
-                new_axioms_by_condition[(condition, typed_parameters)] = axiom
+                axiom = task.add_axiom(typed_parameters, condition)
+                new_axioms_by_condition[condition] = axiom
             return pddl.NegatedAtom(axiom.name, parameters)
         else:
             new_parts = [recurse(part) for part in condition.parts]
@@ -158,6 +161,59 @@ def remove_universal_quantifiers(task):
         if proxy.condition.has_universal_part():
             type_map = proxy.get_type_map()
             proxy.set(recurse(proxy.condition))
+
+# [1.2] Remove universal quantifications from conditions without axioms.
+#
+# Replace the <forall(vars, phi)> with the standard conjunction of all
+# related objects.
+
+def remove_universal_quantifiers_without_axioms(task):
+    def lit_replacement(condition, obj_map):
+        if isinstance(condition, pddl.Literal):
+            if isinstance(condition, pddl.Atom):
+                return pddl.Atom(condition.predicate, [obj_map.get(arg,arg) for arg in condition.args])
+            elif isinstance(condition, pddl.NegatedAtom):
+                return pddl.NegatedAtom(condition.predicate, [obj_map.get(arg,arg) for arg in condition.args])
+            else:
+                assert False, "What is a Literal but not an atom??"
+        else:
+            new_parts = [lit_replacement(part, obj_map) for part in condition.parts]
+            return condition.change_parts(new_parts)
+        return True
+
+    def recurse(condition):
+
+        if isinstance(condition, pddl.UniversalCondition):
+
+            assert 1 == len(condition.parts)
+            template = recurse(condition.parts[0])
+
+            type_lists = []
+            for param in condition.parameters:
+                type_lists.append(filter(lambda obj: obj.type == param.type, task.objects))
+
+            object_combos = list(product(*type_lists))
+            types = [param.name for param in condition.parameters]
+            copies = []
+
+            for combo in object_combos:
+                copies.append(lit_replacement(template, dict(zip(types, [obj.name for obj in combo]))))
+
+            return pddl.Conjunction(copies)
+        else:
+            new_parts = [recurse(part) for part in condition.parts]
+            return condition.change_parts(new_parts)
+
+    for proxy in tuple(all_conditions(task)):
+        if proxy.condition.has_universal_part():
+            proxy.set(recurse(proxy.condition).simplified())
+
+
+# [1] Set the type of removal for universal quantifications
+#
+# Note: Using the version without axioms may cause an explosion in the
+#       size of the action
+remove_universal_quantifiers = remove_universal_quantifiers_without_axioms
 
 
 # [2] Pull disjunctions to the root of the condition.
@@ -215,10 +271,13 @@ def split_disjunctions(task):
     for proxy in tuple(all_conditions(task)):
         # Cannot use generator directly because we add/delete entries.
         if isinstance(proxy.condition, pddl.Disjunction):
+            i = 1
             for part in proxy.condition.parts:
                 new_proxy = proxy.clone_owner()
                 new_proxy.set(part)
                 new_proxy.register_owner(task)
+                new_proxy.owner.name += str(i)
+                i += 1
             proxy.delete_owner(task)
 
 # [4] Pull existential quantifiers out of conjunctions and group them.
@@ -367,31 +426,23 @@ def build_exploration_rules(task):
     return result
 
 def condition_to_rule_body(parameters, condition):
-    result = []
     for par in parameters:
-        result.append(par.get_atom())
+        yield pddl.Atom(par.type, [par.name])
     if not isinstance(condition, pddl.Truth):
         if isinstance(condition, pddl.ExistentialCondition):
             for par in condition.parameters:
-                result.append(par.get_atom())
+                yield pddl.Atom(par.type, [par.name])
             condition = condition.parts[0]
         if isinstance(condition, pddl.Conjunction):
             parts = condition.parts
         else:
             parts = (condition,)
         for part in parts:
-            if isinstance(part, pddl.Falsity):
-                # Use an atom in the body that is always false because
-                # it is not initially true and doesn't occur in the
-                # head of any rule.
-                return [pddl.Atom("@always-false", [])]
-            assert isinstance(part, pddl.Literal), "Condition not normalized: %r" % part
+            assert isinstance(part, pddl.Literal), "Condition not normalized"
             if not part.negated:
-                result.append(part)
-    return result
+                yield part
 
 if __name__ == "__main__":
-    import pddl_parser
-    task = pddl_parser.open()
+    task = pddl.open()
     normalize(task)
     task.dump()
