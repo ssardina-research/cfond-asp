@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<!--
+This file is part of BenchExec, a framework for reliable
+benchmarking:https://github.com/sosy-lab/benchexec
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+SPDX-License-Identifier: Apache-2.0
+-->
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
+<!-- Example file for benchmark definition for BenchExec. -->
+<benchmark tool="tools.cfondasp"
+  displayName="Agent planning programs Compact FOND-ASP FOND solver"
+  timelimit="14400s"
+  hardtimelimit="14405s"
+  memlimit="4096 MB">
+
+  <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
+  <rundefinition name="prp">
+    <!-- command-line options to send to the solver -->
+    <option name="--dump-policy">2</option>
+  </rundefinition>
+
+  <!-- <tasks> defines a set of tasks (can appear multiple times). -->
+  <tasks name="FOND">
+    <include>tasks/*.yml</include>
+  </tasks>
+
+  <columns>
+    <!-- <column> tags may be used to define columns in the result tables with data from the tool
+    output. -->
+    <column title="policy_size">policy_size</column>
+    <column title="planner_time">planner_time</column>
+  </columns>
+
+  <!-- State which files to retrive the files produced by the run  -->
+  <resultfiles></resultfiles>
+
+</benchmark>
