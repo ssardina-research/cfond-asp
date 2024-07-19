@@ -153,10 +153,12 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
                 # check if a solution was found or the process timed out
                 if solution_found and direction > 0:
                     _logger.info(f"Solution found!")
+                    _logger.info(f"Number of states in controller: {num_states+1}")
                     stop = True
 
                 elif not solution_found and direction < 0:
                     _logger.info(f"Solution found!")
+                    _logger.info(f"Number of states in controller: {num_states+1}")
                     stop = True
 
                 num_states += direction
@@ -196,10 +198,12 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
         # check if a solution was found or the process timed out
         if solution_found and direction > 0:
             _logger.info(f"Solution found for instance ({fond_problem.domain}, {fond_problem.problem})!")
+            _logger.info(f"Number of states in controller: {num_states+1}")
             stop = True
 
         elif not solution_found and direction < 0:
             _logger.info(f"Solution found for instance ({fond_problem.domain}, {fond_problem.problem})!")
+            _logger.info(f"Number of states in controller: {num_states+1}")
             stop = True
 
         num_states += direction
