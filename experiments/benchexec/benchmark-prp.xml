@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
 <!-- Example file for benchmark definition for BenchExec. -->
-<benchmark tool="tools.cfondasp"
+<benchmark tool="tools.prp"
   displayName="Agent planning programs Compact FOND-ASP FOND solver"
   timelimit="14400s"
   hardtimelimit="14405s"
