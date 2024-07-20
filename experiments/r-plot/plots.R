@@ -1,18 +1,40 @@
 ####
-# Plotting example. The script expects a csv file with the following headers:
-# domain: name of the planning domain
-# planner: name of the planner/solver
-# instance_id: id of the planning problem
-# solved: 1 if problem was solved, 0 otherwise
-# time: time take to solve the problem, -1 if the planer ran out of resources
+# R-script to generate multi-figure coverage graphs.
+#       Author: Nitin Yadav and Sebastian Sardina for ECAI23 paper
+#
+# You may want to change the paramters constants below under "CONSTANTS" section.
+#
+# The script expects a CSV file with the following headers:
+#
+#       domain: name of the planning domain
+#       planner: name of the planner/solver
+#       instance_id: id of the planning problem
+#       solved: 1 if problem was solved, 0 otherwise
+#       time: time take to solve the problem, -1 if the planer ran out of resources
+#
+#        id,index,domain,planner,instance_id,solved,time
+#        0,0,domain_1(37),PLN_1,p1,1,696.8534602463883
+#        1,1,domain_1(37),PLN_1,p2,1,937.6355428936745
+#        2,2,domain_1(37),PLN_1,p3,1,859.8084970638411
+#        3,3,domain_1(37),PLN_1,p4,1,956.1715138371235
 ####
+
+#### SET YOUR CONSTANTS
+csv_file <- "results.csv"
+output_pdf <- "results.pdf"
+output_png <- "results.png"
+plot_width <- 15
+plot_height <- 12
+plot_dpi <- 300
+
+######################################
 
 # import the required libraries for plotting
 library(ggplot2)
 library(dplyr)
 
 # read the csv
-df = read.csv("./results.csv")
+df = read.csv(csv_file)
 
 # set planner and domain as categories
 df$planner = factor(df$planner, levels = sort(unique(df$planner)))
@@ -42,13 +64,27 @@ df_means$mean_label = round(df_means$mean_time,1)
 # convert category to number so that we can move them vertically in plot
 df_means$p_y = as.numeric(df_means$planner)
 
+# build basic plot  with time x and planer y axes
 p = ggplot(df, aes(time, planner))
+
+# add time scatter plot per planner, with bar
 p = p + geom_segment(aes(x=0, xend=coverage_y+1000, y = planner, yend = planner), data=df_c, color="grey50") + geom_point(size=2,aes(colour = planner, shape=planner),show.legend = FALSE)
-p = p + geom_segment(aes(x=mean_time, xend=mean_time, y = p_y-0.2, yend=p_y+0.2), data=df_means, linewidth=0.8, color="grey30")
+
+# add coverage number text in rounded box with % at the end of the bar
 p = p + geom_label(aes(x=coverage_y+1000, y=planner, label=coverage_label), data=df_c, size=3)
+
+# add mean time vertical mark and number per planner
+p = p + geom_segment(aes(x=mean_time, xend=mean_time, y = p_y-0.2, yend=p_y+0.2), data=df_means, linewidth=0.8, color="grey30")
 p = p + geom_text(aes(x=mean_time+100, y=p_y+0.2, label=mean_label), data=df_means, size=3)
+
+# add the facet subplots for each domain
 p = p + facet_wrap(~domain, ncol=4,strip.position="right") #facet_grid(cols = vars(domain))
+
+# add labels text
 p + scale_y_discrete(limits=rev) + xlab("Time (sec)") + ylab("Planners")
 
-ggsave("results.pdf", width=15, height=12, units="in", dpi=300)
+
+# finally, save the plot in PDF and PNG formats (https://ggplot2.tidyverse.org/reference/ggsave.html)
+ggsave(output_pdf, width=plot_width, height=plot_height, units="in", dpi=plot_dpi)
+ggsave(output_png, width=plot_width, height=plot_height, units="in", dpi=plot_dpi)
 
