@@ -10,13 +10,9 @@ We use the [Benchexec](https://github.com/sosy-lab/benchexec) experimental frame
 - [Experiments](#experiments)
   - [Installation and setup](#installation-and-setup)
   - [Configuring an experiment benchmark: Tools + Tasks](#configuring-an-experiment-benchmark-tools--tasks)
-    - [Running a benchmark](#running-a-benchmark)
+    - [Running a benchmark experiment](#running-a-benchmark-experiment)
     - [Output of Benchexec](#output-of-benchexec)
     - [Runexec tool: single benchexec runs](#runexec-tool-single-benchexec-runs)
-    - [Problems](#problems)
-      - [Unsupported tool "benchexe.tool\_fond" specified. ImportError: No module named 'benchexe'](#unsupported-tool-benchexetool_fond-specified-importerror-no-module-named-benchexe)
-    - [ModuleNotFoundError: No module named 'XXXXXX' (BenchExec log files)](#modulenotfounderror-no-module-named-xxxxxx-benchexec-log-files)
-  - [Benchmarking scripts via `async`](#benchmarking-scripts-via-async)
 
 ## Installation and setup
 
@@ -36,20 +32,21 @@ The problem with this is that one would also need to have installed all other Py
 So, the best approach is to create a Python virtual environment which contains Benchexec and all other requirements, and run the experiments within that environment:
 
 ```shell
-$ python -m venv ~/my_virtualenv/app
-$ source ~/virtualenv/app/bin/activate
+$ python -m venv ~/virtualenv/p10
+$ source ~/virtualenv/p10bin/activate
 $ pip install -r requirements.txt   # this will install Benchexec and all necessary
-
+$ pip install benchexec[systemd]
+cd exp
 $ which benchexec
 /home/ssardina/virtualenv/app/bin/benchexec
 ```
 
 Note the `benchexec\[systemd\]` in the requirements file allows Benchexec to set-up `cgroups` automatically.
 
-Remember to make sure you are in the `app` virtual environment before running Benchexec:
+Remember to make sure you are in the `p10` virtual environment before running Benchexec:
 
 ```shell
-$ source ~/virtualenv/app/bin/activate
+$ source ~/virtualenv/p10/bin/activate
 ```
 
 ## Configuring an experiment benchmark: Tools + Tasks
@@ -59,7 +56,7 @@ To benchmark a particular solver (possibly under different settings/configuratio
 1. A **solver tool** Python script, defining the solver that will be benchmarked. This includes the executable of the solver and the processing of its output (e.g., to extract policy size).
    * Tool definitions for the solvers used can be found under [benchexec/tools](benchexec/tools).
 2. A set of **tasks** defining each instance to be solved, as an YAML file specifying input files (domain and problem) and output folder.
-   * Tasks for our problems can be found under [benchexec/tasks](benchexec/tasks/). 
+   * Tasks for our problems can be found under [benchexec/tasks](benchexec/tasks/).
    * These tasks have been generated automatically using script [benchexe/gen_tasks.py](benchexec/gen_tasks.py). From `experiments/` folder:
 
       ```shell
@@ -77,33 +74,42 @@ More explanation on this can be found [here](https://github.com/sosy-lab/benchex
 Before running the benchmarks we need to make sure the various _tool_ definitions (as used in the XML benchmark definitions) are available. This can be done by changing variable [PYTHONPATH](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH) so that module `benchexec` can be found by Python:
 
 ```shell
-$ export PYTHONPATH=$PWD/src/python
+$ export PYTHONPATH=$PWD/experiments/benchexec
 ```
 
-You may also need to make sure all the required binaries (e.g., planners) used by the tools are in the path. One way is to make them all available under `bin/` and set:
+To make sure Benchexec has access to all binaries used by the various tools (e.g., planning systems), you can use `--tool-directory` (see below) or set them all available under a `bin/` folder (e.g., via symbolic links) and then set:
 
 ```shell
 $ export PATH=$PATH:$PWD/bin
 ```
 
-### Running a benchmark
+### Running a benchmark experiment
 
-Finally, to benchmark a solver one passes the main benchmark definition XML file with the required arguments. For example, the command below runs the PRP PP-FOND tool on 3 APP problems in parallel (`-N 3`) with one core per problem (`-c 1`):
+Finally, to benchmark a solver one passes the main benchmark definition XML file with the required arguments. For example, the command below runs the PRP tool on 3 APP problems in parallel (`-N 3`) with one core per problem (`-c 1`):
 
 ```shell
-$ benchexec experiments/benchexe/benchmark-prp.xml -N 3 -c 1 --tool-directory src/python/ --read-only-dir / --overlay-dir /home --hidden-dir $PWD/benchexec_output
-....
-....
-15:01:37              AIJ_BlocksWorld_LIN10-110_75.yml     true                         1.71    1.72
-15:01:37   starting   AIJ_BlocksWorld_LIN10-110_90.yml
-15:01:37              AIJ_BlocksWorld_LIN10-110_70.yml     true                         1.84    1.85
-15:01:37   starting   AIJ_BlocksWorld_LIN10-110_95.yml
-15:01:37              AIJ_BlocksWorld_LIN10-110_80.yml     true                         1.60    1.61
-15:01:38              AIJ_BlocksWorld_LIN10-110_85.yml     true                         1.84    1.85
-15:01:39              AIJ_BlocksWorld_LIN10-110_90.yml     true                         1.61    1.62
-15:01:39              AIJ_BlocksWorld_LIN10-110_95.yml     true                         1.68    1.68
+$ benchexec experiments/benchexec/benchmark-prp.xml -t test -N 3 -c 1 --tool-directory ./bin --read-only-dir / --overlay-dir /home
+executing run set 'prp.FOND'     (9 files)
+17:54:06   starting   blocksworld-ipc08_01.yml
+17:54:06   starting   blocksworld-ipc08_02.yml
+17:54:06   starting   blocksworld-ipc08_03.yml
+17:54:06              blocksworld-ipc08_02.yml    true                         0.10    0.10
+17:54:06              blocksworld-ipc08_03.yml    true                         0.10    0.10
+17:54:06              blocksworld-ipc08_01.yml    true                         0.10    0.10
+17:54:06   starting   blocksworld-ipc08_04.yml
+17:54:06   starting   blocksworld-ipc08_05.yml
+17:54:06   starting   blocksworld-ipc08_06.yml
+17:54:06              blocksworld-ipc08_06.yml    true                         0.11    0.11
+17:54:06              blocksworld-ipc08_05.yml    true                         0.11    0.11
+17:54:06   starting   blocksworld-ipc08_07.yml
+17:54:06   starting   blocksworld-ipc08_08.yml
+17:54:06              blocksworld-ipc08_04.yml    true                         0.12    0.12
+17:54:06   starting   blocksworld-ipc08_09.yml
+17:54:06              blocksworld-ipc08_07.yml    true                         0.11    0.11
+17:54:06              blocksworld-ipc08_08.yml    true                         0.11    0.11
+17:54:06              blocksworld-ipc08_09.yml    true                         0.12    0.12
 
-Statistics:             21 Files
+Statistics:              9 Files
   correct:               0
     correct true:        0
     correct false:       0
@@ -113,10 +119,18 @@ Statistics:             21 Files
   unknown:               0
 
 In order to get HTML and CSV tables, run
-table-generator results/benchmark-prp-test.prp.2024-03-24_15-01-29.results.prp.BlocksWorld.xml.bz2
+table-generator results/benchmark-prp.2024-07-20_17-54-06.results.prp.FOND.xml.bz2
 ```
 
-The `---tool-directory` tells Benchexec where the tools' executables (e.g., `pp-fond.py`) are located. If this parameter is not given, Benchexec searches in the directories of the `PATH` environment variable and in the current directory.
+The `---tool-directory` tells Benchexec where the tools' _executables_ (e.g., the `prp` binary) are located. If this parameter is not given, Benchexec searches in the directories of the `PATH` environment variable and in the current directory.
+
+If you get error:
+
+```shell
+Unsupported tool "tools.prp" specified. ImportError: No module named 'tools'
+```
+
+it is because the XML definition couldn't find the tool Python module. Remember to set the environment variable `PYTHONPATH` to make sure `benchexec/tools` is found by Python.
 
 The last three options refer to [container configurations](https://github.com/sosy-lab/benchexec/blob/main/doc/container.md#container-configuration):
 
@@ -136,16 +150,25 @@ Note that the `--overlay-dir` does give access to the host file system in the co
 
 ### Output of Benchexec
 
+All outputs will be placed under folder `results/`.
+
+Importantly, you can generate a CSV and HTML table with all the results for further analysis, for example via Pandas. Check how to generate these tables [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/table-generator.md). When benchexec finishes it will print a message stating what command needs to be run to generate the standard tables:
+
+```
+In order to get HTML and CSV tables, run
+table-generator results/benchmark-prp.2024-07-20_18-01-50.results.prp.test.xml.bz2
+```
+
+Note that in the generated table, each row is a _task_ and columns record the results for each _run definition_. This means that for each run definition, there will be a set of columns with the same header. If you want to later analyse it or plot charts, you may need to pivot all these set of columns using a distinguish column to identify runs.
+
+Besides the stat tables, if the XML definition states that some files/folders need to be recovered from the overlay (via the tag `<resultfiles>`), they will be also dumped into the  `results/` folder, with recovered data stored where the `output:` option field in the task YAML definitions specifies.
+
 To learn about the outputs left by Benchexec, please check [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/benchexec.md#benchexec-results).
-
-You can generarte a CSV table with all the results for further analysis, for example via Pandas. Check how to generate these tables [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/table-generator.md).
-
-When generative a table, each row is a _task_ (e.g., APP problem instance) and columns record the results for each _run definition_ (e.g., LPG and LPG-SMALL). This means that for each run definition, there will be a set of columns with the same header.
 
 
 ### Runexec tool: single benchexec runs
 
-We can use the [`runexec`](https://github.com/sosy-lab/benchexec/blob/main/doc/runexec.md) tool to run a particular script/program on the spot ocne (i.e., without XML, tools, etc. configurations).
+We can use the [`runexec`](https://github.com/sosy-lab/benchexec/blob/main/doc/runexec.md) tool to run a particular script/program on the spot once (i.e., without XML, tools, etc. configurations).
 
 Some simple scripts for testing were done in the context of issue [#1025](https://github.com/sosy-lab/benchexec/issues/1025) in folder [`experiments/benchexe/benchexec-test/`](experiments/benchexe/benchexec-test/).
 
@@ -154,128 +177,41 @@ Script `benchexec.sh` basically writes a dummy 500MB file. Let us see how much m
 We can do a run on container (default) mode that also recovers all the output files:
 
 ```shell
-$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" ./benchexec.sh
-2024-05-02 13:28:28 - INFO - Starting command ./benchexec.sh
-2024-05-02 13:28:28 - INFO - Writing output to output.log and result files to output.files
-2024-05-02 13:28:29 - WARNING - System has swapped during benchmarking. Benchmark results are unreliable!
-starttime=2024-05-02T13:28:28.879608+10:00
-returnvalue=0
-walltime=0.4416085880002356s
-cputime=0.440638s
-memory=536940544B
+$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 12331392  ./bin/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
+2024-07-20 18:44:45 - INFO - Starting command ./bin/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
+2024-07-20 18:44:45 - INFO - Writing output to output.log and result files to output.files
+2024-07-20 18:44:49 - WARNING - System has swapped during benchmarking. Benchmark results are unreliable!
+starttime=2024-07-20T18:44:45.368472+10:00
+returnvalue=8
+walltime=4.5116885360002925s
+cputime=4.510404s
+memory=22323200B
 blkio-read=0B
 blkio-write=0B
-pressure-cpu-some=0.000055s
+pressure-cpu-some=0.000658s
 pressure-io-some=0s
 pressure-memory-some=0s
 ```
 
-As we can see, the write of file was done in RAMDISK, that is why we can see 536MB of ram used.
+The standard output will be saved into `output.log` and all files will be retrived into `output.files/` folder. As we can see, all resources used are reported, stating that the run took 4+ seconds and used 22323200 bytes, that is, 22MB.
 
-If we put a 200MB limit to the RAM that can be used, then it will fail the run due to lack of memory in the RAMDISK:
+If we specify a limit of 20MB, then it will fail and report memory termination:
 
 ```shell
-$ runexec --read-only-dir / --overlay-dir /home/ --memlimit 200000000  ./benchexec.sh
-2024-05-02 13:31:18 - INFO - Starting command ./benchexec.sh
-2024-05-02 13:31:18 - INFO - Writing output to output.log
-2024-05-02 13:31:19 - WARNING - System has swapped during benchmarking. Benchmark results are unreliable!
-starttime=2024-05-02T13:31:18.829565+10:00
+$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 20000000  ./bin/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
+2024-07-20 19:08:18 - INFO - Starting command ./bin/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
+2024-07-20 19:08:18 - INFO - Writing output to output.log and result files to output.files
+starttime=2024-07-20T19:08:18.170010+10:00
 terminationreason=memory
 exitsignal=9
-walltime=0.2236796350007353s
-cputime=0.219102s
-memory=199999488B
+walltime=0.11081427399949462s
+cputime=0.112003s
+memory=19996672B
 blkio-read=0B
 blkio-write=0B
-pressure-cpu-some=0.005097s
+pressure-cpu-some=0.000032s
 pressure-io-some=0s
-pressure-memory-some=0.000866s
+pressure-memory-some=0.000186s
 ```
 
-However, if we use the `--no-tmpfs` option, we are telling benchexec to NOT use RAMDISK and use the actual drive:
-
-```shell
-$ runexec --read-only-dir / --overlay-dir /home/ --no-tmpfs  --memlimit 200000000  ./benchexec.sh
-2024-05-02 13:33:07 - INFO - Starting command ./benchexec.sh
-2024-05-02 13:33:07 - INFO - Writing output to output.log
-starttime=2024-05-02T13:33:07.793504+10:00
-returnvalue=0
-walltime=0.846914204001223s
-cputime=0.695673s
-memory=199999488B
-blkio-read=0B
-blkio-write=504537088B
-pressure-cpu-some=0.00134s
-pressure-io-some=0.090341s
-pressure-memory-some=0.058133s
-```
-
-We can see here that it _does_ finish because RAMDISK is not used due to the `--no-tmpfs` option. However, note that it still uses 200MB of RAM, because Linux writes the file to cache as long as it is available (and will dump to disk when it has to free it).
-
-
-### Problems
-
-#### Unsupported tool "benchexe.tool_fond" specified. ImportError: No module named 'benchexe'
-
-Python cannot find the module `benchexec` where all the tools are located. Set `PYTHONPATH` so that the module `benchexec` where all the tools are located is found by Python:
-
-```shell
-$ export PYTHONPATH=$PWD/src/python
-```
-
-### ModuleNotFoundError: No module named 'XXXXXX' (BenchExec log files)
-
-We are not running Benchexec in a Python virtual environment with all dependencies installed, so packages cannot be found. Do not run Benchexec relying on system-wide Python modules. Instead create an `app` virtual environment that has all dependencies (see above).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Benchmarking scripts via `async`
-
-The main script is `/src/python/benchmark.py`, which is able to run many APP instances across many solvers in multiple cores simultaneously. It also provides a convenient interface to track the progress of the experiments.
-
-Since that script will probably run for a long time, make sure you run it under a terminal multiplexer like [tmux](https://github.com/tmux/tmux).
-
-The benchmark experiment script needs two inputs:
-
-1. A CSV file with a set of APP instances to run.
-2. A JSON experiment configuration file with the setup for the experiments (e.g., solvers to use, timeout limits, etc.). Make sure the binaries referred in these files are accessible in the `PATH`.
-
-The CSV file should list all the instances that should be run in the experiment. It must include the instance ID, the path to the domain and problem of the instance (both relative to the CSV file itself), and the output folder to store all the results per solver used. For example:
-
-```csv
-id,domain,instance,output
-Barman_RING50_1,AIJ16/Barman/domain.pddl,AIJ16/Barman/RING50/prob001.pddl,Barman/RING50/prob001
-Barman_RING50_2,AIJ16/Barman/domain.pddl,AIJ16/Barman/RING50/prob002.pddl,Barman/RING50/prob002
-Barman_RING50_3,AIJ16/Barman/domain.pddl,AIJ16/Barman/RING50/prob003.pddl,Barman/RING50/prob003
-```
-
-Inside the output folder of an instance, the script will create one folder per solver in the experiment.
-
-An example run:
-
-```shell
-$ python src/python/benchmark.py benchmarks/instances-test.csv benchmarks/config-prp.json --num 4 --output exp_results
-```
-
-This will run experiments configurations stated in `benchmarks/config-prp` on instances listed in `benchmarks/instances-test.csv`, running 4 instances in parallel and leaving all output results in folder `exp_results/`.
-
-Option `--skip` will skip any instance that has previously completed.
-
-The output folder will include the JSON experiment configuration file, the output results for each run, and a CSV summary stats file.
-
-Note that a progress screen in terminal will be displayed:
-
-![screenshot experiment running](exp_screenshot.png)
-
-
+If we use the `--no-tmpfs` option, we are telling benchexec to NOT use RAMDISK and use the actual hard drive; file writting does not count towards memory usage.
