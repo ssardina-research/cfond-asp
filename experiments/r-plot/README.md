@@ -21,16 +21,24 @@ $ Rscript -e 'install.packages("ggplot2")'
 
 ## Generating plots
 
-First, prepare the CSV file; see template example in [results.csv](results.csv). You can change the file to read from in `plot.R` line:
+First, prepare the CSV file; see template example in [results.csv](results.csv). 
+
+You can change the file to read from in `plot.R` line as well as other configuration paramters under the CONSTANT section:
 
 ```R
-# read the csv
-df = read.csv("./results.csv")
+#### SET YOUR CONSTANTS
+csv_file <- "results.csv"
+output_pdf <- "results.pdf"
+output_png <- "results.png"
+plot_width <- 15
+plot_height <- 12
+plot_dpi <- 300
 ```
 
-Then, you can use [RStudio](https://posit.co/download/rstudio-desktop/) or simply from command line run:
+Then, you can use [RStudio](https://posit.co/download/rstudio-desktop/) or simply run from command line:
 
 ```shell
 $ R < plots.R --no-save
 ```
 
+This should produce a PDF file and a PNG file with the plots.
