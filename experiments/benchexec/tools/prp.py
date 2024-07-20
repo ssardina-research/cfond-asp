@@ -59,7 +59,7 @@ class Tool(BaseTool2):
         --jic-limit
         """
         options += ["--jic-limit", str(rlimits.cputime)]
-        return [executable] + list(task.input_files) + options 
+        return [executable] + list(task.input_files) + options
 
     def determine_result(self, run):
         """
@@ -88,10 +88,9 @@ class Tool(BaseTool2):
         """
         for _l in output:
             if "Total time" in _l:
-                return _l.split(":")[-1].strip().replace("s","")
+                return _l.split(":")[-1].strip().replace("s", "")
 
         return -1
-
 
     def _get_policy_size(self, output):
         """
@@ -100,5 +99,5 @@ class Tool(BaseTool2):
         for _l in output:
             if "Policy size" in _l:
                 return _l.split(":")[-1].strip()
-            
+
         return -1
