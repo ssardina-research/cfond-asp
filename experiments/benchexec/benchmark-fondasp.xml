@@ -36,6 +36,7 @@ SPDX-License-Identifier: Apache-2.0
     <option name="--clingo_args">"-t 2"</option>
     <option name="--use_backbone"></option>
     <option name="--filter_undo"></option>
+    <option name="--use_ckb"></option>
   </rundefinition>
 
   <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
@@ -46,6 +47,7 @@ SPDX-License-Identifier: Apache-2.0
     <option name="--clingo_args">"-t 2"</option>
     <option name="--use_backbone"></option>
     <option name="--filter_undo"></option>
+    <option name="--use_ckb"></option>
   </rundefinition>
 
   <!-- <tasks> defines a set of tasks (can appear multiple times). -->
