@@ -2,21 +2,27 @@
 # R-script to generate multi-figure coverage graphs.
 #       Author: Nitin Yadav and Sebastian Sardina for ECAI23 paper
 #
-# You may want to change the paramters constants below under "CONSTANTS" section.
+# You may want to change the parameters constants below under "CONSTANTS" section.
 #
 # The script expects a CSV file with the following headers:
 #
 #       domain: name of the planning domain
 #       planner: name of the planner/solver
 #       instance_id: id of the planning problem
-#       solved: 1 if problem was solved, 0 otherwise
+#       status: 1 if problem was solved, 0 otherwise (we could have others, e.g., memory out)
 #       time: time take to solve the problem, -1 if the planer ran out of resources
 #
-#        id,index,domain,planner,instance_id,solved,time
-#        0,0,domain_1(37),PLN_1,p1,1,696.8534602463883
-#        1,1,domain_1(37),PLN_1,p2,1,937.6355428936745
-#        2,2,domain_1(37),PLN_1,p3,1,859.8084970638411
-#        3,3,domain_1(37),PLN_1,p4,1,956.1715138371235
+#       domain,instance,planner,status,time
+#       domain_1,p1,PLN_1,1,696.853460246388
+#       domain_1,p2,PLN_1,1,937.635542893674
+#       domain_1,p3,PLN_1,1,859.808497063841
+#       domain_1,p4,PLN_1,1,956.171513837123
+#       domain_1,p5,PLN_1,1,940.861330914696
+#       domain_1,p6,PLN_1,1,987.698655947538
+#       domain_1,p7,PLN_1,1,1035.17954074212
+#       domain_1,p8,PLN_1,1,950.456002157257
+#       domain_1,p9,PLN_1,1,797.099476990923
+#       domain_1,p10,PLN_1,1,874.812547986277
 ####
 
 #### SET YOUR CONSTANTS
@@ -43,7 +49,7 @@ df$domain = factor(df$domain, levels = sort(unique(df$domain)))
 # compute the coverage by grouping by domain and planner, and then computing the mean
 df_c = df %>%
         group_by(domain, planner) %>%
-        summarise(coverage = mean(solved))
+        summarise(coverage = mean(status))
 
 # scale the y coordinate slightly to show clearly on plots
 df_c$coverage_y = df_c$coverage*125
@@ -54,7 +60,7 @@ df_c$coverage_label = paste(round(df_c$coverage*100, 2), "%", sep="")
 
 ## compute the average time for the solved instances
 df_means = df %>%
-          filter(solved==1) %>%
+          filter(status==1) %>%
           group_by(domain, planner) %>%
           summarise(mean_time = mean(time))
 
