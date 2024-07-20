@@ -43,7 +43,7 @@ df_means$mean_label = round(df_means$mean_time,1)
 df_means$p_y = as.numeric(df_means$planner)
 
 p = ggplot(df, aes(time, planner))
-p = p + geom_segment(aes(x=0, xend=coverage_y, y = planner, yend = planner), data=df_c, color="grey50") + geom_point(size=2,aes(colour = planner, shape=planner),show.legend = FALSE)
+p = p + geom_segment(aes(x=0, xend=coverage_y+1000, y = planner, yend = planner), data=df_c, color="grey50") + geom_point(size=2,aes(colour = planner, shape=planner),show.legend = FALSE)
 p = p + geom_segment(aes(x=mean_time, xend=mean_time, y = p_y-0.2, yend=p_y+0.2), data=df_means, linewidth=0.8, color="grey30")
 p = p + geom_label(aes(x=coverage_y+1000, y=planner, label=coverage_label), data=df_c, size=3)
 p = p + geom_text(aes(x=mean_time+100, y=p_y+0.2, label=mean_label), data=df_means, size=3)
