@@ -47,7 +47,7 @@ class Tool(BaseTool2):
         status = result.RESULT_FALSE_PROP
         for line in run.output:
             # for fondsat
-            if "Solution found for instance!" in line:
+            if "Solution found" in line:
                 status = result.RESULT_TRUE_PROP
 
         return status
