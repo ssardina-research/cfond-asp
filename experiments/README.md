@@ -13,6 +13,7 @@ We use the [Benchexec](https://github.com/sosy-lab/benchexec) experimental frame
     - [Running a benchmark experiment](#running-a-benchmark-experiment)
     - [Output of Benchexec](#output-of-benchexec)
     - [Runexec tool: single benchexec runs](#runexec-tool-single-benchexec-runs)
+  - [Running in NECTAR cluster](#running-in-nectar-cluster)
 
 ## Installation and setup
 
@@ -215,3 +216,29 @@ pressure-memory-some=0.000186s
 ```
 
 If we use the `--no-tmpfs` option, we are telling benchexec to NOT use RAMDISK and use the actual hard drive; file writting does not count towards memory usage.
+
+
+## Running in NECTAR cluster
+
+We used the Australian [NECTAR cluster infrastructure](https://ardc.edu.au/services/ardc-nectar-research-cloud/) to run the experiments. The CPUs are as follows:
+
+```
+processor	: 31
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD EPYC-Rome Processor
+stepping	: 0
+```
+
+While the machines have many cores, we found that running more than 8 experiments at the same time yields high-variance, non-replicable, performance. So we only run 8 tasks in parallel. See [this isue](https://github.com/ssardina-research/app/discussions/97).
+
+Code itself is located in network drive `/mnt/projects/fondasp/cfond-asp-private`. However, the data was saved under local filesystem `/mnt/data/cfondasp`, which is faster than the project folder which is a networking device.
+
+So, for example, this was the command for stating the experiments for CFOND-ASP solver:
+
+```shell
+$ cd /mnt/projects/fondasp/cfond-asp-private
+
+$ benchexec experiments/benchexec/benchmark-fondasp.xml -N 8 -c 1 --read-only-dir / --overlay-dir /home -o /mnt/data/cfondasp/cfondasp-21-07-24
+```
