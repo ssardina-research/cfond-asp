@@ -153,12 +153,56 @@ Note that the `--overlay-dir` does give access to the host file system in the co
 
 All outputs will be placed under folder `results/`.
 
-Importantly, you can generate a CSV and HTML table with all the results for further analysis, for example via Pandas. Check how to generate these tables [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/table-generator.md). When benchexec finishes it will print a message stating what command needs to be run to generate the standard tables:
+Importantly, you can generate CSV and HTML table from teh results in files `*.xml.bz2` for further analysis, for example via Pandas. Check how to generate these tables [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/table-generator.md).
+
+When benchexec finishes it will print a message stating what command needs to be run to generate the standard tables:
 
 ```
 In order to get HTML and CSV tables, run
 table-generator results/benchmark-prp.2024-07-20_18-01-50.results.prp.test.xml.bz2
 ```
+
+But it can also also be run later and on different `xml.bz2` files. The table generator will require access to the tools used so make sure you have set `PYTHONPATH` to point to where the `tools` Python module is located, for example:
+
+```shell
+$ export PYTHONPATH=$PWD/../../../benchexec/
+$ echo $PYTHONPATH
+/home/ssardina/PROJECTS/planning/FOND/cfond-asp/cfond-asp-private.git/experiments/stats/july24-redo-benchexec/../../benchexec/
+```
+
+The following generates the tables for the `PRP.FOND` run:
+
+```shell
+$ table-generator prp-19-07-24/benchmark-prp.2024-07-19_17-59-23.results.prp.FOND.xml.bz2
+INFO:     prp-19-07-24/benchmark-prp.2024-07-19_17-59-23.results.prp.FOND.xml.bz2
+INFO: Merging results...
+INFO: The resulting table will have 590 rows and 6 columns (in 1 run sets).
+INFO: Generating table...
+INFO: Writing HTML into prp-19-07-24/benchmark-prp.2024-07-19_17-59-23.results.prp.FOND.html ...
+INFO: Writing CSV  into prp-19-07-24/benchmark-prp.2024-07-19_17-59-23.results.prp.FOND.csv ...
+INFO: done
+```
+
+Here the resulting CSV has the states of that single run definition. In contrast, the following command generates a CSV table for four run sets all together:
+
+```shell
+$ table-generator cfondasp-21-07-24/*.xml.bz2
+INFO:     cfondasp-21-07-24/benchmark-fondasp.2024-07-21_19-59-00.results.cfondasp1-fsat.FOND.xml.bz2
+INFO:     cfondasp-21-07-24/benchmark-fondasp.2024-07-21_19-59-00.results.cfondasp1-reg.FOND.xml.bz2
+INFO:     cfondasp-21-07-24/benchmark-fondasp.2024-07-21_19-59-00.results.cfondasp2-fsat.FOND.xml.bz2
+INFO:     cfondasp-21-07-24/benchmark-fondasp.2024-07-21_19-59-00.results.cfondasp2-reg.FOND.xml.bz2
+INFO: Merging results...
+INFO: The resulting table will have 590 rows and 24 columns (in 4 run sets).
+INFO: The difference table will have 559 rows.
+INFO: Generating table...
+INFO: Writing HTML into cfondasp-21-07-24/results.2024-07-29_21-53-42.table.html ...
+INFO: Writing CSV  into cfondasp-21-07-24/results.2024-07-29_21-53-42.table.csv ...
+INFO: Writing HTML into cfondasp-21-07-24/results.2024-07-29_21-53-42.diff.html ...
+INFO: Writing CSV  into cfondasp-21-07-24/results.2024-07-29_21-53-42.diff.csv ...
+INFO: done
+```
+
+Note that besides generating the states table (`cfondasp-21-07-24/results.2024-07-29_21-53-42.table.csv`), which will contain 24 columns across 4 run sets, it also generates _difference_ tables (`cfondasp-21-07-24/results.2024-07-29_21-53-42.table.csv`) that includes all rows the `status` column differ. In this case, there are a total of 590 rows in the run set, of which 559 have different results wrt the 4 run sets.
 
 Note that in the generated table, each row is a _task_ and columns record the results for each _run definition_. This means that for each run definition, there will be a set of columns with the same header. If you want to later analyse it or plot charts, you may need to pivot all these set of columns using a distinguish column to identify runs.
 
