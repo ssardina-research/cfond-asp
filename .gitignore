@@ -467,3 +467,6 @@ output
 weak_plan.csv
 .python-version
 bin/prp
+policy.fsap
+plan_numbers_and_cost
+elapsed.time
