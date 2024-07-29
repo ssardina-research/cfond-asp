@@ -1,6 +1,6 @@
 tool	PRP 	PRP 	PRP 	PRP 	PRP 	PRP 
 run set	prp.FOND	prp.FOND	prp.FOND	prp.FOND	prp.FOND	prp.FOND
-/home/nitin/cfond-asp-private/experiments/benchexec/tasks/	status	cputime (s)	walltime (s)	memory (MB)	planner_time	policy_size
+../../../home/nitin/cfond-asp-private/experiments/benchexec/tasks/	status	cputime (s)	walltime (s)	memory (MB)	planner_time	policy_size
 acrobatics_01.yml	true	0.233342	0.2356218183413148	10.080256	0.01	4
 acrobatics_02.yml	true	10.369209	10.37462040130049	10.199040	10.14	8
 acrobatics_03.yml	true	11.289586	11.302471884526312	10.235904	11.05	16
