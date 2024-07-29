@@ -1,0 +1,1235 @@
+   BENCHMARK INFORMATION
+Agent planning programs FOND-SAT FOND solver
+benchmark definition:    experiments/benchexec/benchmark-fondsat.xml
+name:                    benchmark-fondsat
+run sets:                fondsat-minisat.FOND, fondsat-glucose.FOND
+date:                    Sun, 2024-07-21 09:19:22 AEST
+tool:                    Fondsat
+tool executable:         /mnt/projects/fondasp/planners/FOND-SAT/src/fondsat
+options:
+parallel runs:           8
+resource limits:
+- memory:                4096.0 MB
+- time:                  14400 s
+- cpu cores:             1
+hardware requirements:
+- cpu cores:             1
+- memory:                4096.0 MB
+------------------------------------------------------------
+
+   SYSTEM INFORMATION
+host:                    pacman04
+os:                      Linux-6.5.0-27-generic-x86_64-with-glibc2.35
+cpu:                     AMD EPYC-Rome Processor
+- cores:                 32
+- max frequency:         2245.782 MHz
+ram:                     67412.43904000001 MB
+------------------------------------------------------------
+
+
+
+fondsat-minisat.FOND
+Run set 1 of 2 with options '--solver minisat --end 100' and propertyfile 'None'
+
+inputfile                         status                       cpu time   wall time        host  policy_size  planner_time
+--------------------------------------------------------------------------------------------------------------------------
+acrobatics_01.yml                 true                             0.29        1.19        None            4      0.786139
+acrobatics_02.yml                 true                             0.64        1.54        None            8      1.137405
+acrobatics_03.yml                 true                            22.73       23.62        None           16     23.226814
+acrobatics_04.yml                 false                        14398.40    14400.30        None           -1            -1
+acrobatics_05.yml                 false                        14397.76    14399.67        None           -1            -1
+acrobatics_06.yml                 false                        14398.94    14400.84        None           -1            -1
+acrobatics_07.yml                 false                        14398.68    14400.62        None           -1            -1
+acrobatics_08.yml                 false                        14398.53    14400.40        None           -1            -1
+beam-walk_01.yml                  true                             0.35        0.35        None            8      0.179442
+beam-walk_02.yml                  true                             6.36        6.36        None           16      6.192578
+beam-walk_03.yml                  true                          4003.90     4004.57        None           32   4004.390107
+beam-walk_04.yml                  false                        14398.72    14400.28        None           -1            -1
+beam-walk_05.yml                  false                        10425.87    10426.66        None           -1            -1
+beam-walk_06.yml                  false                        14397.69    14400.20        None           -1            -1
+beam-walk_07.yml                  false                        14399.30    14400.37        None           -1            -1
+beam-walk_08.yml                  false                        14399.24    14400.20        None           -1            -1
+beam-walk_09.yml                  false                        14399.57    14400.56        None           -1            -1
+beam-walk_10.yml                  OUT OF MEMORY (false)         4765.14     4765.25        None           -1            -1
+beam-walk_11.yml                  OUT OF MEMORY (false)         1566.20     1566.14        None           -1            -1
+blocksworld-ipc08_01.yml          true                             7.98        7.98        None            9      7.808771
+blocksworld-ipc08_02.yml          true                             5.36        5.36        None            8      5.189448
+blocksworld-ipc08_03.yml          true                            10.80       10.80        None           10     10.624607
+blocksworld-ipc08_04.yml          true                            72.94       72.95        None           14     72.772145
+blocksworld-ipc08_05.yml          true                            26.03       26.03        None           12     25.859272
+blocksworld-ipc08_06.yml          true                            15.78       15.78        None           11     15.605032
+blocksworld-ipc08_07.yml          true                            39.02       39.03        None           13     38.852474
+blocksworld-ipc08_08.yml          true                            49.81       49.82        None           13     49.636553
+blocksworld-ipc08_09.yml          true                             7.61        7.61        None            9      7.437608
+blocksworld-ipc08_10.yml          true                            15.02       15.02        None           11     14.846055
+blocksworld-ipc08_11.yml          TIMEOUT (false)              14400.27    14401.32        None           -1            -1
+blocksworld-ipc08_12.yml          false                        14399.59    14401.01        None           -1            -1
+blocksworld-ipc08_13.yml          false                        14399.02    14400.14        None           -1            -1
+blocksworld-ipc08_14.yml          true                         11092.21    11094.14        None           18  11093.726167
+blocksworld-ipc08_15.yml          false                        14399.53    14400.61        None           -1            -1
+blocksworld-ipc08_16.yml          false                        14399.88    14401.03        None           -1            -1
+blocksworld-ipc08_17.yml          TIMEOUT (false)              14400.77    14401.89        None           -1            -1
+blocksworld-ipc08_18.yml          false                         9867.63     9868.36        None           -1            -1
+blocksworld-ipc08_19.yml          TIMEOUT (false)              14400.10    14401.18        None           -1            -1
+blocksworld-ipc08_20.yml          false                        14399.86    14400.99        None           -1            -1
+blocksworld-ipc08_21.yml          OUT OF MEMORY (false)          907.65      907.54        None           -1            -1
+blocksworld-ipc08_22.yml          OUT OF MEMORY (false)          906.07      905.89        None           -1            -1
+blocksworld-ipc08_23.yml          OUT OF MEMORY (false)          929.47      929.37        None           -1            -1
+blocksworld-ipc08_24.yml          OUT OF MEMORY (false)          905.38      905.20        None           -1            -1
+blocksworld-ipc08_25.yml          OUT OF MEMORY (false)          919.50      919.38        None           -1            -1
+blocksworld-ipc08_26.yml          OUT OF MEMORY (false)          920.11      919.93        None           -1            -1
+blocksworld-ipc08_27.yml          OUT OF MEMORY (false)          911.67      911.54        None           -1            -1
+blocksworld-ipc08_28.yml          OUT OF MEMORY (false)          916.34      916.16        None           -1            -1
+blocksworld-ipc08_29.yml          OUT OF MEMORY (false)          913.58      913.46        None           -1            -1
+blocksworld-ipc08_30.yml          OUT OF MEMORY (false)          908.54      908.36        None           -1            -1
+blocksworld-new_1.yml             true                             0.55        0.56        None            5      0.380654
+blocksworld-new_10.yml            false                        12267.62    12268.62        None           -1            -1
+blocksworld-new_11.yml            OUT OF MEMORY (false)         6406.51     6407.47        None           -1            -1
+blocksworld-new_12.yml            OUT OF MEMORY (false)         1873.96     1873.87        None           -1            -1
+blocksworld-new_13.yml            OUT OF MEMORY (false)         1095.89     1095.74        None           -1            -1
+blocksworld-new_14.yml            OUT OF MEMORY (false)          746.91      746.73        None           -1            -1
+blocksworld-new_15.yml            OUT OF MEMORY (false)          771.67      771.51        None           -1            -1
+blocksworld-new_16.yml            OUT OF MEMORY (false)          777.31      777.19        None           -1            -1
+blocksworld-new_17.yml            OUT OF MEMORY (false)          995.18      995.09        None           -1            -1
+blocksworld-new_18.yml            OUT OF MEMORY (false)         1490.11     1490.06        None           -1            -1
+blocksworld-new_19.yml            OUT OF MEMORY (false)         1048.64     1048.30        None           -1            -1
+blocksworld-new_2.yml             true                             0.25        0.26        None            3      0.088277
+blocksworld-new_20.yml            OUT OF MEMORY (false)         1349.18     1348.84        None           -1            -1
+blocksworld-new_21.yml            OUT OF MEMORY (false)         1755.43     1755.34        None           -1            -1
+blocksworld-new_22.yml            OUT OF MEMORY (false)         2125.75     2125.45        None           -1            -1
+blocksworld-new_23.yml            OUT OF MEMORY (false)         2674.96     2674.64        None           -1            -1
+blocksworld-new_24.yml            OUT OF MEMORY (false)         3439.34     3439.12        None           -1            -1
+blocksworld-new_25.yml            OUT OF MEMORY (false)         4321.09     4321.50        None           -1            -1
+blocksworld-new_26.yml            OUT OF MEMORY (false)         5160.36     5160.24        None           -1            -1
+blocksworld-new_27.yml            OUT OF MEMORY (false)         6258.23     6258.24        None           -1            -1
+blocksworld-new_28.yml            OUT OF MEMORY (false)         7380.67     7380.75        None           -1            -1
+blocksworld-new_29.yml            OUT OF MEMORY (false)         7449.56     7449.65        None           -1            -1
+blocksworld-new_3.yml             true                             0.55        0.55        None            5      0.377967
+blocksworld-new_30.yml            OUT OF MEMORY (false)         8940.34     8940.47        None           -1            -1
+blocksworld-new_31.yml            OUT OF MEMORY (false)        10888.38    10888.57        None           -1            -1
+blocksworld-new_32.yml            OUT OF MEMORY (false)        13150.34    13150.76        None           -1            -1
+blocksworld-new_33.yml            TIMEOUT (false)              14401.04    14403.70        None           -1            -1
+blocksworld-new_34.yml            TIMEOUT (false)              14400.24    14401.00        None           -1            -1
+blocksworld-new_35.yml            TIMEOUT (false)              14400.22    14401.00        None           -1            -1
+blocksworld-new_36.yml            TIMEOUT (false)              14400.26    14401.00        None           -1            -1
+blocksworld-new_37.yml            TIMEOUT (false)              14400.23    14401.00        None           -1            -1
+blocksworld-new_38.yml            TIMEOUT (false)              14400.24    14401.00        None           -1            -1
+blocksworld-new_39.yml            TIMEOUT (false)              14400.27    14401.00        None           -1            -1
+blocksworld-new_4.yml             true                             3.32        3.32        None            8      3.144860
+blocksworld-new_40.yml            TIMEOUT (false)              14400.21    14401.00        None           -1            -1
+blocksworld-new_5.yml             true                            59.06       59.08        None           13     58.889813
+blocksworld-new_6.yml             true                            78.19       78.21        None           13     78.015362
+blocksworld-new_7.yml             true                          2396.27     2396.77        None           17   2396.540462
+blocksworld-new_8.yml             true                          2220.40     2220.57        None           17   2220.292701
+blocksworld-new_9.yml             false                        14398.43    14401.15        None           -1            -1
+chain-of-rooms_1.yml              true                          2283.79     2283.95        None           28   2283.772705
+chain-of-rooms_10.yml             false                        14399.76    14400.83        None           -1            -1
+chain-of-rooms_2.yml              false                        14399.17    14400.20        None           -1            -1
+chain-of-rooms_3.yml              false                        14398.82    14399.92        None           -1            -1
+chain-of-rooms_4.yml              false                        14399.40    14400.47        None           -1            -1
+chain-of-rooms_5.yml              false                        14398.48    14399.65        None           -1            -1
+chain-of-rooms_6.yml              false                        14399.11    14400.12        None           -1            -1
+chain-of-rooms_7.yml              false                        14399.08    14400.08        None           -1            -1
+chain-of-rooms_8.yml              false                        14397.12    14399.53        None           -1            -1
+chain-of-rooms_9.yml              false                        14399.18    14400.15        None           -1            -1
+doors_01.yml                      true                             0.32        0.33        None            5      0.149454
+doors_02.yml                      true                             0.56        0.56        None            7      0.391994
+doors_03.yml                      true                             1.25        1.25        None            9      1.073535
+doors_04.yml                      true                             3.07        3.07        None           11      2.892750
+doors_05.yml                      true                             8.46        8.47        None           13      8.297535
+doors_06.yml                      true                            23.76       23.77        None           15     23.587993
+doors_07.yml                      true                            70.14       70.15        None           17     69.975960
+doors_08.yml                      true                           215.30      215.32        None           19    215.148141
+doors_09.yml                      true                           467.98      468.02        None           21    467.830703
+doors_10.yml                      true                          1534.17     1534.28        None           23   1534.102897
+doors_11.yml                      true                          2840.45     2840.65        None           25   2840.472698
+doors_12.yml                      true                          5273.36     5273.73        None           27   5273.547573
+doors_13.yml                      true                         11226.50    11227.36        None           29  11227.163792
+doors_14.yml                      false                        14398.95    14400.06        None           -1            -1
+doors_15.yml                      false                        14398.88    14399.87        None           -1            -1
+earth_observation_01.yml          true                          3378.64     3378.87        None           20   3378.684564
+earth_observation_02.yml          true                             0.32        0.32        None            6      0.151145
+earth_observation_03.yml          false                        14399.67    14400.67        None           -1            -1
+earth_observation_04.yml          TIMEOUT (false)              14400.08    14401.00        None           -1            -1
+earth_observation_05.yml          false                        14399.63    14400.72        None           -1            -1
+earth_observation_06.yml          false                        14397.84    14400.45        None           -1            -1
+earth_observation_07.yml          true                            45.90       45.91        None           17     45.734969
+earth_observation_08.yml          true                             0.36        0.36        None            6      0.184318
+earth_observation_09.yml          false                        14399.36    14400.43        None           -1            -1
+earth_observation_10.yml          false                        14399.78    14400.75        None           -1            -1
+earth_observation_11.yml          true                             0.37        0.37        None            7      0.197636
+earth_observation_12.yml          false                        14399.00    14400.10        None           -1            -1
+earth_observation_13.yml          false                        14399.28    14400.23        None           -1            -1
+earth_observation_14.yml          false                        14399.66    14400.64        None           -1            -1
+earth_observation_15.yml          false                        14399.43    14400.39        None           -1            -1
+earth_observation_16.yml          true                             2.55        2.55        None           13      2.371343
+earth_observation_17.yml          false                        14399.46    14400.58        None           -1            -1
+earth_observation_18.yml          false                        14397.22    14399.73        None           -1            -1
+earth_observation_19.yml          false                        14399.18    14400.25        None           -1            -1
+earth_observation_20.yml          false                        14399.50    14400.49        None           -1            -1
+earth_observation_21.yml          false                        14399.29    14400.36        None           -1            -1
+earth_observation_22.yml          false                        14399.08    14400.07        None           -1            -1
+earth_observation_23.yml          false                        14399.88    14400.87        None           -1            -1
+earth_observation_24.yml          false                        14398.96    14399.99        None           -1            -1
+earth_observation_25.yml          false                        14398.76    14399.80        None           -1            -1
+earth_observation_26.yml          false                        14398.06    14400.62        None           -1            -1
+earth_observation_27.yml          false                        14399.01    14400.10        None           -1            -1
+earth_observation_28.yml          TIMEOUT (false)              14400.26    14401.32        None           -1            -1
+earth_observation_29.yml          false                        14398.83    14399.93        None           -1            -1
+earth_observation_30.yml          false                        14399.81    14400.85        None           -1            -1
+earth_observation_31.yml          false                        14398.85    14399.88        None           -1            -1
+earth_observation_32.yml          TIMEOUT (false)              14400.28    14401.35        None           -1            -1
+earth_observation_33.yml          false                        14399.69    14400.82        None           -1            -1
+earth_observation_34.yml          false                        14397.44    14400.20        None           -1            -1
+earth_observation_35.yml          false                        14399.34    14400.45        None           -1            -1
+earth_observation_36.yml          false                        14398.97    14400.03        None           -1            -1
+earth_observation_37.yml          false                        14399.09    14400.15        None           -1            -1
+earth_observation_38.yml          false                        14399.38    14400.43        None           -1            -1
+earth_observation_39.yml          TIMEOUT (false)              14400.12    14401.20        None           -1            -1
+earth_observation_40.yml          false                        14398.38    14399.43        None           -1            -1
+elevators_01.yml                  true                             6.68        6.68        None           14      6.512539
+elevators_02.yml                  true                             0.91        0.92        None            9      0.745421
+elevators_03.yml                  true                            12.18       12.18        None           16     12.008196
+elevators_04.yml                  true                            40.46       40.47        None           14     40.298642
+elevators_05.yml                  true                             2.71        2.72        None           12      2.539772
+elevators_06.yml                  true                           273.06      273.08        None           23    272.906970
+elevators_07.yml                  true                           414.10      414.13        None           23    413.955869
+elevators_08.yml                  false                        14399.93    14400.92        None           -1            -1
+elevators_09.yml                  false                        14397.47    14400.13        None           -1            -1
+elevators_10.yml                  false                        14398.31    14399.46        None           -1            -1
+elevators_11.yml                  false                        14399.36    14400.41        None           -1            -1
+elevators_12.yml                  false                        14398.90    14400.02        None           -1            -1
+elevators_13.yml                  false                        14399.81    14400.83        None           -1            -1
+elevators_14.yml                  TIMEOUT (false)              14400.01    14401.05        None           -1            -1
+elevators_15.yml                  false                        14399.37    14400.43        None           -1            -1
+faults-ipc08_01.yml               true                             0.24        0.24        None            4      0.071549
+faults-ipc08_02.yml               true                             0.29        0.29        None            6      0.125324
+faults-ipc08_03.yml               true                             0.30        0.30        None            5      0.130931
+faults-ipc08_04.yml               true                             0.46        0.46        None            8      0.287119
+faults-ipc08_05.yml               true                             0.46        0.47        None            7      0.296160
+faults-ipc08_06.yml               true                             0.61        0.61        None            7      0.441840
+faults-ipc08_07.yml               true                             1.21        1.21        None           10      1.046815
+faults-ipc08_08.yml               true                             1.44        1.44        None            9      1.274500
+faults-ipc08_09.yml               true                             1.77        1.77        None            9      1.602234
+faults-ipc08_10.yml               true                             1.94        1.94        None            9      1.770611
+faults-ipc08_11.yml               true                             6.32        6.32        None           12      6.149182
+faults-ipc08_12.yml               true                             8.72        8.72        None           11      8.551036
+faults-ipc08_13.yml               true                            10.98       10.99        None           11     10.817005
+faults-ipc08_14.yml               true                            19.27       19.28        None           11     19.107378
+faults-ipc08_15.yml               true                            16.68       16.68        None           11     16.512696
+faults-ipc08_16.yml               true                            42.71       42.72        None           14     42.548358
+faults-ipc08_17.yml               true                           103.63      103.64        None           13    103.465476
+faults-ipc08_18.yml               true                           145.33      145.34        None           13    145.167741
+faults-ipc08_19.yml               true                           154.22      154.23        None           13    154.053569
+faults-ipc08_20.yml               true                           230.61      230.63        None           13    230.458639
+faults-ipc08_21.yml               true                           104.72      104.73        None           13    104.555844
+faults-ipc08_22.yml               true                           434.65      434.69        None           16    434.519834
+faults-ipc08_23.yml               true                           694.84      694.90        None           15    694.734338
+faults-ipc08_24.yml               true                          1234.69     1234.78        None           15   1234.601456
+faults-ipc08_25.yml               true                          1079.56     1079.64        None           15   1079.465951
+faults-ipc08_26.yml               true                          1564.93     1565.22        None           15   1565.042062
+faults-ipc08_27.yml               true                          2072.74     2072.92        None           15   2072.747189
+faults-ipc08_28.yml               true                          1426.62     1426.72        None           15   1426.535404
+faults-ipc08_29.yml               TIMEOUT (false)              14400.37    14401.45        None           -1            -1
+faults-ipc08_30.yml               false                        14398.24    14400.93        None           -1            -1
+faults-ipc08_31.yml               false                        14399.67    14400.83        None           -1            -1
+faults-ipc08_32.yml               TIMEOUT (false)              14400.63    14401.64        None           -1            -1
+faults-ipc08_33.yml               TIMEOUT (false)              14400.58    14401.73        None           -1            -1
+faults-ipc08_34.yml               TIMEOUT (false)              14400.10    14401.14        None           -1            -1
+faults-ipc08_35.yml               TIMEOUT (false)              14400.18    14401.18        None           -1            -1
+faults-ipc08_36.yml               TIMEOUT (false)              14400.35    14401.39        None           -1            -1
+faults-ipc08_37.yml               TIMEOUT (false)              14400.43    14401.50        None           -1            -1
+faults-ipc08_38.yml               false                        14397.21    14399.90        None           -1            -1
+faults-ipc08_39.yml               TIMEOUT (false)              14400.39    14401.53        None           -1            -1
+faults-ipc08_40.yml               TIMEOUT (false)              14400.08    14401.00        None           -1            -1
+faults-ipc08_41.yml               TIMEOUT (false)              14400.61    14401.72        None           -1            -1
+faults-ipc08_42.yml               TIMEOUT (false)              14400.05    14401.00        None           -1            -1
+faults-ipc08_43.yml               TIMEOUT (false)              14400.01    14401.08        None           -1            -1
+faults-ipc08_44.yml               false                        14399.70    14400.69        None           -1            -1
+faults-ipc08_45.yml               false                        14399.97    14401.10        None           -1            -1
+faults-ipc08_46.yml               false                        14399.04    14401.70        None           -1            -1
+faults-ipc08_47.yml               TIMEOUT (false)              14400.06    14401.14        None           -1            -1
+faults-ipc08_48.yml               TIMEOUT (false)              14400.33    14401.37        None           -1            -1
+faults-ipc08_49.yml               false                        14399.81    14400.86        None           -1            -1
+faults-ipc08_50.yml               false                        14398.65    14399.73        None           -1            -1
+faults-ipc08_51.yml               TIMEOUT (false)              14400.09    14401.11        None           -1            -1
+faults-ipc08_52.yml               false                        14399.91    14400.93        None           -1            -1
+faults-ipc08_53.yml               false                        14399.58    14400.72        None           -1            -1
+faults-ipc08_54.yml               false                        14398.66    14401.47        None           -1            -1
+faults-ipc08_55.yml               false                        14399.54    14400.70        None           -1            -1
+first-responders-ipc08_01.yml     true                             0.25        0.25        None            4      0.083726
+first-responders-ipc08_02.yml     true                             0.26        0.26        None            5      0.096565
+first-responders-ipc08_03.yml     true                             0.34        0.34        None            6      0.170555
+first-responders-ipc08_04.yml     true                             0.43        0.43        None            7      0.259600
+first-responders-ipc08_05.yml     true                             0.66        0.67        None            8      0.492046
+first-responders-ipc08_06.yml     true                             1.68        1.68        None            9      1.515792
+first-responders-ipc08_07.yml     true                             4.10        4.11        None           10      3.936442
+first-responders-ipc08_08.yml     true                            11.52       11.53        None           11     11.357799
+first-responders-ipc08_09.yml     true                            45.00       45.00        None           12     44.832992
+first-responders-ipc08_10.yml     true                           182.48      182.50        None           13    182.325405
+first-responders-ipc08_100.yml    false                          508.78      508.83        None           -1    508.517986
+first-responders-ipc08_101.yml    true                            12.71       12.71        None            4     12.494523
+first-responders-ipc08_102.yml    true                            11.34       11.34        None            7     11.153050
+first-responders-ipc08_103.yml    true                          2388.76     2388.92        None           14   2388.688616
+first-responders-ipc08_104.yml    TIMEOUT (false)              14400.06    14401.23        None           -1            -1
+first-responders-ipc08_105.yml    false                        14399.38    14400.45        None           -1            -1
+first-responders-ipc08_106.yml    false                          510.46      510.50        None           -1    510.188909
+first-responders-ipc08_107.yml    TIMEOUT (false)              14400.20    14401.00        None           -1            -1
+first-responders-ipc08_108.yml    false                        14399.93    14400.95        None           -1            -1
+first-responders-ipc08_109.yml    false                          507.46      507.50        None           -1    507.199272
+first-responders-ipc08_11.yml     false                          505.53      505.57        None           -1    505.261257
+first-responders-ipc08_110.yml    TIMEOUT (false)              14400.73    14401.80        None           -1            -1
+first-responders-ipc08_12.yml     true                             0.29        0.29        None            5      0.119896
+first-responders-ipc08_13.yml     true                             3.93        3.94        None           12      3.766285
+first-responders-ipc08_14.yml     true                             1.99        1.99        None            9      1.821453
+first-responders-ipc08_15.yml     false                          513.74      513.79        None           -1    513.489149
+first-responders-ipc08_16.yml     false                          516.16      516.20        None           -1    515.896530
+first-responders-ipc08_17.yml     true                          1679.18     1679.58        None           17   1679.403536
+first-responders-ipc08_18.yml     true                           298.41      298.43        None           13    298.253983
+first-responders-ipc08_19.yml     false                        14399.89    14400.95        None           -1            -1
+first-responders-ipc08_20.yml     false                          512.16      512.20        None           -1    511.898533
+first-responders-ipc08_31.yml     true                             0.34        0.34        None            5      0.167104
+first-responders-ipc08_32.yml     true                             2.40        2.40        None           11      2.230490
+first-responders-ipc08_33.yml     false                        14399.02    14400.04        None           -1            -1
+first-responders-ipc08_34.yml     false                        14396.92    14399.68        None           -1            -1
+first-responders-ipc08_35.yml     false                          520.75      520.79        None           -1    520.490280
+first-responders-ipc08_36.yml     false                          512.28      512.32        None           -1    512.017149
+first-responders-ipc08_37.yml     TIMEOUT (false)              14400.90    14402.01        None           -1            -1
+first-responders-ipc08_38.yml     TIMEOUT (false)              14400.11    14401.13        None           -1            -1
+first-responders-ipc08_39.yml     false                          515.82      515.87        None           -1    515.559813
+first-responders-ipc08_40.yml     false                        14398.97    14400.01        None           -1            -1
+first-responders-ipc08_41.yml     true                             0.34        0.34        None            5      0.174539
+first-responders-ipc08_42.yml     true                             1.40        1.40        None            7      1.229159
+first-responders-ipc08_43.yml     true                             3.35        3.36        None           10      3.181666
+first-responders-ipc08_44.yml     true                          1238.47     1238.56        None           18   1238.377403
+first-responders-ipc08_45.yml     false                          514.43      514.48        None           -1    514.169033
+first-responders-ipc08_46.yml     true                           215.74      215.75        None           13    215.578833
+first-responders-ipc08_47.yml     TIMEOUT (false)              14400.03    14401.14        None           -1            -1
+first-responders-ipc08_48.yml     TIMEOUT (false)              14400.93    14401.97        None           -1            -1
+first-responders-ipc08_49.yml     false                        14399.08    14400.22        None           -1            -1
+first-responders-ipc08_50.yml     false                          517.01      517.06        None           -1    516.755978
+first-responders-ipc08_51.yml     true                             0.49        0.49        None            4      0.321404
+first-responders-ipc08_52.yml     true                             1.37        1.38        None            8      1.206854
+first-responders-ipc08_53.yml     true                             4.01        4.01        None            8      3.833000
+first-responders-ipc08_54.yml     true                           988.56      988.76        None           18    988.576690
+first-responders-ipc08_55.yml     false                        14399.78    14400.80        None           -1            -1
+first-responders-ipc08_56.yml     false                          513.88      513.99        None           -1    513.674609
+first-responders-ipc08_57.yml     false                          515.39      515.44        None           -1    515.130264
+first-responders-ipc08_58.yml     false                        14397.78    14400.54        None           -1            -1
+first-responders-ipc08_59.yml     TIMEOUT (false)              14400.62    14401.75        None           -1            -1
+first-responders-ipc08_60.yml     false                        14399.41    14400.44        None           -1            -1
+first-responders-ipc08_61.yml     true                             2.04        2.04        None            7      1.861323
+first-responders-ipc08_62.yml     true                             2.26        2.27        None            8      2.090803
+first-responders-ipc08_63.yml     true                           549.19      549.23        None           16    549.051010
+first-responders-ipc08_64.yml     true                          1615.65     1615.77        None           18   1615.580210
+first-responders-ipc08_65.yml     true                           470.38      470.41        None           13    470.220693
+first-responders-ipc08_66.yml     false                        14399.19    14400.14        None           -1            -1
+first-responders-ipc08_67.yml     false                          515.70      515.75        None           -1    515.443607
+first-responders-ipc08_68.yml     false                        14399.10    14400.20        None           -1            -1
+first-responders-ipc08_69.yml     TIMEOUT (false)              14400.17    14401.00        None           -1            -1
+first-responders-ipc08_70.yml     TIMEOUT (false)              14400.44    14401.51        None           -1            -1
+first-responders-ipc08_71.yml     true                             1.40        1.40        None            4      1.217019
+first-responders-ipc08_72.yml     true                             4.02        4.03        None            8      3.842025
+first-responders-ipc08_73.yml     true                            70.93       70.93        None           12     70.750320
+first-responders-ipc08_74.yml     true                          7158.70     7159.24        None           17   7159.054980
+first-responders-ipc08_75.yml     true                           799.93      800.11        None           14    799.891695
+first-responders-ipc08_76.yml     TIMEOUT (false)              14401.26    14402.05        None           -1            -1
+first-responders-ipc08_77.yml     TIMEOUT (false)              14401.13    14402.02        None           -1            -1
+first-responders-ipc08_78.yml     true                           170.53      170.56        None           12    170.366955
+first-responders-ipc08_79.yml     false                        14398.66    14401.65        None           -1            -1
+first-responders-ipc08_80.yml     TIMEOUT (false)              14400.30    14401.00        None           -1            -1
+first-responders-ipc08_81.yml     true                             5.32        5.32        None            5      5.138518
+first-responders-ipc08_82.yml     true                             7.12        7.12        None            8      6.940897
+first-responders-ipc08_83.yml     false                          513.84      513.89        None           -1    513.581226
+first-responders-ipc08_84.yml     true                          9171.29     9171.97        None           15   9171.747704
+first-responders-ipc08_85.yml     TIMEOUT (false)              14400.94    14401.95        None           -1            -1
+first-responders-ipc08_86.yml     TIMEOUT (false)              14400.16    14401.00        None           -1            -1
+first-responders-ipc08_87.yml     TIMEOUT (false)              14401.15    14402.02        None           -1            -1
+first-responders-ipc08_88.yml     TIMEOUT (false)              14400.30    14401.37        None           -1            -1
+first-responders-ipc08_89.yml     TIMEOUT (false)              14401.04    14402.03        None           -1            -1
+first-responders-ipc08_90.yml     TIMEOUT (false)              14400.14    14401.00        None           -1            -1
+first-responders-ipc08_91.yml     true                            15.10       15.10        None           12     14.930446
+first-responders-ipc08_92.yml     true                            45.66       45.67        None           13     45.482231
+first-responders-ipc08_93.yml     true                           699.87      700.00        None           16    699.794954
+first-responders-ipc08_94.yml     false                          519.38      519.49        None           -1    519.185285
+first-responders-ipc08_95.yml     false                        14397.14    14399.89        None           -1            -1
+first-responders-ipc08_96.yml     TIMEOUT (false)              14400.22    14401.00        None           -1            -1
+first-responders-ipc08_97.yml     false                        14399.63    14400.63        None           -1            -1
+first-responders-ipc08_98.yml     false                        14399.64    14400.66        None           -1            -1
+first-responders-ipc08_99.yml     OUT OF MEMORY (false)        13564.14    13564.83        None           -1            -1
+islands_01.yml                    true                             0.25        0.25        None            4      0.085731
+islands_02.yml                    true                             0.27        0.27        None            4      0.106599
+islands_03.yml                    true                             0.31        0.31        None            4      0.142676
+islands_04.yml                    true                             0.36        0.36        None            4      0.194804
+islands_05.yml                    true                             0.43        0.43        None            4      0.265580
+islands_06.yml                    true                             0.52        0.53        None            4      0.354674
+islands_07.yml                    true                             0.63        0.63        None            4      0.458896
+islands_08.yml                    true                             0.76        0.76        None            4      0.587608
+islands_09.yml                    true                             0.90        0.90        None            4      0.730190
+islands_10.yml                    true                             1.10        1.10        None            4      0.935805
+islands_11.yml                    true                             1.28        1.28        None            4      1.114120
+islands_12.yml                    true                             1.49        1.49        None            4      1.321056
+islands_13.yml                    true                             0.39        0.39        None            6      0.227111
+islands_14.yml                    true                             0.56        0.56        None            6      0.398601
+islands_15.yml                    true                             1.05        1.06        None            6      0.887230
+islands_16.yml                    true                             1.97        1.97        None            6      1.803054
+islands_17.yml                    true                             3.18        3.18        None            6      3.005979
+islands_18.yml                    true                             5.25        5.25        None            6      5.063471
+islands_19.yml                    true                             7.84        7.84        None            6      7.617502
+islands_20.yml                    true                             9.16        9.17        None            6      8.984216
+islands_21.yml                    true                            12.05       12.05        None            6     11.843067
+islands_22.yml                    true                            14.81       14.81        None            6     14.618610
+islands_23.yml                    true                            18.14       18.14        None            6     17.934478
+islands_24.yml                    true                            22.09       22.09        None            6     21.888551
+islands_25.yml                    true                             0.88        0.89        None            8      0.718552
+islands_26.yml                    true                             1.85        1.85        None            8      1.679220
+islands_27.yml                    true                             5.32        5.33        None            8      5.152944
+islands_28.yml                    true                            11.01       11.02        None            8     10.839844
+islands_29.yml                    true                            19.37       19.38        None            8     19.197080
+islands_30.yml                    true                            30.02       30.02        None            8     29.821454
+islands_31.yml                    true                            43.92       43.93        None            8     43.715566
+islands_32.yml                    true                            60.09       60.10        None            8     59.873067
+islands_33.yml                    true                            78.10       78.11        None            8     77.874417
+islands_34.yml                    true                            98.61       98.62        None            8     98.357587
+islands_35.yml                    true                           123.37      123.38        None            8    123.105299
+islands_36.yml                    true                           150.26      150.27        None            8    149.970339
+islands_37.yml                    true                             2.24        2.24        None           10      2.072992
+islands_38.yml                    true                             9.08        9.08        None           10      8.911466
+islands_39.yml                    true                            21.69       21.69        None           10     21.513963
+islands_40.yml                    true                            44.94       44.94        None           10     44.746309
+islands_41.yml                    true                            81.56       81.57        None           10     81.341110
+islands_42.yml                    true                           128.68      128.69        None           10    128.444384
+islands_43.yml                    true                           188.14      188.16        None           10    187.878297
+islands_44.yml                    true                           256.75      256.77        None           10    256.458042
+islands_45.yml                    true                           335.40      335.42        None           10    335.066542
+islands_46.yml                    true                           430.80      430.84        None           10    430.364778
+islands_47.yml                    true                           536.89      536.94        None           10    536.382907
+islands_48.yml                    true                           649.96      650.02        None           10    649.397344
+islands_49.yml                    true                             5.63        5.63        None           12      5.462698
+islands_50.yml                    true                            27.96       27.96        None           12     27.794223
+islands_51.yml                    true                            69.67       69.68        None           12     69.496168
+islands_52.yml                    true                           165.86      165.88        None           12    165.645196
+islands_53.yml                    true                           278.89      278.92        None           12    278.641171
+islands_54.yml                    true                           448.53      448.56        None           12    448.225988
+islands_55.yml                    true                           608.89      608.94        None           12    608.522019
+islands_56.yml                    true                           852.51      852.58        None           12    851.954676
+islands_57.yml                    true                          1138.75     1138.83        None           12   1138.098935
+islands_58.yml                    true                          1429.25     1429.52        None           12   1428.618252
+islands_59.yml                    OUT OF MEMORY (false)         1442.69     1442.53        None           -1            -1
+islands_60.yml                    OUT OF MEMORY (false)         1141.24     1141.08        None           -1            -1
+miner_01.yml                      true                            23.15       23.16        None           18     22.985692
+miner_02.yml                      true                            15.86       15.87        None           15     15.693950
+miner_03.yml                      true                            23.96       23.96        None           14     23.795770
+miner_04.yml                      true                            68.96       68.97        None           17     68.797809
+miner_05.yml                      true                            51.85       51.85        None           19     51.680077
+miner_06.yml                      true                            65.03       65.04        None           18     64.864218
+miner_07.yml                      true                           116.26      116.27        None           20    116.086262
+miner_08.yml                      true                            84.33       84.34        None           18     84.158826
+miner_09.yml                      true                           107.33      107.34        None           19    107.159640
+miner_10.yml                      true                            75.88       75.90        None           17     75.716018
+miner_11.yml                      true                            84.70       84.71        None           19     84.523644
+miner_12.yml                      true                            67.34       67.35        None           17     67.172339
+miner_13.yml                      true                            56.66       56.66        None           17     56.486222
+miner_14.yml                      true                           151.78      151.79        None           19    151.597005
+miner_15.yml                      true                           133.94      133.95        None           20    133.758845
+miner_16.yml                      true                           142.92      142.93        None           16    142.733704
+miner_17.yml                      true                           192.54      192.58        None           18    192.390352
+miner_18.yml                      true                           188.81      188.82        None           19    188.632242
+miner_19.yml                      true                           317.57      317.59        None           21    317.392293
+miner_20.yml                      true                           181.57      181.59        None           19    181.396025
+miner_21.yml                      true                           241.17      241.21        None           23    241.015244
+miner_22.yml                      true                           416.50      416.53        None           26    416.324536
+miner_23.yml                      true                           269.96      269.99        None           22    269.786901
+miner_24.yml                      true                           422.43      422.51        None           22    422.299760
+miner_25.yml                      true                           162.80      162.81        None           20    162.620912
+miner_26.yml                      true                           174.64      174.65        None           19    174.453642
+miner_27.yml                      true                           313.21      313.24        None           22    313.033022
+miner_28.yml                      true                           280.65      280.67        None           22    280.466545
+miner_29.yml                      true                           188.30      188.32        None           19    188.125370
+miner_30.yml                      true                           151.76      151.78        None           17    151.580206
+miner_31.yml                      true                           181.18      181.22        None           19    181.025376
+miner_32.yml                      true                           657.10      657.15        None           24    656.908977
+miner_33.yml                      true                           514.44      514.48        None           22    514.258178
+miner_34.yml                      true                           276.45      276.47        None           20    276.259908
+miner_35.yml                      true                           326.28      326.30        None           18    326.096743
+miner_36.yml                      true                           253.09      253.14        None           19    252.934536
+miner_37.yml                      true                           391.22      391.25        None           21    391.027063
+miner_38.yml                      true                           760.57      760.63        None           22    760.383803
+miner_39.yml                      true                           873.97      874.15        None           24    873.897747
+miner_40.yml                      true                           595.04      595.08        None           23    594.852726
+miner_41.yml                      true                           505.45      505.49        None           22    505.272557
+miner_42.yml                      true                           460.90      460.93        None           21    460.715273
+miner_43.yml                      true                           629.98      630.02        None           22    629.787964
+miner_44.yml                      true                           474.90      474.94        None           22    474.713876
+miner_45.yml                      true                          2111.43     2111.59        None           28   2111.262320
+miner_46.yml                      true                          1136.30     1136.39        None           26   1136.121874
+miner_47.yml                      true                          1540.21     1540.50        None           25   1540.217699
+miner_48.yml                      true                          1219.49     1219.58        None           24   1219.304789
+miner_49.yml                      true                          1429.85     1429.95        None           28   1429.661428
+miner_50.yml                      true                          1065.84     1065.92        None           24   1065.651207
+miner_51.yml                      true                          2349.04     2349.21        None           25   2348.874890
+spiky-tireworld_01.yml            true                          1963.61     1963.77        None           23   1963.593114
+spiky-tireworld_02.yml            true                          1949.10     1949.25        None           23   1949.075462
+spiky-tireworld_03.yml            true                          2044.96     2045.13        None           23   2044.954556
+spiky-tireworld_04.yml            true                           467.05      467.13        None           23    466.956474
+spiky-tireworld_05.yml            true                          5545.63     5546.04        None           23   5545.855922
+spiky-tireworld_06.yml            true                          4164.29     4164.61        None           23   4164.428774
+spiky-tireworld_07.yml            true                          5239.46     5240.43        None           23   5240.240656
+spiky-tireworld_08.yml            true                          5104.62     5104.99        None           23   5104.807991
+spiky-tireworld_09.yml            true                          8101.14     8101.79        None           23   8101.600859
+spiky-tireworld_10.yml            true                         10447.71    10448.52        None           23  10448.321994
+spiky-tireworld_11.yml            false                        14398.83    14399.91        None           -1            -1
+tireworld-truck_01.yml            true                             3.44        3.44        None           11      3.279671
+tireworld-truck_02.yml            true                             1.00        1.00        None            9      0.832766
+tireworld-truck_03.yml            true                             1.30        1.30        None            9      1.139017
+tireworld-truck_04.yml            true                             4.81        4.81        None           11      4.645777
+tireworld-truck_05.yml            true                             6.98        6.98        None           11      6.812720
+tireworld-truck_06.yml            true                             1.85        1.85        None            9      1.686419
+tireworld-truck_07.yml            true                             2.04        2.04        None            9      1.875941
+tireworld-truck_08.yml            true                             7.32        7.32        None           11      7.159431
+tireworld-truck_09.yml            true                             6.85        6.85        None           11      6.680914
+tireworld-truck_11.yml            true                             2.31        2.32        None            9      2.144211
+tireworld-truck_12.yml            true                           220.58      220.60        None           14    220.433865
+tireworld-truck_13.yml            true                            97.24       97.25        None           14     97.079266
+tireworld-truck_14.yml            true                           108.11      108.12        None           14    107.945856
+tireworld-truck_15.yml            true                           453.62      453.66        None           14    453.492258
+tireworld-truck_16.yml            true                             1.51        1.52        None           10      1.349547
+tireworld-truck_17.yml            true                             3.92        3.92        None           12      3.752552
+tireworld-truck_18.yml            true                             8.57        8.57        None           12      8.402201
+tireworld-truck_19.yml            true                            39.26       39.27        None           14     39.088840
+tireworld-truck_20.yml            true                            45.21       45.22        None           14     45.046598
+tireworld-truck_21.yml            true                             8.55        8.55        None           12      8.383667
+tireworld-truck_22.yml            true                             8.14        8.14        None           12      7.975413
+tireworld-truck_23.yml            true                            37.31       37.32        None           14     37.147065
+tireworld-truck_24.yml            true                            47.19       47.19        None           14     47.028245
+tireworld-truck_25.yml            true                             9.30        9.30        None           12      9.133739
+tireworld-truck_26.yml            true                          1116.95     1117.05        None           17   1116.869266
+tireworld-truck_27.yml            true                           181.60      181.62        None           15    181.453276
+tireworld-truck_28.yml            true                           215.59      215.61        None           15    215.441138
+tireworld-truck_29.yml            true                          1030.36     1030.44        None           17   1030.276135
+tireworld-truck_30.yml            true                          2679.40     2679.61        None           17   2679.442236
+tireworld-truck_31.yml            true                           179.08      179.12        None           15    178.956147
+tireworld-truck_32.yml            true                           189.30      189.31        None           15    189.144387
+tireworld-truck_33.yml            true                           728.68      728.85        None           17    728.679782
+tireworld-truck_34.yml            true                             8.25        8.25        None           13      8.076458
+tireworld-truck_35.yml            true                            27.71       27.71        None           15     27.541654
+tireworld-truck_36.yml            true                            56.41       56.42        None           15     56.246777
+tireworld-truck_37.yml            true                             9.09        9.09        None           13      8.925449
+tireworld-truck_38.yml            true                            15.54       15.55        None           13     15.376388
+tireworld-truck_39.yml            true                            57.76       57.76        None           15     57.594338
+tireworld-truck_40.yml            true                           244.55      244.57        None           17    244.399898
+tireworld-truck_41.yml            true                            50.86       50.86        None           15     50.692449
+tireworld-truck_42.yml            true                           248.92      248.94        None           17    248.773161
+tireworld-truck_43.yml            true                           237.98      238.01        None           17    237.828134
+tireworld-truck_44.yml            true                            41.99       42.00        None           15     41.827117
+tireworld-truck_45.yml            true                           218.97      218.99        None           17    218.824286
+tireworld-truck_46.yml            true                           269.95      269.98        None           16    269.800159
+tireworld-truck_47.yml            true                           960.87      960.94        None           18    960.773342
+tireworld-truck_48.yml            true                          3254.83     3255.09        None           18   3254.913129
+tireworld-truck_49.yml            true                          1251.49     1251.75        None           18   1251.581386
+tireworld-truck_50.yml            true                          7134.40     7134.96        None           20   7134.774511
+tireworld-truck_51.yml            true                          7262.89     7263.52        None           20   7263.348478
+tireworld-truck_52.yml            true                         10976.07    10978.44        None           20  10978.272547
+tireworld-truck_53.yml            true                          1447.61     1447.71        None           18   1447.528692
+tireworld-truck_54.yml            true                           430.34      430.38        None           16    430.208994
+tireworld-truck_55.yml            true                           173.31      173.32        None           16    173.148606
+tireworld-truck_56.yml            true                          2769.32     2769.57        None           18   2769.393104
+tireworld-truck_57.yml            true                          1460.50     1460.61        None           18   1460.442714
+tireworld-truck_58.yml            true                            16.14       16.15        None           14     15.982198
+tireworld-truck_59.yml            true                            50.04       50.05        None           16     49.881976
+tireworld-truck_60.yml            true                            60.93       60.93        None           16     60.765097
+tireworld-truck_61.yml            true                            18.44       18.44        None           14     18.271319
+tireworld-truck_62.yml            true                            63.28       63.29        None           16     63.108743
+tireworld-truck_63.yml            true                            75.29       75.30        None           16     75.132763
+tireworld-truck_64.yml            true                           379.07      379.10        None           18    378.923739
+tireworld-truck_65.yml            true                          1430.35     1430.47        None           18   1430.293171
+tireworld-truck_66.yml            true                            94.37       94.38        None           16     94.212917
+tireworld-truck_67.yml            true                          1261.29     1261.38        None           19   1261.214036
+tireworld-truck_68.yml            true                          4851.26     4851.64        None           21   4851.475472
+tireworld-truck_69.yml            true                           408.12      408.15        None           17    407.987158
+tireworld-truck_70.yml            true                          2909.94     2910.17        None           19   2910.000144
+tireworld-truck_71.yml            true                          7782.07     7782.72        None           21   7782.546732
+tireworld-truck_72.yml            false                        14398.63    14399.64        None           -1            -1
+tireworld-truck_73.yml            true                          7441.03     7441.68        None           21   7441.499781
+tireworld-truck_74.yml            true                          1289.76     1289.88        None           19   1289.710940
+tireworld-truck_75.yml            true                           230.77      230.79        None           17    230.626141
+tireworld_01.yml                  false                         1898.03     1898.19        None           -1   1897.827359
+tireworld_02.yml                  true                             0.34        0.35        None            3      0.178973
+tireworld_03.yml                  true                             0.52        0.52        None            5      0.354132
+tireworld_04.yml                  true                             2.12        2.12        None            8      1.956664
+tireworld_05.yml                  true                             0.57        0.57        None            5      0.406996
+tireworld_06.yml                  true                             0.63        0.63        None            5      0.472762
+tireworld_07.yml                  true                             2.41        2.41        None            9      2.243901
+tireworld_08.yml                  true                             2.88        2.88        None            8      2.713377
+tireworld_09.yml                  false                         8168.66     8169.34        None           -1   8168.900420
+tireworld_10.yml                  true                             0.62        0.62        None            3      0.453324
+tireworld_11.yml                  true                             0.94        0.94        None            5      0.774534
+tireworld_12.yml                  true                             0.84        0.85        None            3      0.677221
+tireworld_13.yml                  true                             2.66        2.66        None            5      2.495154
+tireworld_14.yml                  true                            44.45       44.45        None           11     44.280565
+tireworld_15.yml                  false                        14398.68    14399.79        None           -1            -1
+triangle-tireworld_01.yml         true                             0.41        0.41        None            8      0.240992
+triangle-tireworld_02.yml         true                            59.54       59.54        None           16     59.373980
+triangle-tireworld_03.yml         true                          4310.65     4310.98        None           24   4310.810769
+triangle-tireworld_04.yml         false                        14399.32    14400.49        None           -1            -1
+triangle-tireworld_05.yml         false                        14397.23    14400.55        None           -1            -1
+triangle-tireworld_06.yml         false                        14398.61    14399.73        None           -1            -1
+triangle-tireworld_07.yml         false                        14398.71    14399.82        None           -1            -1
+triangle-tireworld_08.yml         false                        14398.22    14399.44        None           -1            -1
+triangle-tireworld_09.yml         false                        14398.95    14400.14        None           -1            -1
+triangle-tireworld_10.yml         false                        14399.63    14400.72        None           -1            -1
+triangle-tireworld_11.yml         false                        14399.20    14400.21        None           -1            -1
+triangle-tireworld_12.yml         false                        14399.53    14400.67        None           -1            -1
+triangle-tireworld_13.yml         false                        14396.69    14400.13        None           -1            -1
+triangle-tireworld_14.yml         false                        14399.19    14400.28        None           -1            -1
+triangle-tireworld_15.yml         false                        14399.40    14400.45        None           -1            -1
+triangle-tireworld_16.yml         false                        14399.57    14400.69        None           -1            -1
+triangle-tireworld_17.yml         false                        14398.87    14399.99        None           -1            -1
+triangle-tireworld_18.yml         false                        14398.94    14399.99        None           -1            -1
+triangle-tireworld_19.yml         false                        14399.33    14400.41        None           -1            -1
+triangle-tireworld_20.yml         TIMEOUT (false)              14400.84    14401.90        None           -1            -1
+triangle-tireworld_21.yml         false                        14397.13    14400.22        None           -1            -1
+triangle-tireworld_22.yml         TIMEOUT (false)              14400.14    14401.00        None           -1            -1
+triangle-tireworld_23.yml         false                        14399.58    14400.58        None           -1            -1
+triangle-tireworld_24.yml         TIMEOUT (false)              14400.12    14401.20        None           -1            -1
+triangle-tireworld_25.yml         false                        14399.43    14400.47        None           -1            -1
+triangle-tireworld_26.yml         TIMEOUT (false)              14400.18    14401.00        None           -1            -1
+triangle-tireworld_27.yml         false                        14398.77    14400.19        None           -1            -1
+triangle-tireworld_28.yml         false                        14399.46    14400.54        None           -1            -1
+triangle-tireworld_29.yml         OUT OF MEMORY (false)        12180.73    12182.92        None           -1            -1
+triangle-tireworld_30.yml         OUT OF MEMORY (false)        11958.11    11958.68        None           -1            -1
+triangle-tireworld_31.yml         TIMEOUT (false)              14400.16    14401.01        None           -1            -1
+triangle-tireworld_32.yml         OUT OF MEMORY (false)         5392.95     5393.08        None           -1            -1
+triangle-tireworld_33.yml         false                        14399.70    14400.65        None           -1            -1
+triangle-tireworld_34.yml         OUT OF MEMORY (false)         3859.15     3859.22        None           -1            -1
+triangle-tireworld_35.yml         OUT OF MEMORY (false)         3732.38     3732.44        None           -1            -1
+triangle-tireworld_36.yml         OUT OF MEMORY (false)         3211.65     3211.64        None           -1            -1
+triangle-tireworld_37.yml         OUT OF MEMORY (false)         2967.33     2967.32        None           -1            -1
+triangle-tireworld_38.yml         OUT OF MEMORY (false)         3166.00     3166.00        None           -1            -1
+triangle-tireworld_39.yml         OUT OF MEMORY (false)         3094.70     3095.15        None           -1            -1
+triangle-tireworld_40.yml         OUT OF MEMORY (false)         2930.07     2930.08        None           -1            -1
+zenotravel_01.yml                 true                             3.78        3.78        None            3      3.601744
+zenotravel_02.yml                 true                           632.29      632.33        None           17    632.134104
+zenotravel_03.yml                 true                           751.21      751.26        None           17    751.042684
+zenotravel_04.yml                 true                           197.45      197.47        None           13    197.223680
+zenotravel_05.yml                 true                           448.51      448.54        None           15    448.241227
+zenotravel_06.yml                 TIMEOUT (false)              14401.02    14402.17        None           -1            -1
+zenotravel_07.yml                 OUT OF MEMORY (false)         3416.26     3416.27        None           -1            -1
+zenotravel_08.yml                 OUT OF MEMORY (false)         2204.22     2204.13        None           -1            -1
+zenotravel_09.yml                 OUT OF MEMORY (false)         1961.71     1961.86        None           -1            -1
+zenotravel_10.yml                 OUT OF MEMORY (false)         1721.33     1721.18        None           -1            -1
+zenotravel_11.yml                 TIMEOUT (false)              14400.34    14401.00        None           -1            -1
+zenotravel_12.yml                 TIMEOUT (false)              14400.31    14401.00        None           -1            -1
+zenotravel_13.yml                 TIMEOUT (false)              14400.33    14401.00        None           -1            -1
+zenotravel_14.yml                 TIMEOUT (false)              14401.28    14403.74        None           -1            -1
+zenotravel_15.yml                 TIMEOUT (false)              14400.44    14401.00        None           -1            -1
+--------------------------------------------------------------------------------------------------------------------------
+Run set 1                         done                       3054795.03   385661.22           -
+
+
+fondsat-glucose.FOND
+Run set 2 of 2 with options '--solver glucose --end 100' and propertyfile 'None'
+
+inputfile                         status                       cpu time   wall time        host  policy_size  planner_time
+--------------------------------------------------------------------------------------------------------------------------
+acrobatics_01.yml                 true                             0.25        0.29        None            4      0.106133
+acrobatics_02.yml                 true                             0.51        0.53        None            8      0.349314
+acrobatics_03.yml                 true                             6.68        6.68        None           16      6.498825
+acrobatics_04.yml                 true                           707.25      707.30        None           32    707.095255
+acrobatics_05.yml                 TIMEOUT (false)              14401.06    14402.05        None           -1            -1
+acrobatics_06.yml                 TIMEOUT (false)              14401.08    14402.04        None           -1            -1
+acrobatics_07.yml                 TIMEOUT (false)              14401.11    14402.03        None           -1            -1
+acrobatics_08.yml                 TIMEOUT (false)              14401.16    14402.09        None           -1            -1
+beam-walk_01.yml                  true                             0.32        0.32        None            8      0.150711
+beam-walk_02.yml                  true                             1.90        1.91        None           16      1.742292
+beam-walk_03.yml                  true                           478.33      478.44        None           32    478.271903
+beam-walk_04.yml                  TIMEOUT (false)              14401.04    14402.16        None           -1            -1
+beam-walk_05.yml                  TIMEOUT (false)              14401.04    14402.16        None           -1            -1
+beam-walk_06.yml                  TIMEOUT (false)              14401.05    14404.18        None           -1            -1
+beam-walk_07.yml                  TIMEOUT (false)              14401.07    14402.14        None           -1            -1
+beam-walk_08.yml                  TIMEOUT (false)              14401.11    14402.06        None           -1            -1
+beam-walk_09.yml                  TIMEOUT (false)              14401.17    14402.07        None           -1            -1
+beam-walk_10.yml                  OUT OF MEMORY (false)         1731.18     1731.05        None           -1            -1
+beam-walk_11.yml                  OUT OF MEMORY (false)          758.36      758.14        None           -1            -1
+blocksworld-ipc08_01.yml          true                             6.87        6.87        None            9      6.699631
+blocksworld-ipc08_02.yml          true                             4.85        4.86        None            8      4.685173
+blocksworld-ipc08_03.yml          true                             9.41        9.41        None           10      9.241030
+blocksworld-ipc08_04.yml          true                            30.23       30.24        None           14     30.061137
+blocksworld-ipc08_05.yml          true                            17.57       17.57        None           12     17.401590
+blocksworld-ipc08_06.yml          true                            13.03       13.04        None           11     12.853853
+blocksworld-ipc08_07.yml          true                            23.29       23.30        None           13     23.117270
+blocksworld-ipc08_08.yml          true                            24.06       24.06        None           13     23.889234
+blocksworld-ipc08_09.yml          true                             6.74        6.74        None            9      6.570507
+blocksworld-ipc08_10.yml          true                            12.45       12.46        None           11     12.275863
+blocksworld-ipc08_11.yml          TIMEOUT (false)              14401.15    14402.24        None           -1            -1
+blocksworld-ipc08_12.yml          TIMEOUT (false)              14401.16    14402.21        None           -1            -1
+blocksworld-ipc08_13.yml          TIMEOUT (false)              14401.15    14403.77        None           -1            -1
+blocksworld-ipc08_14.yml          true                          1919.43     1919.60        None           18   1919.214482
+blocksworld-ipc08_15.yml          TIMEOUT (false)              14401.16    14402.20        None           -1            -1
+blocksworld-ipc08_16.yml          TIMEOUT (false)              14401.17    14402.18        None           -1            -1
+blocksworld-ipc08_17.yml          TIMEOUT (false)              14401.16    14402.15        None           -1            -1
+blocksworld-ipc08_18.yml          true                          2052.44     2052.60        None           18   2052.190129
+blocksworld-ipc08_19.yml          TIMEOUT (false)              14401.14    14402.13        None           -1            -1
+blocksworld-ipc08_20.yml          TIMEOUT (false)              14401.16    14402.24        None           -1            -1
+blocksworld-ipc08_21.yml          OUT OF MEMORY (false)          531.46      531.20        None           -1            -1
+blocksworld-ipc08_22.yml          OUT OF MEMORY (false)          532.84      532.62        None           -1            -1
+blocksworld-ipc08_23.yml          OUT OF MEMORY (false)          543.74      543.47        None           -1            -1
+blocksworld-ipc08_24.yml          OUT OF MEMORY (false)          528.99      528.72        None           -1            -1
+blocksworld-ipc08_25.yml          OUT OF MEMORY (false)          517.13      516.93        None           -1            -1
+blocksworld-ipc08_26.yml          OUT OF MEMORY (false)          538.74      538.49        None           -1            -1
+blocksworld-ipc08_27.yml          OUT OF MEMORY (false)          519.27      519.01        None           -1            -1
+blocksworld-ipc08_28.yml          OUT OF MEMORY (false)          541.13      540.92        None           -1            -1
+blocksworld-ipc08_29.yml          OUT OF MEMORY (false)          533.81      533.54        None           -1            -1
+blocksworld-ipc08_30.yml          OUT OF MEMORY (false)          525.13      524.86        None           -1            -1
+blocksworld-new_1.yml             true                             0.50        0.50        None            5      0.334419
+blocksworld-new_10.yml            TIMEOUT (false)              14401.21    14402.16        None           -1            -1
+blocksworld-new_11.yml            OUT OF MEMORY (false)         1049.64     1049.42        None           -1            -1
+blocksworld-new_12.yml            OUT OF MEMORY (false)          739.04      738.86        None           -1            -1
+blocksworld-new_13.yml            OUT OF MEMORY (false)          496.67      496.37        None           -1            -1
+blocksworld-new_14.yml            OUT OF MEMORY (false)          431.94      431.63        None           -1            -1
+blocksworld-new_15.yml            OUT OF MEMORY (false)          485.96      485.60        None           -1            -1
+blocksworld-new_16.yml            OUT OF MEMORY (false)          719.49      719.36        None           -1            -1
+blocksworld-new_17.yml            OUT OF MEMORY (false)         1009.66     1009.58        None           -1            -1
+blocksworld-new_18.yml            OUT OF MEMORY (false)         1439.38     1439.43        None           -1            -1
+blocksworld-new_19.yml            OUT OF MEMORY (false)         1032.51     1032.13        None           -1            -1
+blocksworld-new_2.yml             true                             0.26        0.26        None            3      0.086360
+blocksworld-new_20.yml            OUT OF MEMORY (false)         1427.00     1426.63        None           -1            -1
+blocksworld-new_21.yml            OUT OF MEMORY (false)         1753.89     1753.55        None           -1            -1
+blocksworld-new_22.yml            OUT OF MEMORY (false)         2225.88     2225.56        None           -1            -1
+blocksworld-new_23.yml            OUT OF MEMORY (false)         2783.38     2783.11        None           -1            -1
+blocksworld-new_24.yml            OUT OF MEMORY (false)         3406.57     3406.76        None           -1            -1
+blocksworld-new_25.yml            OUT OF MEMORY (false)         4265.35     4265.19        None           -1            -1
+blocksworld-new_26.yml            OUT OF MEMORY (false)         5163.77     5163.66        None           -1            -1
+blocksworld-new_27.yml            OUT OF MEMORY (false)         6320.47     6320.47        None           -1            -1
+blocksworld-new_28.yml            OUT OF MEMORY (false)         7531.54     7531.60        None           -1            -1
+blocksworld-new_29.yml            OUT OF MEMORY (false)         7502.66     7503.61        None           -1            -1
+blocksworld-new_3.yml             true                             0.50        0.50        None            5      0.324758
+blocksworld-new_30.yml            OUT OF MEMORY (false)         9069.65     9069.75        None           -1            -1
+blocksworld-new_31.yml            OUT OF MEMORY (false)        11083.60    11083.82        None           -1            -1
+blocksworld-new_32.yml            OUT OF MEMORY (false)        13328.99    13329.42        None           -1            -1
+blocksworld-new_33.yml            TIMEOUT (false)              14400.20    14401.00        None           -1            -1
+blocksworld-new_34.yml            TIMEOUT (false)              14400.23    14401.00        None           -1            -1
+blocksworld-new_35.yml            TIMEOUT (false)              14400.22    14401.00        None           -1            -1
+blocksworld-new_36.yml            TIMEOUT (false)              14401.05    14403.62        None           -1            -1
+blocksworld-new_37.yml            TIMEOUT (false)              14400.28    14401.00        None           -1            -1
+blocksworld-new_38.yml            TIMEOUT (false)              14400.32    14401.00        None           -1            -1
+blocksworld-new_39.yml            TIMEOUT (false)              14400.31    14401.00        None           -1            -1
+blocksworld-new_4.yml             true                             2.63        2.63        None            8      2.458022
+blocksworld-new_40.yml            TIMEOUT (false)              14400.31    14401.00        None           -1            -1
+blocksworld-new_5.yml             true                            29.28       29.28        None           13     29.102630
+blocksworld-new_6.yml             true                            67.35       67.36        None           13     67.169385
+blocksworld-new_7.yml             true                           583.55      583.60        None           17    583.368608
+blocksworld-new_8.yml             true                           537.87      537.92        None           17    537.650459
+blocksworld-new_9.yml             TIMEOUT (false)              14401.12    14402.05        None           -1            -1
+chain-of-rooms_1.yml              true                           219.46      219.48        None           28    219.305257
+chain-of-rooms_10.yml             TIMEOUT (false)              14401.07    14402.02        None           -1            -1
+chain-of-rooms_2.yml              TIMEOUT (false)              14401.07    14403.76        None           -1            -1
+chain-of-rooms_3.yml              TIMEOUT (false)              14401.05    14402.05        None           -1            -1
+chain-of-rooms_4.yml              TIMEOUT (false)              14401.08    14402.06        None           -1            -1
+chain-of-rooms_5.yml              TIMEOUT (false)              14400.12    14401.00        None           -1            -1
+chain-of-rooms_6.yml              TIMEOUT (false)              14401.06    14402.01        None           -1            -1
+chain-of-rooms_7.yml              TIMEOUT (false)              14401.05    14402.11        None           -1            -1
+chain-of-rooms_8.yml              TIMEOUT (false)              14401.05    14402.08        None           -1            -1
+chain-of-rooms_9.yml              TIMEOUT (false)              14401.07    14402.06        None           -1            -1
+doors_01.yml                      true                             0.30        0.30        None            5      0.131996
+doors_02.yml                      true                             0.47        0.47        None            7      0.305711
+doors_03.yml                      true                             0.91        0.91        None            9      0.733034
+doors_04.yml                      true                             1.80        1.81        None           11      1.631834
+doors_05.yml                      true                             3.48        3.49        None           13      3.309592
+doors_06.yml                      true                             7.61        7.61        None           15      7.438485
+doors_07.yml                      true                            14.92       14.92        None           17     14.735715
+doors_08.yml                      true                            26.56       26.57        None           19     26.387393
+doors_09.yml                      true                            59.94       59.96        None           21     59.774906
+doors_10.yml                      true                           126.32      126.34        None           23    126.151798
+doors_11.yml                      true                           230.45      230.50        None           25    230.307343
+doors_12.yml                      true                           412.63      412.66        None           27    412.468982
+doors_13.yml                      true                           728.18      728.32        None           29    728.120369
+doors_14.yml                      true                          1283.98     1284.07        None           31   1283.863426
+doors_15.yml                      true                          1501.47     1501.59        None           33   1501.384219
+earth_observation_01.yml          true                           270.83      270.88        None           20    270.699432
+earth_observation_02.yml          true                             0.32        0.32        None            6      0.146061
+earth_observation_03.yml          true                          1717.47     1717.77        None           25   1717.596838
+earth_observation_04.yml          TIMEOUT (false)              14401.03    14402.22        None           -1            -1
+earth_observation_05.yml          TIMEOUT (false)              14401.03    14402.02        None           -1            -1
+earth_observation_06.yml          true                          3819.77     3820.03        None           25   3819.857911
+earth_observation_07.yml          true                             5.63        5.63        None           17      5.462918
+earth_observation_08.yml          true                             0.34        0.34        None            6      0.167569
+earth_observation_09.yml          TIMEOUT (false)              14401.03    14403.80        None           -1            -1
+earth_observation_10.yml          TIMEOUT (false)              14401.03    14402.03        None           -1            -1
+earth_observation_11.yml          true                             0.37        0.37        None            7      0.181296
+earth_observation_12.yml          TIMEOUT (false)              14401.03    14402.07        None           -1            -1
+earth_observation_13.yml          TIMEOUT (false)              14401.03    14402.05        None           -1            -1
+earth_observation_14.yml          TIMEOUT (false)              14401.03    14402.09        None           -1            -1
+earth_observation_15.yml          TIMEOUT (false)              14401.03    14402.03        None           -1            -1
+earth_observation_16.yml          true                             1.31        1.32        None           13      1.140071
+earth_observation_17.yml          TIMEOUT (false)              14401.03    14402.12        None           -1            -1
+earth_observation_18.yml          TIMEOUT (false)              14400.07    14401.00        None           -1            -1
+earth_observation_19.yml          TIMEOUT (false)              14401.03    14403.67        None           -1            -1
+earth_observation_20.yml          TIMEOUT (false)              14401.03    14402.03        None           -1            -1
+earth_observation_21.yml          TIMEOUT (false)              14401.04    14402.03        None           -1            -1
+earth_observation_22.yml          TIMEOUT (false)              14401.03    14402.09        None           -1            -1
+earth_observation_23.yml          TIMEOUT (false)              14401.03    14402.08        None           -1            -1
+earth_observation_24.yml          TIMEOUT (false)              14401.03    14402.03        None           -1            -1
+earth_observation_25.yml          TIMEOUT (false)              14401.04    14402.16        None           -1            -1
+earth_observation_26.yml          TIMEOUT (false)              14401.02    14402.05        None           -1            -1
+earth_observation_27.yml          TIMEOUT (false)              14401.03    14403.55        None           -1            -1
+earth_observation_28.yml          TIMEOUT (false)              14401.03    14402.14        None           -1            -1
+earth_observation_29.yml          true                          3070.27     3070.50        None           36   3070.313613
+earth_observation_30.yml          TIMEOUT (false)              14401.03    14402.05        None           -1            -1
+earth_observation_31.yml          true                          2894.26     2894.48        None           37   2894.289502
+earth_observation_32.yml          TIMEOUT (false)              14401.02    14402.13        None           -1            -1
+earth_observation_33.yml          TIMEOUT (false)              14401.03    14402.06        None           -1            -1
+earth_observation_34.yml          TIMEOUT (false)              14401.03    14402.06        None           -1            -1
+earth_observation_35.yml          TIMEOUT (false)              14401.04    14402.14        None           -1            -1
+earth_observation_36.yml          TIMEOUT (false)              14401.04    14402.11        None           -1            -1
+earth_observation_37.yml          TIMEOUT (false)              14401.03    14403.73        None           -1            -1
+earth_observation_38.yml          TIMEOUT (false)              14401.04    14402.08        None           -1            -1
+earth_observation_39.yml          TIMEOUT (false)              14400.05    14401.00        None           -1            -1
+earth_observation_40.yml          TIMEOUT (false)              14401.04    14402.10        None           -1            -1
+elevators_01.yml                  true                             2.73        2.74        None           14      2.562164
+elevators_02.yml                  true                             0.71        0.71        None            9      0.546426
+elevators_03.yml                  true                             4.21        4.21        None           16      4.041883
+elevators_04.yml                  true                             2.59        2.59        None           14      2.426666
+elevators_05.yml                  true                             1.58        1.59        None           12      1.414926
+elevators_06.yml                  true                            48.20       48.20        None           23     48.024206
+elevators_07.yml                  true                            48.82       48.82        None           23     48.647765
+elevators_08.yml                  TIMEOUT (false)              14401.03    14402.06        None           -1            -1
+elevators_09.yml                  true                         12806.66    12807.60        None           36  12807.413524
+elevators_10.yml                  TIMEOUT (false)              14401.03    14402.13        None           -1            -1
+elevators_11.yml                  TIMEOUT (false)              14401.03    14402.10        None           -1            -1
+elevators_12.yml                  TIMEOUT (false)              14401.04    14403.97        None           -1            -1
+elevators_13.yml                  TIMEOUT (false)              14401.03    14402.04        None           -1            -1
+elevators_14.yml                  TIMEOUT (false)              14401.04    14402.08        None           -1            -1
+elevators_15.yml                  TIMEOUT (false)              14401.04    14402.06        None           -1            -1
+faults-ipc08_01.yml               true                             0.25        0.25        None            4      0.071575
+faults-ipc08_02.yml               true                             0.28        0.29        None            6      0.115112
+faults-ipc08_03.yml               true                             0.29        0.29        None            5      0.117846
+faults-ipc08_04.yml               true                             0.40        0.40        None            8      0.225061
+faults-ipc08_05.yml               true                             0.42        0.42        None            7      0.246458
+faults-ipc08_06.yml               true                             0.53        0.54        None            7      0.353019
+faults-ipc08_07.yml               true                             0.65        0.65        None           10      0.488408
+faults-ipc08_08.yml               true                             0.74        0.74        None            9      0.573123
+faults-ipc08_09.yml               true                             0.96        0.96        None            9      0.793412
+faults-ipc08_10.yml               true                             1.28        1.28        None            9      1.108721
+faults-ipc08_11.yml               true                             1.51        1.51        None           12      1.342922
+faults-ipc08_12.yml               true                             1.98        1.98        None           11      1.816703
+faults-ipc08_13.yml               true                             2.55        2.56        None           11      2.380095
+faults-ipc08_14.yml               true                             3.03        3.03        None           11      2.854088
+faults-ipc08_15.yml               true                             4.00        4.00        None           11      3.825087
+faults-ipc08_16.yml               true                             5.78        5.78        None           14      5.609101
+faults-ipc08_17.yml               true                             7.88        7.88        None           13      7.709408
+faults-ipc08_18.yml               true                             8.55        8.55        None           13      8.386476
+faults-ipc08_19.yml               true                            12.24       12.24        None           13     12.053094
+faults-ipc08_20.yml               true                            15.02       15.02        None           13     14.852643
+faults-ipc08_21.yml               true                            13.92       13.92        None           13     13.752924
+faults-ipc08_22.yml               true                            32.66       32.66        None           16     32.497094
+faults-ipc08_23.yml               true                            43.49       43.49        None           15     43.325930
+faults-ipc08_24.yml               true                            67.33       67.34        None           15     67.173124
+faults-ipc08_25.yml               true                            67.58       67.59        None           15     67.420083
+faults-ipc08_26.yml               true                            84.75       84.75        None           15     84.573392
+faults-ipc08_27.yml               true                            95.72       95.73        None           15     95.538594
+faults-ipc08_28.yml               true                           111.93      111.94        None           15    111.749385
+faults-ipc08_29.yml               true                           298.71      298.73        None           18    298.561318
+faults-ipc08_30.yml               true                           382.50      382.53        None           17    382.361687
+faults-ipc08_31.yml               true                           670.42      670.46        None           17    670.274012
+faults-ipc08_32.yml               true                           657.27      657.31        None           17    657.134461
+faults-ipc08_33.yml               true                           820.94      821.00        None           17    820.810787
+faults-ipc08_34.yml               true                           864.87      864.93        None           17    864.760305
+faults-ipc08_35.yml               true                          1003.38     1003.45        None           17   1003.260892
+faults-ipc08_36.yml               true                          1096.89     1096.96        None           17   1096.764421
+faults-ipc08_37.yml               true                          2762.55     2762.73        None           20   2762.545413
+faults-ipc08_38.yml               true                          3441.38     3441.62        None           19   3441.437065
+faults-ipc08_39.yml               true                         10608.11    10608.86        None           19  10608.679336
+faults-ipc08_40.yml               true                         13537.93    13538.89        None           19  13538.708375
+faults-ipc08_41.yml               true                         10919.92    10922.20        None           19  10922.010260
+faults-ipc08_42.yml               true                         11195.29    11196.13        None           19  11195.952526
+faults-ipc08_43.yml               true                         12046.55    12047.44        None           19  12047.262439
+faults-ipc08_44.yml               true                         13672.46    13673.55        None           19  13673.359616
+faults-ipc08_45.yml               true                         12075.69    12076.57        None           19  12076.372443
+faults-ipc08_46.yml               TIMEOUT (false)              14400.05    14401.00        None           -1            -1
+faults-ipc08_47.yml               TIMEOUT (false)              14401.02    14402.10        None           -1            -1
+faults-ipc08_48.yml               TIMEOUT (false)              14401.03    14403.78        None           -1            -1
+faults-ipc08_49.yml               TIMEOUT (false)              14401.03    14402.19        None           -1            -1
+faults-ipc08_50.yml               TIMEOUT (false)              14401.03    14402.03        None           -1            -1
+faults-ipc08_51.yml               TIMEOUT (false)              14401.03    14402.06        None           -1            -1
+faults-ipc08_52.yml               TIMEOUT (false)              14401.03    14402.15        None           -1            -1
+faults-ipc08_53.yml               TIMEOUT (false)              14401.03    14402.09        None           -1            -1
+faults-ipc08_54.yml               TIMEOUT (false)              14401.03    14402.08        None           -1            -1
+faults-ipc08_55.yml               TIMEOUT (false)              14401.03    14402.18        None           -1            -1
+first-responders-ipc08_01.yml     true                             0.26        0.26        None            4      0.083581
+first-responders-ipc08_02.yml     true                             0.27        0.27        None            5      0.095592
+first-responders-ipc08_03.yml     true                             0.33        0.34        None            6      0.158702
+first-responders-ipc08_04.yml     true                             0.40        0.41        None            7      0.222027
+first-responders-ipc08_05.yml     true                             0.51        0.51        None            8      0.337273
+first-responders-ipc08_06.yml     true                             0.82        0.83        None            9      0.651132
+first-responders-ipc08_07.yml     true                             1.46        1.47        None           10      1.278519
+first-responders-ipc08_08.yml     true                             3.03        3.03        None           11      2.844335
+first-responders-ipc08_09.yml     true                             8.20        8.21        None           12      8.030160
+first-responders-ipc08_10.yml     true                            26.22       26.23        None           13     26.061191
+first-responders-ipc08_100.yml    false                          357.53      357.61        None           -1    357.286262
+first-responders-ipc08_101.yml    true                            14.53       14.54        None            4     14.316004
+first-responders-ipc08_102.yml    true                             9.36        9.36        None            7      9.166962
+first-responders-ipc08_103.yml    true                           403.01      403.09        None           14    402.856531
+first-responders-ipc08_104.yml    TIMEOUT (false)              14401.04    14403.66        None           -1            -1
+first-responders-ipc08_105.yml    TIMEOUT (false)              14401.04    14402.27        None           -1            -1
+first-responders-ipc08_106.yml    false                          358.08      358.11        None           -1    357.790063
+first-responders-ipc08_107.yml    TIMEOUT (false)              14401.06    14402.17        None           -1            -1
+first-responders-ipc08_108.yml    TIMEOUT (false)              14401.20    14402.16        None           -1            -1
+first-responders-ipc08_109.yml    false                          355.39      355.43        None           -1    355.108334
+first-responders-ipc08_11.yml     false                          358.99      359.03        None           -1    358.721249
+first-responders-ipc08_110.yml    TIMEOUT (false)              14401.20    14402.16        None           -1            -1
+first-responders-ipc08_12.yml     true                             0.30        0.30        None            5      0.121797
+first-responders-ipc08_13.yml     true                             1.64        1.65        None           12      1.466845
+first-responders-ipc08_14.yml     true                             1.21        1.21        None            9      1.035373
+first-responders-ipc08_15.yml     false                          357.57      357.62        None           -1    357.297116
+first-responders-ipc08_16.yml     false                          360.80      360.84        None           -1    360.526257
+first-responders-ipc08_17.yml     true                           134.00      134.01        None           17    133.835679
+first-responders-ipc08_18.yml     true                            32.20       32.21        None           13     32.041513
+first-responders-ipc08_19.yml     TIMEOUT (false)              14401.05    14402.04        None           -1            -1
+first-responders-ipc08_20.yml     false                          359.67      359.71        None           -1    359.393410
+first-responders-ipc08_31.yml     true                             0.30        0.31        None            5      0.144044
+first-responders-ipc08_32.yml     true                             1.52        1.53        None           11      1.360854
+first-responders-ipc08_33.yml     TIMEOUT (false)              14401.05    14402.01        None           -1            -1
+first-responders-ipc08_34.yml     TIMEOUT (false)              14401.05    14402.11        None           -1            -1
+first-responders-ipc08_35.yml     false                          360.37      360.45        None           -1    360.135624
+first-responders-ipc08_36.yml     false                          361.52      361.59        None           -1    361.283016
+first-responders-ipc08_37.yml     true                          1127.47     1127.68        None           21   1127.495451
+first-responders-ipc08_38.yml     true                           670.91      670.95        None           19    670.756934
+first-responders-ipc08_39.yml     false                          361.26      361.29        None           -1    360.980974
+first-responders-ipc08_40.yml     TIMEOUT (false)              14401.07    14402.07        None           -1            -1
+first-responders-ipc08_41.yml     true                             0.33        0.33        None            5      0.161118
+first-responders-ipc08_42.yml     true                             1.14        1.15        None            7      0.972084
+first-responders-ipc08_43.yml     true                             1.93        1.94        None           10      1.766042
+first-responders-ipc08_44.yml     true                           100.57      100.59        None           18    100.414733
+first-responders-ipc08_45.yml     false                          359.83      359.92        None           -1    359.608374
+first-responders-ipc08_46.yml     true                            29.39       29.39        None           13     29.214492
+first-responders-ipc08_47.yml     true                          2029.69     2029.83        None           20   2029.642114
+first-responders-ipc08_48.yml     TIMEOUT (false)              14401.04    14403.96        None           -1            -1
+first-responders-ipc08_49.yml     TIMEOUT (false)              14401.04    14402.09        None           -1            -1
+first-responders-ipc08_50.yml     false                          358.68      358.72        None           -1    358.394850
+first-responders-ipc08_51.yml     true                             0.45        0.45        None            4      0.273781
+first-responders-ipc08_52.yml     true                             1.11        1.11        None            8      0.928220
+first-responders-ipc08_53.yml     true                             2.87        2.88        None            8      2.698418
+first-responders-ipc08_54.yml     true                           108.85      108.86        None           18    108.680666
+first-responders-ipc08_55.yml     true                          5277.95     5278.33        None           20   5278.150223
+first-responders-ipc08_56.yml     false                          361.68      361.72        None           -1    361.382377
+first-responders-ipc08_57.yml     false                          362.55      362.59        None           -1    362.261601
+first-responders-ipc08_58.yml     TIMEOUT (false)              14401.04    14402.12        None           -1            -1
+first-responders-ipc08_59.yml     TIMEOUT (false)              14401.03    14402.08        None           -1            -1
+first-responders-ipc08_60.yml     TIMEOUT (false)              14401.03    14402.09        None           -1            -1
+first-responders-ipc08_61.yml     true                             1.66        1.66        None            7      1.483492
+first-responders-ipc08_62.yml     true                             1.70        1.70        None            8      1.520274
+first-responders-ipc08_63.yml     true                            50.53       50.53        None           16     50.338188
+first-responders-ipc08_64.yml     true                           133.13      133.14        None           18    132.951005
+first-responders-ipc08_65.yml     true                            83.65       83.66        None           13     83.461451
+first-responders-ipc08_66.yml     TIMEOUT (false)              14401.05    14402.02        None           -1            -1
+first-responders-ipc08_67.yml     false                          357.28      357.32        None           -1    357.009578
+first-responders-ipc08_68.yml     TIMEOUT (false)              14401.04    14402.08        None           -1            -1
+first-responders-ipc08_69.yml     TIMEOUT (false)              14401.03    14402.17        None           -1            -1
+first-responders-ipc08_70.yml     TIMEOUT (false)              14401.07    14403.88        None           -1            -1
+first-responders-ipc08_71.yml     true                             1.20        1.20        None            4      1.017614
+first-responders-ipc08_72.yml     true                             3.24        3.24        None            8      3.062170
+first-responders-ipc08_73.yml     true                            27.72       27.73        None           12     27.538509
+first-responders-ipc08_74.yml     true                           450.91      450.94        None           17    450.747407
+first-responders-ipc08_75.yml     true                           220.99      221.00        None           14    220.790680
+first-responders-ipc08_76.yml     true                          3098.55     3098.77        None           19   3098.568526
+first-responders-ipc08_77.yml     TIMEOUT (false)              14401.04    14402.10        None           -1            -1
+first-responders-ipc08_78.yml     true                            63.37       63.38        None           12     63.192681
+first-responders-ipc08_79.yml     TIMEOUT (false)              14401.09    14402.06        None           -1            -1
+first-responders-ipc08_80.yml     TIMEOUT (false)              14401.05    14402.08        None           -1            -1
+first-responders-ipc08_81.yml     true                             4.96        4.96        None            5      4.769276
+first-responders-ipc08_82.yml     true                             5.62        5.62        None            8      5.435793
+first-responders-ipc08_83.yml     false                          358.72      358.76        None           -1    358.427649
+first-responders-ipc08_84.yml     true                          1405.98     1406.09        None           15   1405.870981
+first-responders-ipc08_85.yml     true                          9092.09     9092.77        None           18   9092.557858
+first-responders-ipc08_86.yml     TIMEOUT (false)              14401.04    14402.11        None           -1            -1
+first-responders-ipc08_87.yml     TIMEOUT (false)              14401.06    14402.14        None           -1            -1
+first-responders-ipc08_88.yml     TIMEOUT (false)              14401.05    14402.13        None           -1            -1
+first-responders-ipc08_89.yml     TIMEOUT (false)              14401.11    14404.00        None           -1            -1
+first-responders-ipc08_90.yml     TIMEOUT (false)              14401.04    14402.07        None           -1            -1
+first-responders-ipc08_91.yml     true                             8.89        8.89        None           12      8.714970
+first-responders-ipc08_92.yml     true                            32.91       32.92        None           13     32.717246
+first-responders-ipc08_93.yml     true                           169.96      169.98        None           16    169.761398
+first-responders-ipc08_94.yml     false                          361.15      361.19        None           -1    360.860433
+first-responders-ipc08_95.yml     TIMEOUT (false)              14401.10    14402.08        None           -1            -1
+first-responders-ipc08_96.yml     TIMEOUT (false)              14401.13    14402.13        None           -1            -1
+first-responders-ipc08_97.yml     TIMEOUT (false)              14401.04    14402.05        None           -1            -1
+first-responders-ipc08_98.yml     TIMEOUT (false)              14401.14    14402.13        None           -1            -1
+first-responders-ipc08_99.yml     OUT OF MEMORY (false)         2598.00     2597.90        None           -1            -1
+islands_01.yml                    true                             0.24        0.25        None            4      0.081398
+islands_02.yml                    true                             0.26        0.27        None            4      0.097316
+islands_03.yml                    true                             0.29        0.29        None            4      0.128114
+islands_04.yml                    true                             0.32        0.33        None            4      0.165001
+islands_05.yml                    true                             0.40        0.40        None            4      0.234741
+islands_06.yml                    true                             0.47        0.48        None            4      0.302850
+islands_07.yml                    true                             0.57        0.57        None            4      0.392680
+islands_08.yml                    true                             0.68        0.68        None            4      0.498522
+islands_09.yml                    true                             0.80        0.80        None            4      0.620931
+islands_10.yml                    true                             0.98        0.98        None            4      0.794160
+islands_11.yml                    true                             1.15        1.15        None            4      0.966176
+islands_12.yml                    true                             1.34        1.34        None            4      1.153617
+islands_13.yml                    true                             0.38        0.38        None            6      0.201302
+islands_14.yml                    true                             0.51        0.51        None            6      0.332658
+islands_15.yml                    true                             0.92        0.92        None            6      0.737470
+islands_16.yml                    true                             1.62        1.62        None            6      1.442050
+islands_17.yml                    true                             2.68        2.69        None            6      2.503758
+islands_18.yml                    true                             4.12        4.12        None            6      3.934143
+islands_19.yml                    true                             6.14        6.14        None            6      5.943058
+islands_20.yml                    true                             8.34        8.34        None            6      8.155550
+islands_21.yml                    true                            11.28       11.29        None            6     11.086113
+islands_22.yml                    true                            14.80       14.80        None            6     14.596593
+islands_23.yml                    true                            18.88       18.89        None            6     18.659886
+islands_24.yml                    true                            23.64       23.65        None            6     23.411213
+islands_25.yml                    true                             0.73        0.74        None            8      0.570199
+islands_26.yml                    true                             1.34        1.34        None            8      1.170586
+islands_27.yml                    true                             3.90        3.90        None            8      3.726814
+islands_28.yml                    true                             9.19        9.19        None            8      9.010745
+islands_29.yml                    true                            17.68       17.69        None            8     17.493790
+islands_30.yml                    true                            30.19       30.20        None            8     29.983392
+islands_31.yml                    true                            47.50       47.51        None            8     47.281068
+islands_32.yml                    true                            69.68       69.69        None            8     69.451743
+islands_33.yml                    true                            97.35       97.36        None            8     97.110763
+islands_34.yml                    true                           115.52      115.53        None            8    115.266980
+islands_35.yml                    true                           132.56      132.57        None            8    132.293050
+islands_36.yml                    true                           143.05      143.06        None            8    142.763042
+islands_37.yml                    true                             1.77        1.77        None           10      1.602971
+islands_38.yml                    true                             4.19        4.20        None           10      4.028673
+islands_39.yml                    true                            15.39       15.40        None           10     15.221437
+islands_40.yml                    true                            41.21       41.21        None           10     41.003641
+islands_41.yml                    true                            86.19       86.20        None           10     85.963443
+islands_42.yml                    true                           139.74      139.76        None           10    139.505410
+islands_43.yml                    true                           171.29      171.30        None           10    171.022357
+islands_44.yml                    true                           200.00      200.02        None           10    199.690153
+islands_45.yml                    true                           251.37      251.39        None           10    251.017580
+islands_46.yml                    true                           337.88      337.91        None           10    337.375098
+islands_47.yml                    true                           372.88      372.97        None           10    372.341887
+islands_48.yml                    true                           451.26      451.31        None           10    450.641506
+islands_49.yml                    true                             4.25        4.25        None           12      4.077034
+islands_50.yml                    true                            13.37       13.37        None           12     13.174591
+islands_51.yml                    true                            52.86       52.87        None           12     52.682054
+islands_52.yml                    true                           150.24      150.25        None           12    150.004619
+islands_53.yml                    true                           229.82      229.86        None           12    229.569309
+islands_54.yml                    true                           305.03      305.06        None           12    304.705719
+islands_55.yml                    true                           440.80      440.84        None           12    440.401522
+islands_56.yml                    true                           574.97      575.08        None           12    574.404765
+islands_57.yml                    OUT OF MEMORY (false)          619.45      619.19        None           -1            -1
+islands_58.yml                    OUT OF MEMORY (false)          525.92      525.67        None           -1            -1
+islands_59.yml                    OUT OF MEMORY (false)          508.19      507.98        None           -1            -1
+islands_60.yml                    OUT OF MEMORY (false)          341.68      341.39        None           -1            -1
+miner_01.yml                      true                            11.00       11.00        None           18     10.830164
+miner_02.yml                      true                             8.60        8.60        None           15      8.422845
+miner_03.yml                      true                            10.71       10.71        None           14     10.525573
+miner_04.yml                      true                            39.48       39.49        None           17     39.303567
+miner_05.yml                      true                            33.32       33.33        None           19     33.147416
+miner_06.yml                      true                            47.85       47.85        None           18     47.672852
+miner_07.yml                      true                            75.90       75.91        None           20     75.724964
+miner_08.yml                      true                            62.27       62.27        None           18     62.089175
+miner_09.yml                      true                            78.85       78.86        None           19     78.660855
+miner_10.yml                      true                            58.70       58.72        None           17     58.524305
+miner_11.yml                      true                            61.69       61.70        None           19     61.521771
+miner_12.yml                      true                            37.11       37.12        None           17     36.944806
+miner_13.yml                      true                            41.98       41.98        None           17     41.791497
+miner_14.yml                      true                            96.98       96.99        None           19     96.802320
+miner_15.yml                      true                           100.44      100.47        None           20    100.276395
+miner_16.yml                      true                           122.46      122.47        None           16    122.271173
+miner_17.yml                      true                           143.04      143.05        None           18    142.853542
+miner_18.yml                      true                            90.85       90.87        None           19     90.676758
+miner_19.yml                      true                           232.03      232.05        None           21    231.837008
+miner_20.yml                      true                           155.67      155.71        None           19    155.491575
+miner_21.yml                      true                           183.85      183.87        None           23    183.669544
+miner_22.yml                      true                           290.27      290.33        None           26    290.099236
+miner_23.yml                      true                           208.04      208.06        None           22    207.841939
+miner_24.yml                      true                           325.66      325.69        None           22    325.471286
+miner_25.yml                      true                           126.09      126.10        None           20    125.903434
+miner_26.yml                      true                           139.10      139.13        None           19    138.918490
+miner_27.yml                      true                           248.19      248.21        None           22    248.003055
+miner_28.yml                      true                           211.15      211.17        None           22    210.966788
+miner_29.yml                      true                           160.28      160.31        None           19    160.103557
+miner_30.yml                      true                           128.26      128.28        None           17    128.089523
+miner_31.yml                      true                           125.38      125.40        None           19    125.193866
+miner_32.yml                      true                           530.22      530.26        None           24    530.016219
+miner_33.yml                      true                           356.39      356.46        None           22    356.229602
+miner_34.yml                      true                           216.45      216.47        None           20    216.257540
+miner_35.yml                      true                           246.48      246.51        None           18    246.290039
+miner_36.yml                      true                           215.61      215.65        None           19    215.432677
+miner_37.yml                      true                           271.62      271.64        None           21    271.423458
+miner_38.yml                      true                           572.57      572.62        None           22    572.356522
+miner_39.yml                      true                           700.79      700.93        None           24    700.658985
+miner_40.yml                      true                           431.49      431.52        None           23    431.290697
+miner_41.yml                      true                           369.79      369.81        None           22    369.574619
+miner_42.yml                      true                           359.09      359.12        None           21    358.885870
+miner_43.yml                      true                           515.04      515.08        None           22    514.828451
+miner_44.yml                      true                           370.50      370.58        None           22    370.345226
+miner_45.yml                      true                          1583.24     1583.35        None           28   1583.037872
+miner_46.yml                      true                           882.18      882.24        None           26    881.957105
+miner_47.yml                      true                          1113.43     1113.51        None           25   1113.212615
+miner_48.yml                      true                           987.14      987.21        None           24    986.914743
+miner_49.yml                      true                          1114.90     1115.12        None           28   1114.832379
+miner_50.yml                      true                           872.37      872.44        None           24    872.141891
+miner_51.yml                      true                          1830.34     1830.46        None           25   1830.122665
+spiky-tireworld_01.yml            true                           262.36      262.38        None           23    262.209413
+spiky-tireworld_02.yml            true                           215.80      215.82        None           23    215.639647
+spiky-tireworld_03.yml            true                           355.86      355.89        None           23    355.712060
+spiky-tireworld_04.yml            true                            87.21       87.22        None           23     87.021457
+spiky-tireworld_05.yml            true                           528.70      528.74        None           23    528.559354
+spiky-tireworld_06.yml            true                           434.63      434.72        None           23    434.538621
+spiky-tireworld_07.yml            true                           818.67      818.73        None           23    818.545576
+spiky-tireworld_08.yml            true                           540.82      540.86        None           23    540.666183
+spiky-tireworld_09.yml            true                           994.39      994.47        None           23    994.284269
+spiky-tireworld_10.yml            true                          1112.17     1112.27        None           23   1112.077033
+spiky-tireworld_11.yml            true                          8908.82     8910.59        None           27   8910.385088
+tireworld-truck_01.yml            true                             1.27        1.27        None           11      1.097256
+tireworld-truck_02.yml            true                             0.62        0.62        None            9      0.449093
+tireworld-truck_03.yml            true                             0.86        0.86        None            9      0.685259
+tireworld-truck_04.yml            true                             1.49        1.49        None           11      1.317347
+tireworld-truck_05.yml            true                             2.06        2.06        None           11      1.889137
+tireworld-truck_06.yml            true                             1.14        1.14        None            9      0.966114
+tireworld-truck_07.yml            true                             1.35        1.35        None            9      1.172183
+tireworld-truck_08.yml            true                             2.35        2.35        None           11      2.173156
+tireworld-truck_09.yml            true                             3.00        3.00        None           11      2.828513
+tireworld-truck_11.yml            true                             1.51        1.52        None            9      1.338567
+tireworld-truck_12.yml            true                            16.33       16.33        None           14     16.159036
+tireworld-truck_13.yml            true                            20.32       20.32        None           14     20.144232
+tireworld-truck_14.yml            true                            16.91       16.91        None           14     16.744105
+tireworld-truck_15.yml            true                            28.63       28.63        None           14     28.461939
+tireworld-truck_16.yml            true                             0.83        0.84        None           10      0.670022
+tireworld-truck_17.yml            true                             1.76        1.76        None           12      1.585331
+tireworld-truck_18.yml            true                             2.16        2.16        None           12      1.984006
+tireworld-truck_19.yml            true                             5.89        5.90        None           14      5.717602
+tireworld-truck_20.yml            true                             7.32        7.32        None           14      7.156169
+tireworld-truck_21.yml            true                             3.46        3.46        None           12      3.285898
+tireworld-truck_22.yml            true                             3.85        3.86        None           12      3.680927
+tireworld-truck_23.yml            true                             7.24        7.24        None           14      7.068010
+tireworld-truck_24.yml            true                             8.96        8.96        None           14      8.791401
+tireworld-truck_25.yml            true                             4.66        4.67        None           12      4.488056
+tireworld-truck_26.yml            true                            82.39       82.39        None           17     82.216172
+tireworld-truck_27.yml            true                            18.64       18.65        None           15     18.479519
+tireworld-truck_28.yml            true                            25.91       25.92        None           15     25.748781
+tireworld-truck_29.yml            true                           197.56      197.58        None           17    197.405315
+tireworld-truck_30.yml            true                           123.10      123.11        None           17    122.939702
+tireworld-truck_31.yml            true                            19.36       19.37        None           15     19.188745
+tireworld-truck_32.yml            true                            26.78       26.79        None           15     26.609730
+tireworld-truck_33.yml            true                           113.00      113.01        None           17    112.819924
+tireworld-truck_34.yml            true                             2.25        2.25        None           13      2.080938
+tireworld-truck_35.yml            true                             5.50        5.50        None           15      5.326661
+tireworld-truck_36.yml            true                             7.15        7.16        None           15      6.977515
+tireworld-truck_37.yml            true                             3.34        3.34        None           13      3.175066
+tireworld-truck_38.yml            true                             4.60        4.60        None           13      4.433735
+tireworld-truck_39.yml            true                             8.66        8.67        None           15      8.496587
+tireworld-truck_40.yml            true                            29.26       29.27        None           17     29.096566
+tireworld-truck_41.yml            true                            13.08       13.08        None           15     12.898669
+tireworld-truck_42.yml            true                            30.00       30.01        None           17     29.823486
+tireworld-truck_43.yml            true                            30.26       30.27        None           17     30.078369
+tireworld-truck_44.yml            true                            14.18       14.18        None           15     14.004449
+tireworld-truck_45.yml            true                            36.90       36.90        None           17     36.724672
+tireworld-truck_46.yml            true                            23.39       23.40        None           16     23.219072
+tireworld-truck_47.yml            true                            90.03       90.04        None           18     89.862616
+tireworld-truck_48.yml            true                           189.97      189.98        None           18    189.813774
+tireworld-truck_49.yml            true                           115.78      115.80        None           18    115.617904
+tireworld-truck_50.yml            true                           783.42      783.50        None           20    783.316540
+tireworld-truck_51.yml            true                           798.67      798.74        None           20    798.566375
+tireworld-truck_52.yml            true                           649.25      649.31        None           20    649.110877
+tireworld-truck_53.yml            true                            97.93       97.94        None           18     97.763450
+tireworld-truck_54.yml            true                            23.35       23.35        None           16     23.177970
+tireworld-truck_55.yml            true                            26.34       26.34        None           16     26.164322
+tireworld-truck_56.yml            true                           127.38      127.39        None           18    127.215431
+tireworld-truck_57.yml            true                           157.13      157.15        None           18    156.970237
+tireworld-truck_58.yml            true                             3.34        3.34        None           14      3.177706
+tireworld-truck_59.yml            true                             7.13        7.13        None           16      6.962896
+tireworld-truck_60.yml            true                            11.35       11.35        None           16     11.180451
+tireworld-truck_61.yml            true                             4.68        4.68        None           14      4.506333
+tireworld-truck_62.yml            true                            14.62       14.63        None           16     14.444360
+tireworld-truck_63.yml            true                            13.19       13.19        None           16     13.022190
+tireworld-truck_64.yml            true                            42.46       42.47        None           18     42.293322
+tireworld-truck_65.yml            true                            47.69       47.69        None           18     47.510400
+tireworld-truck_66.yml            true                            19.65       19.66        None           16     19.466294
+tireworld-truck_67.yml            true                            83.15       83.16        None           19     82.979236
+tireworld-truck_68.yml            true                           597.22      597.28        None           21    597.108533
+tireworld-truck_69.yml            true                            37.55       37.56        None           17     37.379170
+tireworld-truck_70.yml            true                           211.82      211.83        None           19    211.647918
+tireworld-truck_71.yml            true                           904.65      904.72        None           21    904.534506
+tireworld-truck_72.yml            true                          5758.12     5758.55        None           23   5758.367026
+tireworld-truck_73.yml            true                          1103.98     1104.06        None           21   1103.885257
+tireworld-truck_74.yml            true                           109.26      109.28        None           19    109.095166
+tireworld-truck_75.yml            true                            35.44       35.45        None           17     35.266929
+tireworld_01.yml                  false                         1469.40     1469.53        None           -1   1469.141795
+tireworld_02.yml                  true                             0.34        0.34        None            3      0.170363
+tireworld_03.yml                  true                             0.49        0.49        None            5      0.314253
+tireworld_04.yml                  true                             1.77        1.77        None            8      1.598416
+tireworld_05.yml                  true                             0.54        0.54        None            5      0.370039
+tireworld_06.yml                  true                             0.60        0.60        None            5      0.425159
+tireworld_07.yml                  true                             1.98        1.99        None            9      1.817820
+tireworld_08.yml                  true                             1.90        1.90        None            8      1.736781
+tireworld_09.yml                  false                         3628.39     3628.69        None           -1   3628.234846
+tireworld_10.yml                  true                             0.60        0.60        None            3      0.430438
+tireworld_11.yml                  true                             0.87        0.87        None            5      0.699541
+tireworld_12.yml                  true                             0.81        0.81        None            3      0.640111
+tireworld_13.yml                  true                             2.54        2.55        None            5      2.378949
+tireworld_14.yml                  true                            10.84       10.84        None           11     10.667257
+tireworld_15.yml                  TIMEOUT (false)              14401.05    14402.13        None           -1            -1
+triangle-tireworld_01.yml         true                             0.37        0.37        None            8      0.199187
+triangle-tireworld_02.yml         true                             6.15        6.15        None           16      5.975491
+triangle-tireworld_03.yml         true                           141.99      142.00        None           24    141.824192
+triangle-tireworld_04.yml         true                          1330.66     1330.75        None           32   1330.554586
+triangle-tireworld_05.yml         true                          5560.60     5561.05        None           40   5560.855857
+triangle-tireworld_06.yml         TIMEOUT (false)              14401.04    14402.09        None           -1            -1
+triangle-tireworld_07.yml         TIMEOUT (false)              14401.04    14402.18        None           -1            -1
+triangle-tireworld_08.yml         TIMEOUT (false)              14401.07    14402.13        None           -1            -1
+triangle-tireworld_09.yml         TIMEOUT (false)              14401.01    14402.15        None           -1            -1
+triangle-tireworld_10.yml         TIMEOUT (false)              14401.09    14402.10        None           -1            -1
+triangle-tireworld_11.yml         TIMEOUT (false)              14401.05    14402.12        None           -1            -1
+triangle-tireworld_12.yml         TIMEOUT (false)              14401.07    14403.85        None           -1            -1
+triangle-tireworld_13.yml         TIMEOUT (false)              14401.08    14402.14        None           -1            -1
+triangle-tireworld_14.yml         TIMEOUT (false)              14401.09    14402.10        None           -1            -1
+triangle-tireworld_15.yml         TIMEOUT (false)              14401.10    14402.08        None           -1            -1
+triangle-tireworld_16.yml         TIMEOUT (false)              14401.14    14402.09        None           -1            -1
+triangle-tireworld_17.yml         TIMEOUT (false)              14401.11    14402.18        None           -1            -1
+triangle-tireworld_18.yml         TIMEOUT (false)              14401.12    14402.09        None           -1            -1
+triangle-tireworld_19.yml         TIMEOUT (false)              14401.13    14402.08        None           -1            -1
+triangle-tireworld_20.yml         TIMEOUT (false)              14401.15    14403.96        None           -1            -1
+triangle-tireworld_21.yml         TIMEOUT (false)              14401.16    14402.16        None           -1            -1
+triangle-tireworld_22.yml         TIMEOUT (false)              14401.16    14402.13        None           -1            -1
+triangle-tireworld_23.yml         TIMEOUT (false)              14401.23    14402.18        None           -1            -1
+triangle-tireworld_24.yml         TIMEOUT (false)              14401.23    14402.03        None           -1            -1
+triangle-tireworld_25.yml         TIMEOUT (false)              14401.27    14402.04        None           -1            -1
+triangle-tireworld_26.yml         OUT OF MEMORY (false)        10091.81    10092.25        None           -1            -1
+triangle-tireworld_27.yml         OUT OF MEMORY (false)         4871.67     4871.74        None           -1            -1
+triangle-tireworld_28.yml         OUT OF MEMORY (false)         3966.80     3967.31        None           -1            -1
+triangle-tireworld_29.yml         OUT OF MEMORY (false)         3021.70     3021.98        None           -1            -1
+triangle-tireworld_30.yml         OUT OF MEMORY (false)         2719.18     2718.98        None           -1            -1
+triangle-tireworld_31.yml         OUT OF MEMORY (false)         2358.91     2358.77        None           -1            -1
+triangle-tireworld_32.yml         OUT OF MEMORY (false)         1827.87     1827.91        None           -1            -1
+triangle-tireworld_33.yml         OUT OF MEMORY (false)         1757.38     1757.22        None           -1            -1
+triangle-tireworld_34.yml         OUT OF MEMORY (false)         1672.78     1672.62        None           -1            -1
+triangle-tireworld_35.yml         OUT OF MEMORY (false)         1641.99     1641.80        None           -1            -1
+triangle-tireworld_36.yml         OUT OF MEMORY (false)         1528.06     1528.03        None           -1            -1
+triangle-tireworld_37.yml         OUT OF MEMORY (false)         1415.02     1414.82        None           -1            -1
+triangle-tireworld_38.yml         OUT OF MEMORY (false)         1565.86     1565.70        None           -1            -1
+triangle-tireworld_39.yml         OUT OF MEMORY (false)         1455.38     1455.20        None           -1            -1
+triangle-tireworld_40.yml         OUT OF MEMORY (false)         1326.76     1326.60        None           -1            -1
+zenotravel_01.yml                 true                             3.46        3.46        None            3      3.283961
+zenotravel_02.yml                 true                           160.44      160.45        None           17    160.241876
+zenotravel_03.yml                 true                           249.72      249.73        None           17    249.513239
+zenotravel_04.yml                 true                           168.19      168.21        None           13    167.962867
+zenotravel_05.yml                 true                           272.99      273.01        None           15    272.719913
+zenotravel_06.yml                 OUT OF MEMORY (false)         1523.20     1523.04        None           -1            -1
+zenotravel_07.yml                 OUT OF MEMORY (false)         1096.71     1096.48        None           -1            -1
+zenotravel_08.yml                 OUT OF MEMORY (false)         1036.51     1036.39        None           -1            -1
+zenotravel_09.yml                 OUT OF MEMORY (false)         1100.35     1100.14        None           -1            -1
+zenotravel_10.yml                 OUT OF MEMORY (false)         1139.25     1139.02        None           -1            -1
+zenotravel_11.yml                 TIMEOUT (false)              14400.26    14401.00        None           -1            -1
+zenotravel_12.yml                 TIMEOUT (false)              14401.22    14402.03        None           -1            -1
+zenotravel_13.yml                 TIMEOUT (false)              14400.34    14401.00        None           -1            -1
+zenotravel_14.yml                 TIMEOUT (false)              14401.26    14403.56        None           -1            -1
+zenotravel_15.yml                 TIMEOUT (false)              14400.36    14401.00        None           -1            -1
+--------------------------------------------------------------------------------------------------------------------------
+Run set 2                         done                       2384515.77   303656.00           -
+
+Statistics:           1180 Files
+  correct:               0
+    correct true:        0
+    correct false:       0
+  incorrect:             0
+    incorrect true:      0
+    incorrect false:     0
+  unknown:             312
