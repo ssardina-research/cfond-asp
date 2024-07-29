@@ -44,7 +44,12 @@ class Tool(BaseTool2):
         )
 
     def cmdline(self, executable, options, task, rlimits):
-        options += ["-timeout", str(rlimits.cputime), "-exportPolicy", f"{self._output_dir}/policy.out"]
+        options += [
+            "-timeout",
+            str(rlimits.cputime),
+            "-exportPolicy",
+            f"{self._output_dir}/policy.out",
+        ]
         return [executable] + options + list(task.input_files)
 
     def determine_result(self, run):
@@ -76,7 +81,6 @@ class Tool(BaseTool2):
 
         return -1
 
-
     def _get_policy_size(self, output):
         """
         # Policy Size = 3
@@ -84,5 +88,5 @@ class Tool(BaseTool2):
         for _l in output:
             if "Policy Size" in _l:
                 return _l.split("=")[-1].strip()
-            
+
         return -1
