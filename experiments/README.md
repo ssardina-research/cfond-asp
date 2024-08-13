@@ -183,7 +183,7 @@ INFO: Writing CSV  into prp-19-07-24/benchmark-prp.2024-07-19_17-59-23.results.p
 INFO: done
 ```
 
-Here the resulting CSV has the states of that single run definition. In contrast, the following command generates a CSV table for four run sets all together:
+Here the resulting CSV has the states of that single run definition. In contrast, the following command generates a CSV table for four run sets all together (i.e., `cfondasp1-fsat.FOND`, `cfondasp1-reg.FOND`, `cfondasp2-fsat.FOND`, and `cfondasp2-reg.FOND`):
 
 ```shell
 $ table-generator cfondasp-21-07-24/*.xml.bz2
