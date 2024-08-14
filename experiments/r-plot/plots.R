@@ -10,9 +10,9 @@
 #       solver: name of the solver/solver
 #       instance_id: id of the planning problem
 #       status: 1 if problem was solved, 0 otherwise (we could have others, e.g., memory out)
-#       time: time take to solve the problem, -1 if the planer ran out of resources
+#       cputime: cputime take to solve the problem, -1 if the planer ran out of resources
 #
-#       domain,instance,solver,status,time
+#       domain,instance,solver,status,cputime
 #       domain_1,p1,PLN_1,1,696.853460246388
 #       domain_1,p2,PLN_1,1,937.635542893674
 #       domain_1,p3,PLN_1,1,859.808497063841
@@ -25,21 +25,13 @@
 #       domain_1,p10,PLN_1,1,874.812547986277
 ####
 
-main_file <- "results"
-main_file <- "cfond_benchexec_stats"
+main_file <- "data/results"
+main_file <- "data/cfond_benchexec_stats"
 
 #### SET YOUR CONSTANTS
 csv_file <- paste(main_file, ".csv", sep="")
 output_pdf <- paste(main_file, ".pdf", sep="")
 output_png <- paste(main_file, ".png", sep="")
-
-# csv_file <- "results.csv"
-# output_pdf <- "results.pdf"
-# output_png <- "results.png"
-
-
-
-
 
 plot_width <- 15
 plot_height <- 12
@@ -70,11 +62,11 @@ df_c$coverage_y = df_c$coverage*125
 df_c$coverage_label = paste(round(df_c$coverage*100, 2), "%", sep="")
 
 
-## compute the average time for the solved instances
+## compute the average cputime for the solved instances
 df_means = df %>%
           filter(status==1) %>%
           group_by(domain, solver) %>%
-          summarise(mean_time = mean(time))
+          summarise(mean_time = mean(cputime))
 
 # create a label by rounding to 1 decimal place
 df_means$mean_label = round(df_means$mean_time,1)
@@ -83,7 +75,7 @@ df_means$mean_label = round(df_means$mean_time,1)
 df_means$p_y = as.numeric(df_means$solver)
 
 # build basic plot  with time x and planer y axes
-p = ggplot(df, aes(time, solver))
+p = ggplot(df, aes(cputime, solver))
 
 # add time scatter plot per solver, with bar
 p = p + geom_segment(aes(x=0, xend=coverage_y+1000, y = solver, yend = solver), data=df_c, color="grey50") + geom_point(size=2,aes(colour = solver, shape=solver),show.legend = FALSE)

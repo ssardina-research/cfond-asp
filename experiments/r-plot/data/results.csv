@@ -1,4 +1,4 @@
-domain,instance,solver,status,time
+domain,instance,solver,status,cputime
 domain_1,p1,PLN_1,1,696.853460246388
 domain_1,p2,PLN_1,1,937.635542893674
 domain_1,p3,PLN_1,1,859.808497063841
