@@ -1,0 +1,8 @@
+format_version: "2.0"
+input_files:
+- ../../../benchmarks/miner/domain.pddl
+- ../../../benchmarks/miner/p33.pddl
+
+options:
+    output: miner/33
+    kb: miner

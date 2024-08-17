@@ -1,0 +1,7 @@
+format_version: "2.0"
+input_files:
+- ../../../benchmarks/elevators/domain.pddl
+- ../../../benchmarks/elevators/p05.pddl
+
+options:
+    output: elevators/05

@@ -1,0 +1,7 @@
+format_version: "2.0"
+input_files:
+- ../../../benchmarks/faults-ipc08/d37.pddl
+- ../../../benchmarks/faults-ipc08/p37.pddl
+
+options:
+    output: faults-ipc08/37

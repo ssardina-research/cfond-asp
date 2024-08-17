@@ -6,7 +6,7 @@ The planner and its underlying technique were reported in the following paper:
 
 * Nitin Yadav, Sebastian Sardiña: [A Declarative Approach to Compact Controllers for FOND Planning via Answer Set Programming](https://doi.org/10.3233/FAIA230593). ECAI 2023: 2818-2825
 
-The `benchmarking/` folder contains scripts to facilitate running benchmarks, possibly on a cluster or HPC. Refer to file [BENCHMARKING.md](BENCHMARKING.md) for more information.
+The `benchmarks/` folder contains problem instances, while folder `experiments/` contains the experimental framework; see [`README.md`](experiments/README.md) in that folder for more information.
 
 ## Requirements
 

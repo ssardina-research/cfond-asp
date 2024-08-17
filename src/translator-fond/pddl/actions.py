@@ -1,9 +1,13 @@
+from __future__ import print_function
+
 import copy
 
 from . import conditions
+from . import effects
+from . import pddl_types
 
 
-class Action:
+class Action(object):
     def __init__(self, name, parameters, num_external_parameters,
                  precondition, effects, cost):
         assert 0 <= num_external_parameters <= len(parameters)
@@ -18,10 +22,51 @@ class Action:
         self.precondition = precondition
         self.effects = effects
         self.cost = cost
-        self.uniquify_variables() # TODO: uniquify variables in cost?
+        self.uniquify_variables()  # TODO: uniquify variables in cost?
 
     def __repr__(self):
         return "<Action %r at %#x>" % (self.name, id(self))
+
+    def parse(alist):
+        iterator = iter(alist)
+        action_tag = next(iterator)
+        assert action_tag == ":action"
+        name = next(iterator)
+        parameters_tag_opt = next(iterator)
+        if parameters_tag_opt == ":parameters":
+            parameters = pddl_types.parse_typed_list(next(iterator),
+                                                     only_variables=True)
+            precondition_tag_opt = next(iterator)
+        else:
+            parameters = []
+            precondition_tag_opt = parameters_tag_opt
+        if precondition_tag_opt == ":precondition":
+            precondition_list = next(iterator)
+            if not precondition_list:
+                # Note that :precondition () is allowed in PDDL.
+                precondition = conditions.Conjunction([])
+            else:
+                precondition = conditions.parse_condition(precondition_list)
+                precondition = precondition.simplified()
+            effect_tag = next(iterator)
+        else:
+            precondition = conditions.Conjunction([])
+            effect_tag = precondition_tag_opt
+        assert effect_tag == ":effect"
+        effect_list = next(iterator)
+        try:
+            cost_eff_pairs = effects.parse_effects(effect_list)
+            if 1 == len(cost_eff_pairs):
+                cost_eff_pairs = [(cost_eff_pairs[0][0], cost_eff_pairs[0][1], '')]
+            else:
+                cost_eff_pairs = [(cost_eff_pairs[i][0], cost_eff_pairs[i][1], "_DETDUP_%d" % i) for i in range(len(cost_eff_pairs))]
+        except ValueError as e:
+            raise SystemExit("Error in Action %s\nReason: %s." % (name, e))
+        for rest in iterator:
+            assert False, rest
+        return [Action(name + suffix, parameters, len(parameters), precondition, eff, cost) for (cost, eff, suffix) in cost_eff_pairs]
+
+    parse = staticmethod(parse)
 
     def dump(self):
         print("%s(%s)" % (self.name, ", ".join(map(str, self.parameters))))
@@ -31,13 +76,13 @@ class Action:
         for eff in self.effects:
             eff.dump()
         print("Cost:")
-        if self.cost:
+        if (self.cost):
             self.cost.dump()
         else:
             print("  None")
 
     def uniquify_variables(self):
-        self.type_map = {par.name: par.type_name for par in self.parameters}
+        self.type_map = dict([(par.name, par.type) for par in self.parameters])
         self.precondition = self.precondition.uniquify_variables(self.type_map)
         for effect in self.effects:
             effect.uniquify_variables(self.type_map)
@@ -63,12 +108,11 @@ class Action:
         result.effects = [eff.untyped() for eff in self.effects]
         return result
 
-    def instantiate(self, var_mapping, init_facts, init_assignments,
-                    fluent_facts, objects_by_type, metric):
+    def instantiate(self, var_mapping, init_facts, fluent_facts, objects_by_type):
         """Return a PropositionalAction which corresponds to the instantiation of
         this action with the arguments in var_mapping. Only fluent parts of the
         conditions (those in fluent_facts) are included. init_facts are evaluated
-        while instantiating.
+        whilte instantiating.
         Precondition and effect conditions must be normalized for this to work.
         Returns None if var_mapping does not correspond to a valid instantiation
         (because it has impossible preconditions or an empty effect list.)"""
@@ -86,18 +130,21 @@ class Action:
         for eff in self.effects:
             eff.instantiate(var_mapping, init_facts, fluent_facts,
                             objects_by_type, effects)
-        # if effects:
-        if metric:
-            if self.cost is None:
-                cost = 0
-            else:
-                cost = int(self.cost.instantiate(
-                    var_mapping, init_assignments).expression.value)
+        # HAZ: We return a propositional action since it may be a failed
+        #      outcome of a determinized action.
+        if self.cost is None:
+            cost = 0
         else:
-            cost = 1
+            cost = int(self.cost.instantiate(var_mapping, init_facts).expression.value)
         return PropositionalAction(name, precondition, effects, cost)
+        # if effects:
+        #    if self.cost is None:
+        #        cost = 0
+        #    else:
+        #        cost = int(self.cost.instantiate(var_mapping, init_facts).expression.value)
+        #    return PropositionalAction(name, precondition, effects, cost)
         # else:
-        #     return None
+        #    return None
 
 
 class PropositionalAction:

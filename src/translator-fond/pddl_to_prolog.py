@@ -1,5 +1,6 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 
+from __future__ import print_function
 
 import itertools
 
@@ -99,7 +100,7 @@ class PrologProgram:
 def get_variables(symbolic_atoms):
     variables = set()
     for sym_atom in symbolic_atoms:
-        variables |= {arg for arg in sym_atom.args if arg[0] == "?"}
+        variables |= set([arg for arg in sym_atom.args if arg[0] == "?"])
     return variables
 
 class Fact:
@@ -128,27 +129,23 @@ class Rule:
                     used_variables.add(var_name)
         return atom
     def rename_duplicate_variables(self):
-        extra_conditions = []
-        self.effect = self._rename_duplicate_variables(
-            self.effect, extra_conditions)
-        old_conditions = self.conditions
-        self.conditions = []
-        for condition in old_conditions:
-            self.conditions.append(self._rename_duplicate_variables(
-                    condition, extra_conditions))
-        self.conditions += extra_conditions
-        return bool(extra_conditions)
+        new_conditions = []
+        self.effect = self._rename_duplicate_variables(self.effect, new_conditions)
+        for condition in self.conditions:
+            condition = self._rename_duplicate_variables(condition, new_conditions)
+        self.conditions += new_conditions
+        return bool(new_conditions)
     def __str__(self):
         cond_str = ", ".join(map(str, self.conditions))
         return "%s :- %s." % (self.effect, cond_str)
 
 def translate_typed_object(prog, obj, type_dict):
-    supertypes = type_dict[obj.type_name].supertype_names
-    for type_name in [obj.type_name] + supertypes:
-        prog.add_fact(pddl.TypedObject(obj.name, type_name).get_atom())
+    supertypes = type_dict[obj.type].supertype_names
+    for type_name in [obj.type] + supertypes:
+        prog.add_fact(pddl.Atom(type_name, [obj.name]))
 
 def translate_facts(prog, task):
-    type_dict = {type.name: type for type in task.types}
+    type_dict = dict((type.name, type) for type in task.types)
     for obj in task.objects:
         translate_typed_object(prog, obj, type_dict)
     for fact in task.init:
@@ -172,8 +169,9 @@ def translate(task):
 
 
 if __name__ == "__main__":
-    import pddl_parser
-    task = pddl_parser.open()
+    # test_normalization()
+
+    task = pddl.open()
     normalize.normalize(task)
     prog = translate(task)
     prog.dump()

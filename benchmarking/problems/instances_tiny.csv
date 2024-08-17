@@ -1,7 +1,0 @@
-scenario,id,domain,problem
-miner,p01,./benchmarking/problems/miner/domain.pddl,./benchmarking/problems/miner/p01.pddl
-miner,p02,./benchmarking/problems/miner/domain.pddl,./benchmarking/problems/miner/p02.pddl
-miner,p03,./benchmarking/problems/miner/domain.pddl,./benchmarking/problems/miner/p03.pddl
-doors,p01,./benchmarking/problems/doors/domain.pddl,./benchmarking/problems/doors/p01.pddl
-doors,p02,./benchmarking/problems/doors/domain.pddl,./benchmarking/problems/doors/p02.pddl
-doors,p03,./benchmarking/problems/doors/domain.pddl,./benchmarking/problems/doors/p03.pddl

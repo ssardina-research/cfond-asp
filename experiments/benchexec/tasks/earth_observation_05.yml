@@ -1,0 +1,7 @@
+format_version: "2.0"
+input_files:
+- ../../../benchmarks/earth_observation/domain.pddl
+- ../../../benchmarks/earth_observation/p05.pddl
+
+options:
+    output: earth_observation/05

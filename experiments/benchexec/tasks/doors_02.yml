@@ -1,0 +1,7 @@
+format_version: "2.0"
+input_files:
+- ../../../benchmarks/doors/domain.pddl
+- ../../../benchmarks/doors/p02.pddl
+
+options:
+    output: doors/02
