@@ -25,19 +25,23 @@
 #       domain_1,p10,PLN_1,1,874.812547986277
 ####
 
-main_file <- "data/results"
-main_file <- "data/cfond_benchexec_stats"
 
+######################################
 #### SET YOUR CONSTANTS
-csv_file <- paste(main_file, ".csv", sep="")
-output_pdf <- paste(main_file, ".pdf", sep="")
-output_png <- paste(main_file, ".png", sep="")
+######################################
+main_file <- "stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats"
 
 plot_width <- 15
 plot_height <- 12
 plot_dpi <- 300
 
 ######################################
+
+
+csv_file <- paste(main_file, ".csv", sep="")
+output_pdf <- paste(main_file, "_R.pdf", sep="")
+output_png <- paste(main_file, "_R.png", sep="")
+
 
 # import the required libraries for plotting
 library(ggplot2)
