@@ -32,7 +32,7 @@ class Tool(BaseTool2):
         use_control_kb = False
         new_options = []
         for option in options:
-            if option == "--use_ckb":
+            if "use_ckb" in option:
                 use_control_kb = True
             else:
                 new_options.append(option)
