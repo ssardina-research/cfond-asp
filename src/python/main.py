@@ -186,8 +186,8 @@ def main():
 
     end = timer()
     total_time = end - start
-    logger.info(f"Output folder: {output_dir}")
-    logger.info(f"Time taken: {total_time}")
+    logger.debug(f"Output folder: {output_dir}")
+    logger.warning(f"Time taken: {total_time}")
     with open(os.path.join(output_dir, f"{mode}_time.out"), "w+") as f:
         f.write(f"Total time: {total_time}\n")
 
@@ -195,6 +195,6 @@ def main():
 if __name__ == "__main__":
     # set logger
     logger = logging.getLogger(__name__)
-    coloredlogs.install(level='INFO')
+    coloredlogs.install(level=logging.DEBUG)
 
     main()
