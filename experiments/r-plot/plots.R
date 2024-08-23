@@ -85,7 +85,8 @@ df_means$mean_label = round(df_means$mean_time,1)
 df_means$p_y = as.numeric(df_means$solver)
 
 # build basic plot  with time x and planer y axes
-p = ggplot(df, aes(cputime, solver))
+df_solved = df[df$solved_int==1,]
+p = ggplot(df_solved, aes(cputime, solver))
 
 # add time scatter plot per solver, with bar
 p = p + geom_segment(aes(x=0, xend=coverage_x, y = solver, yend = solver), data=df_c, color="grey50") + 
