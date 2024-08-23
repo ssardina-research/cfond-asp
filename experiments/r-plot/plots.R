@@ -31,17 +31,17 @@
 library(ggplot2)
 library(dplyr)
 
-main_file <- "data/results"
-main_file <- "data/cfond_benchexec_stats"
+main_file = "data/results"
+main_file = "data/cfond_benchexec_stats"
 
 #### SET YOUR CONSTANTS
-csv_file <- paste(main_file, ".csv", sep="")
-output_pdf <- paste(main_file, ".pdf", sep="")
-output_png <- paste(main_file, ".png", sep="")
+csv_file = paste(main_file, ".csv", sep="")
+output_pdf = paste(main_file, ".pdf", sep="")
+output_png = paste(main_file, ".png", sep="")
 
-plot_width <- 15
-plot_height <- 12
-plot_dpi <- 300
+plot_width = 15
+plot_height = 12
+plot_dpi = 300
 
 ######################################
 
