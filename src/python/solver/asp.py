@@ -146,6 +146,7 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
                 _logger.info(f"Solution found!")
                 _logger.info(f"Number of states in controller: {num_states+1}")
                 stop = True
+                return
                 # direction = -1 * fond_problem.inc_states
             else:
                 direction = 1 * fond_problem.inc_states
@@ -195,6 +196,7 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
         _logger.info(f"Solution found!")
         _logger.info(f"Number of states in controller: {num_states+1}")
         stop = True
+        return
         # direction = -1 * fond_problem.inc_states
     else:
         direction = 1 * fond_problem.inc_states
