@@ -41,6 +41,7 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
     # check if initial state is the goal state
     if entails(initial_state, goal_state):
         _logger.info("Goal met in the initial state!")
+        _logger.info("Solution found!")
         return
 
     # generate ASP instance
