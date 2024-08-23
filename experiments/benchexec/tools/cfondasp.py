@@ -30,15 +30,17 @@ class Tool(BaseTool2):
         ./src/cfondasp ./benchmarks/acrobatics/domain.pddl ./benchmarks/acrobatics/p03.pddl --model fondsat --use_backbone --filter_undo --clingo_args "-t 2" --output ./output 
         """
         use_control_kb = False
+        new_options = []
         for option in options:
             if option == "--use_ckb":
                 use_control_kb = True
-                break
+            else:
+                new_options.append(option)
             
         if use_control_kb and "kb" in task.options:
-            options += ["--domain_kb", task.options["kb"]]
-        options += ["--timeout", str(rlimits.cputime)]
-        return [executable] + options + list(task.input_files) + ["--output", f"{self._output_dir}/{task.options['output']}"]
+            new_options += ["--domain_kb", task.options["kb"]]
+        new_options += ["--timeout", str(rlimits.cputime)]
+        return [executable] + new_options + list(task.input_files) + ["--output", f"{self._output_dir}/{task.options['output']}"]
 
     def determine_result(self, run):
         """
