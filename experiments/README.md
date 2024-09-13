@@ -15,7 +15,7 @@ We use the [Benchexec](https://github.com/sosy-lab/benchexec) experimental frame
     - [Runexec tool: single benchexec runs](#runexec-tool-single-benchexec-runs)
   - [Running in NECTAR cluster](#running-in-nectar-cluster)
   - [Analysis of experiments](#analysis-of-experiments)
-    - [Extract CSV stat tables](#extract-csv-stat-tables)
+    - [Extract Benchexec CSV stats tables](#extract-benchexec-csv-stats-tables)
     - [Analysis of stat tables](#analysis-of-stat-tables)
 
 ## Installation and setup
@@ -235,7 +235,7 @@ $ benchexec experiments/benchexec/benchmark-fondasp.xml -N 8 -c 1 --read-only-di
 
 ## Analysis of experiments
 
-### Extract CSV stat tables
+### Extract Benchexec CSV stats tables
 
 Benchexec will leave all outputs will be placed under folder `results/`.
 
@@ -298,13 +298,18 @@ To learn about the outputs left by Benchexec, please check [HERE](https://github
 
 ### Analysis of stat tables
 
-We can take Benchexec tables and process them via notebook [process_benchexec.ipynb](process_benchexec.ipynb) to extract two CSV files:
+Frist, we can take Benchexec tables and process them via notebook [process_benchexec.ipynb](process_benchexec.ipynb) to extract two CSV files:
 
 1. A flat table of stats, that can be used for further analysis and plotting, with the solver being recorded in a new column. Benchexec tables are not flatten and each run set contains its own columns.
 2. A coverage table per domain and solver, typically reported in papers.
 
-Finally, we can use notebook [coverage_plots.ipynb](coverage_plots.ipynb) to plot integrated time-coverage plots. The same charts can be produced with Nitin's R script [r-plot/plots.R](r-plot/plots.R).
+Finally, we can use the Python notebook or R script available in [coverage-plots](https://github.com/ssardina-research/coverage-plots) repo to plot integrated time-coverage plots:
 
 ![plot](stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot.png)
 
 
+To run the R script in Linux: 
+
+```shell
+$ R < plots.R --no-save
+```
