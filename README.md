@@ -52,6 +52,16 @@ $ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchma
 
 Use `--dump_cntrl` to dump controller found, if any, into text and JSON formats.
 
+## Solver configurations available
+
+The available ASP solver configurations, as reported in the ECAI23 paper, can be found under folder [src/asp/](src/asp/).
+
+For strong-cyclic solutions (chosen via `--model`):
+
+- `controller-fondsat`: encoding following FONDSAT in propagating negative propositions forward.
+- `controller-reg`: encoding implementing weakest-precondition via regression (like PRP).
+
+For strong solutions (via `--solution_type strong`), the encoding solver used is [`controller-strong.lp`](src/asp/controller-strong.lp).
 
 ### Clingo parameters
 
@@ -125,17 +135,6 @@ $ python src/python/main.py benchmarking/problems/beam-walk/domain.pddl benchmar
 This will just produce the corresponding SAS one-outcome determinised encoding of the problem instance, but it will not solve it.
 
 The determinisation and SAS encoder is done by the code under [`src/translator-fond/`](src/translator-fond/) which has been borrowed from PRP codebase.
-
-## Solvers available
-
-The various ASP solvers available, as reported in the ECAI23 paper, can be found under folder [src/asp/](src/asp/).
-
-For strong-cyclic solutions (chosen via `--model`):
-
-- `controller-fondsat`: encoding following FONDSAT in propagating negative propositions forward.
-- `controller-reg`: encoding implementing weakest-precondition via regression (like PRP).
-
-For strong solutions (via `--solution_type strong`), the encoding solver used is [`controller-strong.lp`](src/asp/controller-strong.lp).
 
 
 ## Contributors
