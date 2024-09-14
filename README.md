@@ -52,7 +52,7 @@ $ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchma
 
 Use `--dump_cntrl` to dump controller found, if any, into text and JSON formats.
 
-## Solver configurations available
+### Solver configurations available
 
 The available ASP solver configurations, as reported in the ECAI23 paper, can be found under folder [src/asp/](src/asp/).
 
