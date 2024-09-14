@@ -52,6 +52,16 @@ $ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchma
 
 Use `--dump_cntrl` to dump controller found, if any, into text and JSON formats.
 
+### Solver configurations available
+
+The available ASP solver configurations, as reported in the ECAI23 paper, can be found under folder [src/asp/](src/asp/).
+
+For strong-cyclic solutions (chosen via `--model`):
+
+- `controller-fondsat`: encoding following FONDSAT in propagating negative propositions forward.
+- `controller-reg`: encoding implementing weakest-precondition via regression (like PRP).
+
+For strong solutions (via `--solution_type strong`), the encoding solver used is [`controller-strong.lp`](src/asp/controller-strong.lp).
 
 ### Clingo parameters
 
@@ -126,16 +136,16 @@ This will just produce the corresponding SAS one-outcome determinised encoding o
 
 The determinisation and SAS encoder is done by the code under [`src/translator-fond/`](src/translator-fond/) which has been borrowed from PRP codebase.
 
-## Solvers available
 
-The various ASP solvers available, as reported in the ECAI23 paper, can be found under folder [src/asp/](src/asp/).
+## Experiments
 
-For strong-cyclic solutions (chosen via `--model`):
+The set of experiments in ECAI23 paper were re-done using the [Benchexec](https://github.com/sosy-lab/benchexec) framework. Details can be found under [experiments/](experiments/README.md).
 
-- `controller-fondsat`: encoding following FONDSAT in propagating negative propositions forward.
-- `controller-reg`: encoding implementing weakest-precondition via regression (like PRP).
+Two more configurations of the planner were added, using the FOND-SAT forward propagation of atoms (`ASP1-fsat` and `ASP2-fsat`) besides the regression-based configurations (`ASP1-reg` and `ASP2-reg`):
 
-For strong solutions (via `--solution_type strong`), the encoding solver used is [`controller-strong.lp`](src/asp/controller-strong.lp).
+![sdasd](experiments/stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot_PRP.jpg)
+
+![sdasd](experiments/stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot_FONDSAT.jpg)
 
 
 ## Contributors

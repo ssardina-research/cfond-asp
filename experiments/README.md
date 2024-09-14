@@ -2,7 +2,7 @@
 
 This folder contains all the tools to run a full experiment.
 
-We use the [Benchexec](https://github.com/sosy-lab/benchexec) experimental framework, which allows reliable benchmarking and resource measurement.
+As of July 2024, experiments were re-done using the [Benchexec](https://github.com/sosy-lab/benchexec) experimental framework, which allows reliable benchmarking and resource measurement.
 
 [Benchexec](https://github.com/sosy-lab/benchexec) is an benchmarking framework that is able to reliably measure and limit resource usage of the benchmarked tool even if the latter spawns sub-processes. It also includes a program called [runexec](https://github.com/sosy-lab/benchexec/blob/main/doc/runexec.md) that _"can be used to easily execute a single command while measuring its resource consumption, similarly to the tool time but with more reliable time measurements and with measurement of memory usage"_.
 
@@ -10,13 +10,13 @@ We use the [Benchexec](https://github.com/sosy-lab/benchexec) experimental frame
 - [Experiments](#experiments)
   - [Installation and setup](#installation-and-setup)
   - [Configuring an experiment benchmark: Tools + Tasks](#configuring-an-experiment-benchmark-tools--tasks)
-    - [Running a benchmark experiment](#running-a-benchmark-experiment)
+  - [Running a benchmark experiment](#running-a-benchmark-experiment)
     - [Output of benchexec](#output-of-benchexec)
     - [Runexec tool: single benchexec runs](#runexec-tool-single-benchexec-runs)
-  - [Running in NECTAR cluster](#running-in-nectar-cluster)
+    - [Running in NECTAR cluster](#running-in-nectar-cluster)
   - [Analysis of experiments](#analysis-of-experiments)
     - [Extract Benchexec CSV stats tables](#extract-benchexec-csv-stats-tables)
-    - [Analysis of stat tables](#analysis-of-stat-tables)
+    - [Genearte coverage plots](#genearte-coverage-plots)
 
 ## Installation and setup
 
@@ -87,7 +87,7 @@ To make sure Benchexec has access to all binaries used by the various tools (e.g
 $ export PATH=$PATH:$PWD/bin
 ```
 
-### Running a benchmark experiment
+## Running a benchmark experiment
 
 Finally, to benchmark a solver one passes the main benchmark definition XML file with the required arguments. For example, the command below runs the PRP tool on 3 APP problems in parallel (`-N 3`) with one core per problem (`-c 1`):
 
@@ -168,7 +168,7 @@ Script `benchexec.sh` basically writes a dummy 500MB file. Let us see how much m
 We can do a run on container (default) mode that also recovers all the output files:
 
 ```shell
-$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 12331392  ./bin/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
+$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 12331392  ./path-prp/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
 2024-07-20 18:44:45 - INFO - Starting command ./bin/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
 2024-07-20 18:44:45 - INFO - Writing output to output.log and result files to output.files
 2024-07-20 18:44:49 - WARNING - System has swapped during benchmarking. Benchmark results are unreliable!
@@ -208,7 +208,7 @@ pressure-memory-some=0.000186s
 If we use the `--no-tmpfs` option, we are telling benchexec to NOT use RAMDISK and use the actual hard drive; file writting does not count towards memory usage.
 
 
-## Running in NECTAR cluster
+### Running in NECTAR cluster
 
 We used the Australian [NECTAR cluster infrastructure](https://ardc.edu.au/services/ardc-nectar-research-cloud/) to run the experiments. The CPUs are as follows:
 
@@ -296,16 +296,33 @@ Besides the stat tables, if the XML definition states that some files/folders ne
 
 To learn about the outputs left by Benchexec, please check [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/benchexec.md#benchexec-results).
 
-### Analysis of stat tables
+### Genearte coverage plots
 
 Frist, we can take Benchexec tables and process them via notebook [process_benchexec.ipynb](process_benchexec.ipynb) to extract two CSV files:
 
 1. A flat table of stats, that can be used for further analysis and plotting, with the solver being recorded in a new column. Benchexec tables are not flatten and each run set contains its own columns.
 2. A coverage table per domain and solver, typically reported in papers.
 
-Finally, we can use the Python notebook or R script available in [coverage-plots](https://github.com/ssardina-research/coverage-plots) repo to plot integrated time-coverage plots:
+Finally, we use the Python notebook or R script available in [coverage-plots](https://github.com/ssardina-research/coverage-plots) repo to plot integrated time-coverage plots:
 
-![plot](stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot.png)
+![plot](stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot_PRP.jpg)
+
+![plot](stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot_FONDSAT.jpg)
+
+The solvers reported are:
+
+- `ASP1-fsat`: CFOND-ASP with 1 thread using FOND-SAT forward propagation of negative atoms.
+- `ASP1-reg`: CFOND-ASP with 1 thread using PRP regression-based propagation of atoms (i.e., weakest-precondition)
+- `ASP2-fsat`: CFOND-ASP with 2 threads using FOND-SAT forward propagation of negative atoms with domain knowledge.
+- `ASP2-reg`: CFOND-ASP with 1 thread using PRP regression-based propagation of atoms (i.e., weakest-precondition) with domain knowledge.
+- `FSAT-GL`: FOND-SAT with Glucose SAT solver.
+- `FSAT-MS`: FOND-SAT with Minizinc SAT solver.
+- `PRP`: PRP FOND planner.
+- `PAL`: [PALADINUS](https://github.com/ramonpereira/paladinus) FOND planner.
+
+The benchmark used are the same as in the ECAI23 paper, which includes that used by [PRP](https://github.com/ssardina-research/planner-for-relevant-policies/) and the four domains introduced by [FOND-SAT](https://github.com/tomsons22/FOND-SAT):
+
+> The set of FOND benchmarks includes the new domains introduced in [13], namely DOORS, ISLANDS, MINER, TIREWORLD-SPIKY, and TIREWORLD-TRUCK . The other classical FOND domains tested include ACROBATICS , BEAM-WALK , BLOCKSWORLD, CHAIN-OF-ROOMS, EARTH-OBSERVATION, ELEVATORS, FAULTS, FIRST-RESPONDERS, TIREWORLD, TRIANGLE-TIREWORLD, and ZENOTRAVEL. We only considered planning instances that are solvable. The total number of solvable instances are 210 for the new FOND domains and 348 for the classical FOND domains.
 
 
 To run the R script in Linux: 
@@ -313,3 +330,7 @@ To run the R script in Linux:
 ```shell
 $ R < plots.R --no-save
 ```
+
+The result is saved in file [stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_R.png](stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_R.png):
+
+![plot](stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_R.png)

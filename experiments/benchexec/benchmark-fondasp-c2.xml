@@ -15,17 +15,23 @@ SPDX-License-Identifier: Apache-2.0
   memlimit="4096 MB">
 
   <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
-  <rundefinition name="cfondasp1-fsat">
+  <rundefinition name="cfondasp2-fsat">
     <!-- command-line options to send to the solver -->
     <option name="--model">fondsat</option>
     <option name="--max_states">100</option>
+    <option name="--clingo_args">"-t 2"</option>
+    <option name="--use_backbone"></option>
+    <option name="--use_ckb"></option>
   </rundefinition>
 
   <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
-  <rundefinition name="cfondasp1-reg">
+  <rundefinition name="cfondasp2-reg">
     <!-- command-line options to send to the solver -->
     <option name="--model">regression</option>
     <option name="--max_states">100</option>
+    <option name="--clingo_args">"-t 2"</option>
+    <option name="--use_backbone"></option>
+    <option name="--use_ckb"></option>
   </rundefinition>
 
   <!-- <tasks> defines a set of tasks (can appear multiple times). -->

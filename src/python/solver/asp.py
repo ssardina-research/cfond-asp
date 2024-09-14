@@ -41,6 +41,7 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
     # check if initial state is the goal state
     if entails(initial_state, goal_state):
         _logger.info("Goal met in the initial state!")
+        _logger.info("Solution found!")
         return
 
     # generate ASP instance
@@ -141,7 +142,12 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
             num_states = min_states # time out may occur in the next step, hence we need to initialise the num_states for later reporting
             solution_found = await _run_clingo_async(fond_problem, instance, num_states, output_dir)
             if solution_found:
-                direction = -1 * fond_problem.inc_states
+                # solution found! we can exit (we don't need to compute the smallest size controller for efficiency)
+                _logger.info(f"Solution found!")
+                _logger.info(f"Number of states in controller: {num_states+1}")
+                stop = True
+                return
+                # direction = -1 * fond_problem.inc_states
             else:
                 direction = 1 * fond_problem.inc_states
 
@@ -186,7 +192,12 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
     # check if a solution exists with the given minimum states
     solution_found = _run_clingo(fond_problem, instance, min_states, output_dir)
     if solution_found:
-        direction = -1 * fond_problem.inc_states
+        # solution found! we can exit (we don't need to compute the smallest size controller for efficiency)
+        _logger.info(f"Solution found!")
+        _logger.info(f"Number of states in controller: {num_states+1}")
+        stop = True
+        return
+        # direction = -1 * fond_problem.inc_states
     else:
         direction = 1 * fond_problem.inc_states
 
@@ -229,8 +240,8 @@ async def _run_clingo_async(fond_problem: FONDProblem, instance, num_states, out
 
     # input files for clingo
     input_files = [controller, instance]
-    if kb is not None:
-        input_files.append(kb)
+    # if kb is not None:
+    #     input_files.append(kb)
     if constraints is not None:
         input_files += constraints
 
