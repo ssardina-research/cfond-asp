@@ -137,6 +137,17 @@ This will just produce the corresponding SAS one-outcome determinised encoding o
 The determinisation and SAS encoder is done by the code under [`src/translator-fond/`](src/translator-fond/) which has been borrowed from PRP codebase.
 
 
+## Experiments
+
+The set of experiments in ECAI23 paper were re-done using the [Benchexec](https://github.com/sosy-lab/benchexec) framework. Details can be found under [experiments/](experiments/README.md).
+
+Two more configurations of the planner were added, using the FOND-SAT forward propagation of atoms (`ASP1-fsat` and `ASP2-fsat`) besides the regression-based configurations (`ASP1-reg` and `ASP2-reg`):
+
+![sdasd](experiments/stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot_PRP.jpg)
+
+![sdasd](experiments/stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot_FONDSAT.jpg)
+
+
 ## Contributors
 
 - Nitin Yadav (nitin.yadav@unimelb.edu.au)
