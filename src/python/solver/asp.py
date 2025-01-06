@@ -12,7 +12,7 @@ from utils.backbone import get_backbone_asp, create_backbone_constraint
 from utils.helper_asp import write_goal, write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
 from utils.helper_clingo import execute_asp, execute_asp_async, set_logger
 from utils.helper_sas import organize_actions
-from utils.translators import determinise, parse_sas
+from utils.translators import determinise, lifted_determinise, parse_sas
 from knowledge.blocksworld import BlocksworldKnowledge
 from knowledge.tireworld import TireworldKnowledge
 from knowledge.miner import MinerKnowledge
@@ -190,6 +190,7 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
     stop = False
 
     # check if a solution exists with the given minimum states
+    num_states = min_states
     solution_found = _run_clingo(fond_problem, instance, min_states, output_dir)
     if solution_found:
         # solution found! we can exit (we don't need to compute the smallest size controller for efficiency)
@@ -334,7 +335,8 @@ def parse(fond_problem: FONDProblem, output_dir: str) -> (State, State, dict[str
     sas_file = os.path.join(output_dir, "output.sas")
 
     # determinise!
-    determinise(fond_problem, output_dir, sas_stats_file)
+    # determinise(fond_problem, output_dir, sas_stats_file)
+    lifted_determinise(fond_problem, output_dir, sas_stats_file)
 
     initial_state, goal_state, actions, variables, mutexs = parse_sas(sas_file)
     det_actions, nd_actions = organize_actions(actions)

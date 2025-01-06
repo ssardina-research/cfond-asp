@@ -185,7 +185,7 @@ def organize_actions(actions: List[Action]) -> (dict[str: Action], dict[str: Lis
     for a in actions:
         name, prefix, op_args = a.name, a.prefix_name, a.arguments
         nondet_key = get_action_key(prefix, op_args)  # for example 'pick-up(b1,b2)'
-        det_key = get_action_key(name, op_args)  # for example 'pick-up_DET_1(b1,b2)'
+        det_key = get_action_key(name, op_args)  # for example 'pick-up_det_1(b1,b2)'
 
         if nondet_key not in nondet_actions_dict:
             nondet_actions_dict[nondet_key] = []

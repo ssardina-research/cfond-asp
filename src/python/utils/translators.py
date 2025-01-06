@@ -1,10 +1,28 @@
 import os.path
-
+from pathlib import Path
 from base.elements import FONDProblem
 from utils.helper_sas import *
 from utils.helper_sas import get_indices_variables
 import subprocess
+from fond2allout import translate
 
+def lifted_determinise(fond_problem: FONDProblem, output_dir, sas_stats_file):
+    """
+    Lifted determinisation involves first doing the all outcomes determinisation, and then using the FD SAS translator.
+    :param fond_problem: Fond Problem
+    :param output_dir: Output directory
+    :param sas_stats_file: sas translation statistics
+    """
+    
+    # step 1. Do the all outcomes determinisation
+    domain_file = Path(fond_problem.domain).stem
+    all_outcomes_domain_file: str = os.path.join(output_dir, f"{domain_file}_all_outcomes.pddl")
+    translate(fond_problem.domain, console=False, action_suffix="det", domain_suffix=None, save=all_outcomes_domain_file)
+    
+    # step 2. Use the FD SAS translator
+    translator: str = fond_problem.sas_translator
+    sas_file = f"{output_dir}/output.sas"
+    execute_translator(translator, all_outcomes_domain_file, fond_problem.problem, fond_problem.translator_args, output_dir, sas_file, sas_stats_file)
 
 def determinise(fond_problem: FONDProblem, output_dir, sas_stats_file):
     """

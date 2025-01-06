@@ -50,8 +50,8 @@ def init():
 def get_fond_problem() -> FONDProblem:
     # determiniser. We use a recent version of FD
     root:Path = get_root()
-    translator: str = os.path.join(root, "translator-fond", "translate.py")
-    translator_args: str = f"{FD_INV_LIMIT} " + "{domain} {instance} --outsas {sas_file}"
+    translator: str = os.path.join(root, "translate", "translate.py")
+    translator_args: str = "{domain} {instance} --sas-file {sas_file}" + f" --invariant-generation-max-time {FD_INV_LIMIT}"
 
     # classical planner
     classical_planner: str = os.path.join(root, "asp", "weakplanInc.lp")
