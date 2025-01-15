@@ -3,7 +3,14 @@ from pathlib import Path
 from base.elements import FONDProblem
 from utils.helper_sas import *
 from utils.helper_sas import get_indices_variables
+
+from pddl import parse_domain
+from pddl.formatter import domain_to_string
+from fondutils.determizer import determinize
+from fondutils.normalizer import normalize
+
 import subprocess
+
 
 def lifted_determinise(fond_problem: FONDProblem, output_dir, sas_stats_file):
     """
@@ -12,16 +19,33 @@ def lifted_determinise(fond_problem: FONDProblem, output_dir, sas_stats_file):
     :param output_dir: Output directory
     :param sas_stats_file: sas translation statistics
     """
-    
+
     # step 1. Do the all outcomes determinisation
     domain_file = fond_problem.domain
-    all_outcomes_domain_file: str = os.path.join(output_dir, f"{Path(domain_file).stem}_all_outcomes.pddl")
-    execute_determiniser(fond_problem.determiniser, domain_file, all_outcomes_domain_file, output_dir, DETERMINISTIC_ACTION_SUFFIX)
-    
+    all_outcomes_domain_file: str = os.path.join(
+        output_dir, f"{Path(domain_file).stem}_all_outcomes.pddl"
+    )
+    execute_determiniser(
+        fond_problem.determiniser,
+        domain_file,
+        all_outcomes_domain_file,
+        output_dir,
+        DETERMINISTIC_ACTION_SUFFIX,
+    )
+
     # step 2. Use the FD SAS translator
     translator: str = fond_problem.sas_translator
-    sas_file = f"{output_dir}/output.sas"
-    execute_translator(translator, all_outcomes_domain_file, fond_problem.problem, fond_problem.translator_args, output_dir, sas_file, sas_stats_file)
+    sas_file = os.path.join(output_dir, "output.sas")
+    execute_translator(
+        translator,
+        all_outcomes_domain_file,
+        fond_problem.problem,
+        fond_problem.translator_args,
+        output_dir,
+        sas_file,
+        sas_stats_file,
+    )
+
 
 def determinise(fond_problem: FONDProblem, output_dir, sas_stats_file):
     """
@@ -32,11 +56,21 @@ def determinise(fond_problem: FONDProblem, output_dir, sas_stats_file):
     :return:
     """
     translator: str = fond_problem.sas_translator
-    sas_file = f"{output_dir}/output.sas"
-    execute_translator(translator, fond_problem.domain, fond_problem.problem, fond_problem.translator_args, output_dir, sas_file, sas_stats_file)
+    sas_file = os.path.join(output_dir, "output.sas")
+    execute_translator(
+        translator,
+        fond_problem.domain,
+        fond_problem.problem,
+        fond_problem.translator_args,
+        output_dir,
+        sas_file,
+        sas_stats_file,
+    )
 
 
-def parse_sas(sas_file: str) -> (State, State, tuple[list[Action], list[Variable]], List[State]):
+def parse_sas(
+    sas_file: str,
+) -> (State, State, tuple[list[Action], list[Variable]], List[State]):
     """
     Returns the initial state, goal state, and list of actions from a SAS file.
     :param sas_file: path to the sas file
@@ -48,15 +82,15 @@ def parse_sas(sas_file: str) -> (State, State, tuple[list[Action], list[Variable
     # extract variables
     variable_indices: List[tuple[int, int]] = get_indices_variables(info)
     variables: List[Variable] = []
-    for (i, j) in variable_indices:
-        var = get_variable(info[i+1: j])
+    for i, j in variable_indices:
+        var = get_variable(info[i + 1 : j])
         variables.append(var)
 
     # extract actions
     action_indices: List[tuple[int, int]] = get_indices_operators(info)
     actions: List[Action] = []
-    for (i, j) in action_indices:
-        action = get_action(info[i+1: j], variables)
+    for i, j in action_indices:
+        action = get_action(info[i + 1 : j], variables)
         action.generate_strips()
         actions.append(action)
 
@@ -79,9 +113,9 @@ def parse_sas(sas_file: str) -> (State, State, tuple[list[Action], list[Variable
     # mutex, we can model a mutex as a partial state. It represents a state that will never occur in the planning problem.
     mutex_indices: List[tuple[int, int]] = get_indices_mutex(info)
     mutexs: List[State] = []
-    for (i, j) in mutex_indices:
+    for i, j in mutex_indices:
         mutex: State = State(variables, [-1] * len(variables))
-        for k in range(i+2, j):
+        for k in range(i + 2, j):
             [var_idx, val] = map(int, info[k].split())
             mutex.values[var_idx] = val
         mutexs.append(mutex)
@@ -89,7 +123,15 @@ def parse_sas(sas_file: str) -> (State, State, tuple[list[Action], list[Variable
     return initial_state, goal_state, actions, variables, mutexs
 
 
-def execute_translator(translate_path: str, domain: str, problem: str, translator_args: str, output_dir: str, sas_file: str, stats_file: str):
+def execute_translator(
+    translate_path: str,
+    domain: str,
+    problem: str,
+    translator_args: str,
+    output_dir: str,
+    sas_file: str,
+    stats_file: str,
+):
     """
     Execute the prp translator on the given domain and problem to generate a SAS output.
     :param translate_path: path to prp translate
@@ -101,39 +143,82 @@ def execute_translator(translate_path: str, domain: str, problem: str, translato
     :return:
     """
 
-    translator_cmd = translator_args.replace("{domain}", domain).replace("{instance}", problem).replace("{sas_file}", sas_file)
+    translator_cmd = (
+        translator_args.replace("{domain}", domain)
+        .replace("{instance}", problem)
+        .replace("{sas_file}", sas_file)
+    )
     execution_cmd = ["python", translate_path] + translator_cmd.split()
-    process = subprocess.Popen(execution_cmd, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(
+        execution_cmd, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     stdout, stderr = process.communicate()
 
     # save output
     with open(stats_file, "w") as f:
         f.write(stdout.decode())
 
-def execute_determiniser(determinser: str, domain_path: str, det_domain_path: str, output_dir: str, prefix: str):
+
+def execute_determiniser(
+    determinser: str,
+    domain_path: str,
+    det_domain_path: str,
+    output_dir: str,
+    prefix: str,
+):
     """
     Execute the determiniser for all outcomes determinisation
     :param domain_path: path to the domain file
     :param det_domain_path: path to the deterministic domain file
     :return:
     """
+    print(domain_path)
 
-    execution_cmd = [determinser, "--input", domain_path, "--output", det_domain_path, "--prefix", prefix, "determinize"] 
-    process = subprocess.Popen(execution_cmd, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    domain = parse_domain(domain_path)
+    domain_det = determinize(domain, dom_suffix="", op_prefix=prefix)
+
+    with open(det_domain_path, "w") as f:
+        f.write(domain_to_string(domain_det))
+
+    return
+
+    # TODO: the below is old and should be removed; we are determinizing via library
+    execution_cmd = [
+        determinser,
+        "--input",
+        domain_path,
+        "--output",
+        det_domain_path,
+        "--prefix",
+        prefix,
+        "determinize",
+        "--suffix-domain",
+        '""',
+    ]
+    print(execution_cmd)
+    process = subprocess.Popen(
+        execution_cmd, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     stdout, stderr = process.communicate()
-    
+
     # check for error
     if stderr:
         with open(os.path.join(output_dir, "determiniser_error.txt"), "w") as f:
             f.write(stderr.decode())
 
-        
+
 if __name__ == "__main__":
     # parse the pddl file
-    domain_file: str = os.path.expanduser("~/Work/Software/PyPRP/examples/blocksworld/domain_det.pddl")
-    problem_file: str = os.path.expanduser("~/Work/Software/PyPRP/examples/blocksworld/p01.pddl")
+    domain_file: str = os.path.expanduser(
+        "~/Work/Software/PyPRP/examples/blocksworld/domain_det.pddl"
+    )
+    problem_file: str = os.path.expanduser(
+        "~/Work/Software/PyPRP/examples/blocksworld/p01.pddl"
+    )
     output: str = "./output/temp/"
-    stats_file: str = os.path.expanduser("~/Work/Software/PyPRP/output/temp/translator_stats.txt")
+    stats_file: str = os.path.expanduser(
+        "~/Work/Software/PyPRP/output/temp/translator_stats.txt"
+    )
     # domain: Domain = PDDLParser.parse("./examples/blocksworld/domain01.pddl")
     # _domain = get_deterministic_domain(domain)
     # problem: Problem = PDDLParser.parse("./examples/blocksworld/p01.pddl")
