@@ -172,8 +172,6 @@ def execute_determiniser(
     :param det_domain_path: path to the deterministic domain file
     :return:
     """
-    print(domain_path)
-
     domain = parse_domain(domain_path)
     domain_det = determinize(domain, dom_suffix="", op_prefix=prefix)
 
