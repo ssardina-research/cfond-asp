@@ -1,7 +1,7 @@
 
 import os
 from typing import List
-from base.elements import Action, FONDProblem, State, Variable
+from cfondasp.base.elements import FONDProblem, Variable
 
 class TireworldKnowledge(object):
 
@@ -9,8 +9,8 @@ class TireworldKnowledge(object):
         self.fond_problem = fond_problem
         self.variables: List[Variable] = variables
         self.output_dir: str = output_dir
-        self.controller_kb_file = f"{output_dir}/kb.lp"
-        self.weakplan_kb_file = f"{output_dir}/seq_kb.lp"
+        self.controller_kb_file = os.path.join(output_dir, "kb.lp")
+        self.weakplan_kb_file = os.path.join(output_dir, "seq_kb.lp")
 
     def add_knowledge(self):
         self.add_weakplan_knowledge()

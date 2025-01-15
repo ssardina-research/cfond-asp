@@ -1,28 +1,33 @@
-
 import os
 from typing import List
-from base.elements import Action, FONDProblem, State, Variable
+from cfondasp.base.elements import FONDProblem, Variable
+
 
 class SpikyTireworldKnowledge(object):
 
-    def __init__(self, fond_problem: FONDProblem, variables: List[Variable], nd_actions, output_dir: str) -> None:
+    def __init__(
+        self,
+        fond_problem: FONDProblem,
+        variables: List[Variable],
+        nd_actions,
+        output_dir: str,
+    ) -> None:
         self.fond_problem = fond_problem
         self.variables: List[Variable] = variables
         self.output_dir: str = output_dir
         self.nd_actions = nd_actions
-        self.controller_kb_file = f"{output_dir}/kb.lp"
-        self.weakplan_kb_file = f"{output_dir}/seq_kb.lp"
+        self.controller_kb_file = os.path.join(output_dir, "kb.lp")
+        self.weakplan_kb_file = os.path.join(output_dir, "seq_kb.lp")
 
     def add_knowledge(self):
         # self.add_weakplan_knowledge()
         self.add_control_knowledge()
 
     def add_weakplan_knowledge(self):
-        constraints = [f"#program check(t). \n"]
+        constraints = ["#program check(t). \n"]
         # parse
         not_has_spare = [i for i in self.variables if "not-hasspare" in i.domain[0]][0]
         var_idx = self.variables.index(not_has_spare)
-
 
         line = f':- state(State), State=t, holds(State, {var_idx}, {0}), policy(State, A), actionType(A, "move-car-spiky").\n'
         constraints.append(line)

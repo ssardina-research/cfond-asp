@@ -1,10 +1,9 @@
 """
 This script creates a csv input for cytoscape from a solution file
 """
-import os
 from typing import List
 
-from utils.backbone import get_backbone_sas
+from cfondasp.utils.backbone import get_backbone_sas
 
 SEP = ";"
 EDGE_HEADERS = f"source{SEP}target{SEP}name{SEP}type\n"

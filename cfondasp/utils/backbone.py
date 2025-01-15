@@ -1,4 +1,3 @@
-import os
 from typing import List
 import re
 
@@ -124,7 +123,7 @@ def get_backbone_asp(clingo_output: str) -> List[tuple[str, str]]:
     # not backbone found! implies unsat
     if not policy_str:
         return backbone
-    
+
     policy_tuples = policy_str.split(" ")
     policy_tuples.remove(DUMMY_POLICY)
     for _p in policy_tuples:

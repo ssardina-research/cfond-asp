@@ -1,23 +1,24 @@
 import asyncio
 import logging
 import subprocess
-from typing import List, Tuple, Dict, Any
+from typing import List
 import coloredlogs
 from async_timeout import timeout
-from base.config import ASP_CLINGO_OUTPUT_PREFIX
-from base.elements import FONDProblem, Action, Variable, State
-from base.logic_operators import entails
-from utils.system_utils import remove_files
-from utils.backbone import get_backbone_asp, create_backbone_constraint
-from utils.helper_asp import write_goal, write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
-from utils.helper_clingo import execute_asp, execute_asp_async, set_logger
-from utils.helper_sas import organize_actions
-from utils.translators import determinise, lifted_determinise, parse_sas
-from knowledge.blocksworld import BlocksworldKnowledge
-from knowledge.tireworld import TireworldKnowledge
-from knowledge.miner import MinerKnowledge
-from knowledge.acrobatics import AcrobaticsKnowledge
-from knowledge.spiky import SpikyTireworldKnowledge
+
+from cfondasp.base.config import ASP_CLINGO_OUTPUT_PREFIX
+from cfondasp.base.elements import FONDProblem, Action, Variable, State
+from cfondasp.base.logic_operators import entails
+from cfondasp.utils.system_utils import remove_files
+from cfondasp.utils.backbone import get_backbone_asp, create_backbone_constraint
+from cfondasp.utils.helper_asp import write_goal, write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
+from cfondasp.utils.helper_clingo import execute_asp, execute_asp_async, set_logger
+from cfondasp.utils.helper_sas import organize_actions
+from cfondasp.utils.translators import determinise, lifted_determinise, parse_sas
+from cfondasp.knowledge.blocksworld import BlocksworldKnowledge
+from cfondasp.knowledge.tireworld import TireworldKnowledge
+from cfondasp.knowledge.miner import MinerKnowledge
+from cfondasp.knowledge.acrobatics import AcrobaticsKnowledge
+from cfondasp.knowledge.spiky import SpikyTireworldKnowledge
 import os
 
 
@@ -81,7 +82,6 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
             constraint_file = os.path.join(output_dir, "backbone.lp")
             create_backbone_constraint(backbone, constraint_file)
             fond_problem.controller_constraints["backbone"] = constraint_file
-
 
     preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd_actions, variables, file, min_controller_size)
 

@@ -1,7 +1,6 @@
-
 import os
 from typing import List
-from base.elements import Action, FONDProblem, State, Variable
+from cfondasp.base.elements import FONDProblem, Variable
 
 class MinerKnowledge(object):
 
@@ -9,15 +8,15 @@ class MinerKnowledge(object):
         self.fond_problem = fond_problem
         self.variables: List[Variable] = variables
         self.output_dir: str = output_dir
-        self.controller_kb_file = f"{output_dir}/kb.lp"
-        self.weakplan_kb_file = f"{output_dir}/seq_kb.lp"
+        self.controller_kb_file = os.path.join(output_dir, "kb.lp")
+        self.weakplan_kb_file = os.path.join(output_dir, "seq_kb.lp")
 
     def add_knowledge(self):
         self.add_weakplan_knowledge()
         self.add_control_knowledge()
 
     def add_weakplan_knowledge(self):
-        constraints = [f"#program check(t). \n"]
+        constraints = ["#program check(t). \n"]
         # parse
         var_person_alive = [i for i in self.variables if "person-alive" in i.domain[0]][0]
         var_idx = self.variables.index(var_person_alive)
@@ -33,7 +32,7 @@ class MinerKnowledge(object):
 
     def add_control_knowledge(self):
         constraints = []
-        
+
         adjacent_positions = self.parse_pddl()
         # add adjacent positions constaints
         person_at_var = [i for i in self.variables if "person-at" in i.domain[0]][0]
@@ -64,7 +63,7 @@ class MinerKnowledge(object):
         constraints.append(line)
 
         # :- policy(State, Action), add(Action, 0, 0).
-        line = f':- policy(State, Action), add(Action,_, {var_idx}, 1).\n'        
+        line = f':- policy(State, Action), add(Action,_, {var_idx}, 1).\n'
         constraints.append(line)
 
         with open(self.controller_kb_file, "w+") as f:

@@ -1,8 +1,9 @@
 import os.path
 from pathlib import Path
-from base.elements import FONDProblem
-from utils.helper_sas import *
-from utils.helper_sas import get_indices_variables
+
+from cfondasp.base.elements import FONDProblem
+from cfondasp.utils.helper_sas import *
+from cfondasp.utils.helper_sas import get_indices_variables
 
 from pddl import parse_domain
 from pddl.formatter import domain_to_string

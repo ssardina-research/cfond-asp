@@ -1,17 +1,23 @@
-
 import os
 from typing import List
-from base.elements import Action, FONDProblem, State, Variable
+from cfondasp.base.elements import FONDProblem, State, Variable
+
 
 class BlocksworldKnowledge(object):
 
-    def __init__(self, fond_problem: FONDProblem, goal_state: State, variables: List[Variable], output_dir: str) -> None:
+    def __init__(
+        self,
+        fond_problem: FONDProblem,
+        goal_state: State,
+        variables: List[Variable],
+        output_dir: str,
+    ) -> None:
         self.fond_problem = fond_problem
         self.goal: State = goal_state
         self.variables: List[Variable] = variables
         self.output_dir: str = output_dir
-        self.controller_kb_file = f"{output_dir}/kb.lp"
-        self.weakplan_kb_file = f"{output_dir}/seq_kb.lp"
+        self.controller_kb_file = os.path.join(output_dir, "kb.lp")
+        self.weakplan_kb_file = os.path.join(output_dir, "seq_kb.lp")
 
     def add_knowledge(self):
         self.add_weakplan_knowledge()
@@ -21,7 +27,7 @@ class BlocksworldKnowledge(object):
         # parse
         on_table, on_blocks, clear = self.parse()
         counter = 0
-        constraints = [f"#program check(t). \n"]
+        constraints = ["#program check(t). \n"]
 
         for _on, (var, val) in on_table.items():
             counter += 1
@@ -50,10 +56,9 @@ class BlocksworldKnowledge(object):
             constraint = f"subgoal(State, {subgoal_num}, {counter}) :- subgoal(State, {subgoal_num - 1}, {counter}), holds(State, {var}, {val}), State=t.\n"
             constraints.append(constraint)
 
-
-        constraint = f":- query(t), subgoal(State1, G1, X), G1>1, {{ subgoal(State2, G2, X): G2 < G1, State2 <= State1 }} 0.\n"
+        constraint = ":- query(t), subgoal(State1, G1, X), G1>1, {{ subgoal(State2, G2, X): G2 < G1, State2 <= State1 }} 0.\n"
         constraints.append(constraint)
-        
+
         with open(self.weakplan_kb_file, "w+") as f:
             f.writelines(constraints)
 
@@ -93,17 +98,16 @@ class BlocksworldKnowledge(object):
             constraint = f"subgoal(State, {subgoal_num}, {counter}) :- subgoal(State, {subgoal_num - 1}, {counter}), holds(State, {var}, {val}).\n"
             constraints.append(constraint)
 
-
-        constraint = f":- subgoal(State1, G1, X), G1>1, {{ subgoal(State2, G2, X): G2 < G1, State2 <= State1 }} 0.\n"
+        constraint = ":- subgoal(State1, G1, X), G1>1, {{ subgoal(State2, G2, X): G2 < G1, State2 <= State1 }} 0.\n"
         constraints.append(constraint)
 
-        for i in range(len(goal_sequence)-1):
+        for i in range(len(goal_sequence) - 1):
             # :- subgoal(State1, 6, 1), subgoal(State2, 3, 2), State1 > State2.
             _i = goal_sequence[i]
-            _j = goal_sequence[i+1]
+            _j = goal_sequence[i + 1]
             constraint = f":- subgoal(State1, {_i}, {i+1}), subgoal(State2, {_j}, {i+2}), State1 > State2.\n"
             constraints.append(constraint)
-        
+
         with open(self.controller_kb_file, "w+") as f:
             f.writelines(constraints)
 
@@ -113,7 +117,9 @@ class BlocksworldKnowledge(object):
         on_table = {}
         on_blocks = {}
         clear = {}
-        relevant_vars = [i for i in range(len(self.goal.values)) if self.goal.values[i] >= 0]
+        relevant_vars = [
+            i for i in range(len(self.goal.values)) if self.goal.values[i] >= 0
+        ]
         for var in relevant_vars:
             val = self.goal.values[var]
             condition = self.variables[var].domain[val]

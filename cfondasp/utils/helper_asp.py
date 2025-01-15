@@ -1,11 +1,30 @@
-import os
 from typing import List
-from base.config import *
-from base.elements import Variable, State, Action
 from itertools import combinations
 import numpy as np
 
-from utils.asp_output import parse_undo_actions
+from cfondasp.utils.asp_output import parse_undo_actions
+from cfondasp.base.config import (
+    ASP_ACTION_EFFECT_TERM,
+    ASP_ACTION_TERM,
+    ASP_ADD_TERM,
+    ASP_AFFECTS_TERM,
+    ASP_DEL_TERM,
+    ASP_EFFECT_COUNT_TERM,
+    ASP_EFFECT_TERM,
+    ASP_GOAL_STATE_TERM,
+    ASP_GOAL_TERM,
+    ASP_NDSIZE_TERM,
+    ASP_PREC_TERM,
+    ASP_SIBLING_TERM,
+    ASP_VARIABLE_TERM,
+    ASP_VARIABLE_ATOM_TERM,
+    ASP_MUTEX_GROUP_TERM,
+    ASP_MUTEX_TERM,
+    ASP_HOLDS_TERM,
+    ASP_INITIAL_STATE_TERM,
+    ASP_ACTION_TYPE_TERM,
+)
+from cfondasp.base.elements import Variable, State, Action
 
 
 def write_variables(file, variables: List[Variable]):
@@ -58,7 +77,9 @@ def write_initial_state_positive(file, state: State):
     with open(file, "a") as f:
         for var_idx, var in enumerate(state.variables):
             val = state.values[var_idx]
-            f.write(f"{ASP_HOLDS_TERM}(X, {var_idx}, {val}):- {ASP_INITIAL_STATE_TERM}(X).\n")
+            f.write(
+                f"{ASP_HOLDS_TERM}(X, {var_idx}, {val}):- {ASP_INITIAL_STATE_TERM}(X).\n"
+            )
 
         f.write("\n")
 
@@ -70,7 +91,9 @@ def write_initial_state_negated(file, state: State):
             # f.write(f"{ASP_HOLDS_TERM}(X, {var_idx}, {val}):- {ASP_INITIAL_STATE_TERM}(X).\n")
             other_values = [i for i in range(len(var.domain)) if i != val]
             for other_val in other_values:
-                f.write(f"-{ASP_HOLDS_TERM}(X, {var_idx}, {other_val}):- {ASP_INITIAL_STATE_TERM}(X).\n")
+                f.write(
+                    f"-{ASP_HOLDS_TERM}(X, {var_idx}, {other_val}):- {ASP_INITIAL_STATE_TERM}(X).\n"
+                )
 
         f.write("\n")
 
@@ -80,10 +103,13 @@ def write_goal_state(file, state: State):
         for var_idx, var in enumerate(state.variables):
             val = state.values[var_idx]
             if val != -1:
-                f.write(f"{ASP_HOLDS_TERM}(X, {var_idx}, {val}):- {ASP_GOAL_STATE_TERM}(X).\n")
+                f.write(
+                    f"{ASP_HOLDS_TERM}(X, {var_idx}, {val}):- {ASP_GOAL_STATE_TERM}(X).\n"
+                )
                 f.write(f"{ASP_GOAL_TERM}({var_idx}, {val}).\n")
 
         f.write("\n")
+
 
 def write_goal(file, state: State):
     with open(file, "a") as f:
@@ -93,6 +119,7 @@ def write_goal(file, state: State):
                 f.write(f"{ASP_GOAL_TERM}({var_idx}, {val}).\n")
 
         f.write("\n")
+
 
 def write_actions(file, nd_actions, variables, variable_mapping=False, precedence=True):
     total_variables = set(range(len(variables)))
@@ -144,7 +171,9 @@ def write_actions(file, nd_actions, variables, variable_mapping=False, precedenc
                     val = action.add[var_idx]
                     if val != -1:
                         affected_vars.add(var_idx)
-                        f.write(f'{ASP_ADD_TERM}("{_name}", "{effect}", {var_idx}, {val}). \n')
+                        f.write(
+                            f'{ASP_ADD_TERM}("{_name}", "{effect}", {var_idx}, {val}). \n'
+                        )
 
                 # del
                 for var_idx in range(len(action.delete)):
@@ -152,7 +181,9 @@ def write_actions(file, nd_actions, variables, variable_mapping=False, precedenc
                     if len(vals) > 0:
                         for val in vals:
                             affected_vars.add(var_idx)
-                            f.write(f'{ASP_DEL_TERM}("{_name}", "{effect}", {var_idx}, {val}). \n')
+                            f.write(
+                                f'{ASP_DEL_TERM}("{_name}", "{effect}", {var_idx}, {val}). \n'
+                            )
 
                 # affects
                 if variable_mapping:
@@ -160,11 +191,15 @@ def write_actions(file, nd_actions, variables, variable_mapping=False, precedenc
                     #     # f.write(f'{ASP_AFFECTS_TERM}("{_name}", "{effect}",  {var_idx}). \n')
                     unaffected_vars = total_variables.difference(affected_vars)
                     for var_idx in unaffected_vars:
-                        f.write(f'not{ASP_AFFECTS_TERM}("{_name}","{effect}", {var_idx}). \n')
+                        f.write(
+                            f'not{ASP_AFFECTS_TERM}("{_name}","{effect}", {var_idx}). \n'
+                        )
 
         if precedence and max_nd_effect > 1:
             for i in range(1, max_nd_effect):
-                f.write(f'precedence("{ASP_EFFECT_TERM}{i}", "{ASP_EFFECT_TERM}{i+1}"). \n')
+                f.write(
+                    f'precedence("{ASP_EFFECT_TERM}{i}", "{ASP_EFFECT_TERM}{i+1}"). \n'
+                )
 
         f.write(f"{ASP_NDSIZE_TERM}({max_nd_effect}).\n")
         f.write("\n")
@@ -181,7 +216,7 @@ def write_siblings(file, nd_actions, precedence=True):
 
             if len(_nd_actions) > 0:
                 pairs = list(combinations(_nd_actions, 2))
-                for (i, j) in pairs:
+                for i, j in pairs:
                     _name_1 = get_action_name(i)
                     _name_2 = get_action_name(j)
                     f.write(f"{ASP_SIBLING_TERM}({_name_1}, {_name_2}). \n")
@@ -193,14 +228,16 @@ def write_siblings(file, nd_actions, precedence=True):
             if _nd_actions[0].prefix_name not in num_effects:
                 count = len(_nd_actions)
                 num_effects[_nd_actions[0].prefix_name] = count
-                f.write(f'{ASP_EFFECT_COUNT_TERM}("{_nd_actions[0].prefix_name}", {count}).\n')
+                f.write(
+                    f'{ASP_EFFECT_COUNT_TERM}("{_nd_actions[0].prefix_name}", {count}).\n'
+                )
 
         f.write(f"{ASP_NDSIZE_TERM}({max_nd_effect}).\n")
         f.write("\n")
 
 
 def get_action_name(action: Action):
-    asp_args: str = (','.join(action.arguments))
+    asp_args: str = ",".join(action.arguments)
     if len(action.arguments) > 0:
         action_name = f'"{action.name}({asp_args})"'
     else:
@@ -210,7 +247,7 @@ def get_action_name(action: Action):
 
 
 def get_det_action_string(action: Action):
-    asp_args: str = (', '.join('"' + item + '"' for item in action.arguments))
+    asp_args: str = ", ".join('"' + item + '"' for item in action.arguments)
     if len(action.arguments) > 0:
         det_action: str = f'action(("{action.name}", {asp_args}))'
     else:
@@ -223,7 +260,9 @@ def get_ndet_action_string(action: Action):
     return nd_action
 
 
-def write_undo_actions(clingo_output_file: str, grounded_undo_file: str, process_action_type=False):
+def write_undo_actions(
+    clingo_output_file: str, grounded_undo_file: str, process_action_type=False
+):
     undo_actions = parse_undo_actions(clingo_output_file)
     constraints = []
     undo_action_types = {}
@@ -246,4 +285,4 @@ def write_undo_actions(clingo_output_file: str, grounded_undo_file: str, process
 
 def action_type(action: str):
     # assume first '(' is the divider before action name and arguments
-    return action.split('(')[0].strip()
+    return action.split("(")[0].strip()

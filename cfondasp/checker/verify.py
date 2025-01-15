@@ -6,21 +6,28 @@ import os
 import queue
 import coloredlogs
 import re
-from base.config import ASP_CLINGO_OUTPUT_PREFIX, ASP_OUT_LINE_END, DETERMINISTIC_ACTION_SUFFIX, ASP_EFFECT_TERM
-from base.elements import State, FONDProblem, Variable, Action
-from base.logic_operators import entails, progress
-from checker.controller import Controller
-from utils.asp_output import parse_clingo_output
-from utils.helper_sas import organize_actions
-from utils.translators import parse_sas
 import networkit as nk
+
+from cfondasp.base.config import (
+    ASP_CLINGO_OUTPUT_PREFIX,
+    ASP_OUT_LINE_END,
+    DETERMINISTIC_ACTION_SUFFIX,
+    ASP_EFFECT_TERM,
+)
+from cfondasp.base.elements import State, FONDProblem, Variable, Action
+from cfondasp.base.logic_operators import entails, progress
+from cfondasp.checker.controller import Controller
+from cfondasp.utils.asp_output import parse_clingo_output
+from cfondasp.utils.helper_sas import organize_actions
+from cfondasp.utils.translators import parse_sas
 
 re_file_name = r"clingo_out_(?P<idx>[\d]+).out"
 
-CONTROLLER_TXT_FILE = 'controller.out'
-CONTROLLER_JSON_FILE = 'controller.json'
-SAS_FILE = 'output.sas'
-VERIFY_OUT = 'verify.out'
+CONTROLLER_TXT_FILE = "controller.out"
+CONTROLLER_JSON_FILE = "controller.json"
+SAS_FILE = "output.sas"
+VERIFY_OUT = "verify.out"
+
 
 class SolutionSpace(object):
     def __init__(self, controller_node, domain_state, nd_actions, controller):
@@ -88,12 +95,15 @@ class SolutionSpace(object):
         if DETERMINISTIC_ACTION_SUFFIX.lower() not in action.name.lower():
             return f"{ASP_EFFECT_TERM}1"
         else:
-            effect_num = int(action.name.lower().split(DETERMINISTIC_ACTION_SUFFIX.lower())[1]) + 1
+            effect_num = (
+                int(action.name.lower().split(DETERMINISTIC_ACTION_SUFFIX.lower())[1])
+                + 1
+            )
             return f"{ASP_EFFECT_TERM}{effect_num}"
 
     @staticmethod
     def get_next_controller_node(transitions, effect):
-        for (_from, _to, _action, _effect) in transitions:
+        for _from, _to, _action, _effect in transitions:
             if _effect == effect:
                 return _to
 
@@ -149,7 +159,12 @@ def add_variable_info(variables: list[Variable], solution_file: str):
         f.writelines(info)
 
 
-def save_controller(controller: Controller, state_variables: dict, variables: list[Variable], controller_file: str):
+def save_controller(
+    controller: Controller,
+    state_variables: dict,
+    variables: list[Variable],
+    controller_file: str,
+):
     data = {"nodes": [], "edges": []}
     initial_state, _ = controller.initial_state()
     goal_state, _ = controller.goal_state()
@@ -164,8 +179,20 @@ def save_controller(controller: Controller, state_variables: dict, variables: li
             state_type = 2
 
         clingo_state = [f"var{i}={j}" for (i, j) in state_variables[n]]
-        clingo_text = [f"{variables[i].name}={variables[i].domain[j].replace('Atom', '').replace('Negated', 'not').strip()}" for (i, j) in state_variables[n]]
-        data["nodes"].append({"id": str(n), "label": str(n), "type": state_type, "state": str(state), "clingo": ",".join(clingo_state), "sas": ",".join(clingo_text)})
+        clingo_text = [
+            f"{variables[i].name}={variables[i].domain[j].replace('Atom', '').replace('Negated', 'not').strip()}"
+            for (i, j) in state_variables[n]
+        ]
+        data["nodes"].append(
+            {
+                "id": str(n),
+                "label": str(n),
+                "type": state_type,
+                "state": str(state),
+                "clingo": ",".join(clingo_state),
+                "sas": ",".join(clingo_text),
+            }
+        )
 
     for e, j in controller.graph().iterEdges():
         action = controller.edge_action(e, j)
@@ -197,7 +224,9 @@ def build_controller(output_dir: str):
     last_clingo_out_file = os.path.join(output_dir, _last_output_file)
 
     if _timed_out(last_clingo_out_file):
-        _logger.warning(f"Solution timed out, cannot build controller: {last_clingo_out_file}")
+        _logger.warning(
+            f"Solution timed out, cannot build controller: {last_clingo_out_file}"
+        )
         return None, None, None
 
     # produce first part of solution controller file by parsing the answer model found in the the (last) clingo out file
@@ -248,6 +277,7 @@ def _timed_out(output_file: str) -> bool:
 
     return False
 
+
 def verify(output_dir: str):
     _logger = _get_logger()
 
@@ -276,7 +306,7 @@ def verify(output_dir: str):
 
 def _get_logger() -> logging.Logger:
     logger = logging.getLogger("FondASP")
-    coloredlogs.install(level='DEBUG')
+    coloredlogs.install(level="DEBUG")
     return logger
 
 

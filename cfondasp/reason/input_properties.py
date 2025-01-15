@@ -7,7 +7,7 @@ import os
 import coloredlogs
 
 from main import parse_config
-from solver.asp import parse
+from cfondasp.solver.asp import parse
 
 OUTPUT_DIR: str = "./"
 OUTPUT_FILE = "./output/props.csv"

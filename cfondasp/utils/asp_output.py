@@ -1,6 +1,10 @@
 import os
 import re
-from base.config import DETERMINISTIC_ACTION_SUFFIX, ASP_OUT_LINE_END, ASP_OUT_DIVIDER
+from cfondasp.base.config import (
+    DETERMINISTIC_ACTION_SUFFIX,
+    ASP_OUT_LINE_END,
+    ASP_OUT_DIVIDER,
+)
 
 re_holds = r"holds\((?P<state>[\d]+),(?P<variable>[\d]+),(?P<value>[\d]+)\)"
 re_transition = r"transition\((?P<from>[\d]+),\"(?P<action>[\a-z-\(\d\,\)]+)\",(?P<to>[\d]+)\)"

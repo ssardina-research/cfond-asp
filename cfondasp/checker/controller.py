@@ -1,9 +1,11 @@
 import re
 from typing import List
-from base.config import ASP_OUT_LINE_END, ASP_OUT_DIVIDER
 import networkit as nk
 import copy
-from base.elements import State
+
+
+from cfondasp.base.config import ASP_OUT_LINE_END, ASP_OUT_DIVIDER
+from cfondasp.base.elements import State
 
 re_tx = r"(?P<from>[\d]+)--(?P<action>[a-z-A-Z\d_,\(\)]+),(?P<effect>e[\d]+)-->(?P<to>[\d]+)"
 re_pl = r"(?P<from>[\d]+)-->(?P<action>[a-z-A-Z-_\d,\(\)]+)"
@@ -198,4 +200,3 @@ class Controller(object):
 
     def save_graph(self, graph_file):
         nk.writeGraph(self._graph, graph_file, nk.Format.DOT)
-

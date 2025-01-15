@@ -1,6 +1,6 @@
 from copy import copy
-from base.elements import State
-from base.elements import Action
+from cfondasp.base.elements import State
+from cfondasp.base.elements import Action
 
 
 def entails(state_1: State, state_2: State) -> bool:

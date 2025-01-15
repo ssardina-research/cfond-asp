@@ -1,6 +1,7 @@
+import os
 import re
 from typing import List
-from reason.controller_size_estimator import get_actions, get_action_name
+from cfondasp.reason.controller_size_estimator import get_actions, get_action_name
 
 r_tx = r"(?P<start>[\d]+)--(?P<action>[a-z-\d,_A-Z\(\)]+)-->(?P<end>[\d]+)"
 
@@ -65,10 +66,10 @@ def check_backbone(backbone: List[str], transitions: dict):
 
 if __name__ == "__main__":
     root_dir = "./output/elevators/p03/asp-opt-1"
-    asp_plan = f"{root_dir}/solution.out"
+    asp_plan = os.path.join(root_dir, "solution.out")
     transitions = construct_controller(asp_plan)
 
-    sas_plan = f"{root_dir}/sas_plan"
+    sas_plan = os.path.join(root_dir, "sas_plan")
     backbone = get_backbone(sas_plan)
     result = check_backbone(backbone, transitions)
     print(f"Backbone matches for {asp_plan}: {result}")

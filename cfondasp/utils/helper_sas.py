@@ -1,8 +1,8 @@
-from typing import List
-from base.config import DETERMINISTIC_ACTION_SUFFIX
-from base.elements import Variable, Action, State
-from utils.helper_str import get_indices_between
 import re
+from typing import List
+from cfondasp.base.config import DETERMINISTIC_ACTION_SUFFIX
+from cfondasp.base.elements import Variable, Action, State
+from cfondasp.utils.helper_str import get_indices_between
 
 RE_ACTION_NAME = rf"(?P<prefix>[a-zA-z-_\d]+){DETERMINISTIC_ACTION_SUFFIX}[\d]+"
 
@@ -135,11 +135,20 @@ def get_action(op_info: List[str], variables: List[Variable]) -> Action:
     start = 3 + num_preconditions
     for i in range(start, start + num_effects_vars):
         [num_conf_eff, var_idx, prev_val, next_val] = map(int, op_info[i].split())
-        if prev_val != -1:  # lift the precondition of the variable to the precondition of the action
+        if (
+            prev_val != -1
+        ):  # lift the precondition of the variable to the precondition of the action
             precondition.values[var_idx] = prev_val
         effect.values[var_idx] = next_val
 
-    action = Action(name=action_name, prefix_name=prefix_name, arguments=op_args, precondition=precondition, effects=[effect], cost=cost)
+    action = Action(
+        name=action_name,
+        prefix_name=prefix_name,
+        arguments=op_args,
+        precondition=precondition,
+        effects=[effect],
+        cost=cost,
+    )
 
     return action
 
@@ -155,19 +164,33 @@ def _get_action_info(full_action_name):
 
     Note: The suffix "_DET_" can be changed in the configuration.
     """
-    if DETERMINISTIC_ACTION_SUFFIX.lower() in full_action_name.lower():  # action has an "oneof" in its effect
+    if (
+        DETERMINISTIC_ACTION_SUFFIX.lower() in full_action_name.lower()
+    ):  # action has an "oneof" in its effect
         action_name = full_action_name.split()[0]
-        prefix_name = re.match(RE_ACTION_NAME, action_name, re.IGNORECASE).group("prefix")
+        prefix_name = re.match(RE_ACTION_NAME, action_name, re.IGNORECASE).group(
+            "prefix"
+        )
         assert prefix_name in action_name  # this is as a temp check
-        op_args: List[str] = full_action_name.lower().split(DETERMINISTIC_ACTION_SUFFIX.lower())[1].split(" ")[1:]
+        op_args: List[str] = (
+            full_action_name.lower()
+            .split(DETERMINISTIC_ACTION_SUFFIX.lower())[1]
+            .split(" ")[1:]
+        )
     else:  # action is deterministic
         action_name = full_action_name.split()[0]
         prefix_name = action_name
         op_args: List[str] = full_action_name.split()[1:]
-    return action_name, prefix_name, op_args,
+    return (
+        action_name,
+        prefix_name,
+        op_args,
+    )
 
 
-def organize_actions(actions: List[Action]) -> (dict[str: Action], dict[str: List[Action]]):
+def organize_actions(
+    actions: List[Action],
+) -> (dict[str:Action], dict[str : List[Action]]):
     """
     Organises the actions based on their actual name and arguments.
     Since the all outcomes determinization creates duplicate actions, each with one effect, one needs a way to match the duplicated action with its non-deterministic counterpart.
@@ -190,7 +213,9 @@ def organize_actions(actions: List[Action]) -> (dict[str: Action], dict[str: Lis
         if nondet_key not in nondet_actions_dict:
             nondet_actions_dict[nondet_key] = []
 
-        nondet_actions_dict[nondet_key].append(a)  # the value is list of all determinised actions of this possibly non-deterministic action
+        nondet_actions_dict[nondet_key].append(
+            a
+        )  # the value is list of all determinised actions of this possibly non-deterministic action
         actions_dict[det_key] = a
 
     return actions_dict, nondet_actions_dict

@@ -3,8 +3,8 @@ This script reasons on actions to find pairs such that they undo the effect of e
 """
 import logging
 import coloredlogs
-from utils.helper_sas import organize_actions
-from utils.translators import parse_sas
+from cfondasp.utils.helper_sas import organize_actions
+from cfondasp.utils.translators import parse_sas
 
 
 def reason(sas_file: str):

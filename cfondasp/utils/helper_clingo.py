@@ -4,8 +4,8 @@ import subprocess
 from asyncio.subprocess import Process
 from typing import List
 import coloredlogs
-import sys
-from utils.system_utils import get_now
+
+from cfondasp.utils.system_utils import get_now
 
 logger: logging.Logger = None
 ERROR_IGNORE = ["mutexgroup"]
@@ -30,7 +30,6 @@ def _get_logger():
 def set_logger(l):
     global logger
     logger = l
-
 
 
 def execute_asp(executable: str, args: List[str], input_files: List[str], output_dir: str, output_file: str) -> bool:
