@@ -4,7 +4,7 @@ from base.elements import Variable, Action, State
 from utils.helper_str import get_indices_between
 import re
 
-re_action_name = rf"(?P<prefix>[a-zA-z-_\d]+){DETERMINISTIC_ACTION_SUFFIX}[\d]+"
+RE_ACTION_NAME = rf"(?P<prefix>[a-zA-z-_\d]+){DETERMINISTIC_ACTION_SUFFIX}[\d]+"
 
 
 def get_indices_initial_state(sas_info: List[str]) -> tuple[int, int]:
@@ -157,7 +157,7 @@ def _get_action_info(full_action_name):
     """
     if DETERMINISTIC_ACTION_SUFFIX.lower() in full_action_name.lower():  # action has an "oneof" in its effect
         action_name = full_action_name.split()[0]
-        prefix_name = re.match(re_action_name, action_name, re.IGNORECASE).group("prefix")
+        prefix_name = re.match(RE_ACTION_NAME, action_name, re.IGNORECASE).group("prefix")
         assert prefix_name in action_name  # this is as a temp check
         op_args: List[str] = full_action_name.lower().split(DETERMINISTIC_ACTION_SUFFIX.lower())[1].split(" ")[1:]
     else:  # action is deterministic

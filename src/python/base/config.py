@@ -1,5 +1,4 @@
-#DETERMINISTIC_ACTION_SUFFIX = "_det_"
-DETERMINISTIC_ACTION_SUFFIX = "DETDUP"
+DETERMINISTIC_ACTION_SUFFIX = "_DETDUP_"    # important that includes the underscores (or they will be added by the determinizer automatically and regular expression wont work!)
 ASP_EFFECT_COUNT_TERM = "numEffects"
 ASP_VARIABLE_TERM = "variable"
 ASP_VARIABLE_ATOM_TERM = "variableValue"

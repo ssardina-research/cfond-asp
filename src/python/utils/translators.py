@@ -174,36 +174,8 @@ def execute_determiniser(
     """
     domain = parse_domain(domain_path)
     domain_det = determinize(domain, dom_suffix="", op_prefix=prefix)
-
     with open(det_domain_path, "w") as f:
         f.write(domain_to_string(domain_det))
-
-    return
-
-    # TODO: the below is old and should be removed; we are determinizing via library
-    execution_cmd = [
-        determinser,
-        "--input",
-        domain_path,
-        "--output",
-        det_domain_path,
-        "--prefix",
-        prefix,
-        "determinize",
-        "--suffix-domain",
-        '""',
-    ]
-    print(execution_cmd)
-    process = subprocess.Popen(
-        execution_cmd, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-    stdout, stderr = process.communicate()
-
-    # check for error
-    if stderr:
-        with open(os.path.join(output_dir, "determiniser_error.txt"), "w") as f:
-            f.write(stderr.decode())
-
 
 if __name__ == "__main__":
     # parse the pddl file
