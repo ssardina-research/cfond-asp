@@ -4,7 +4,6 @@ from base.elements import FONDProblem
 from utils.helper_sas import *
 from utils.helper_sas import get_indices_variables
 import subprocess
-from fond2allout import translate
 
 def lifted_determinise(fond_problem: FONDProblem, output_dir, sas_stats_file):
     """
@@ -15,9 +14,9 @@ def lifted_determinise(fond_problem: FONDProblem, output_dir, sas_stats_file):
     """
     
     # step 1. Do the all outcomes determinisation
-    domain_file = Path(fond_problem.domain).stem
-    all_outcomes_domain_file: str = os.path.join(output_dir, f"{domain_file}_all_outcomes.pddl")
-    translate(fond_problem.domain, console=False, action_suffix="det", domain_suffix=None, save=all_outcomes_domain_file)
+    domain_file = fond_problem.domain
+    all_outcomes_domain_file: str = os.path.join(output_dir, f"{Path(domain_file).stem}_all_outcomes.pddl")
+    execute_determiniser(fond_problem.determiniser, domain_file, all_outcomes_domain_file, output_dir, DETERMINISTIC_ACTION_SUFFIX)
     
     # step 2. Use the FD SAS translator
     translator: str = fond_problem.sas_translator
@@ -111,7 +110,24 @@ def execute_translator(translate_path: str, domain: str, problem: str, translato
     with open(stats_file, "w") as f:
         f.write(stdout.decode())
 
+def execute_determiniser(determinser: str, domain_path: str, det_domain_path: str, output_dir: str, prefix: str):
+    """
+    Execute the determiniser for all outcomes determinisation
+    :param domain_path: path to the domain file
+    :param det_domain_path: path to the deterministic domain file
+    :return:
+    """
 
+    execution_cmd = [determinser, "--input", domain_path, "--output", det_domain_path, "--prefix", prefix, "determinize"] 
+    process = subprocess.Popen(execution_cmd, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    
+    # check for error
+    if stderr:
+        with open(os.path.join(output_dir, "determiniser_error.txt"), "w") as f:
+            f.write(stderr.decode())
+
+        
 if __name__ == "__main__":
     # parse the pddl file
     domain_file: str = os.path.expanduser("~/Work/Software/PyPRP/examples/blocksworld/domain_det.pddl")

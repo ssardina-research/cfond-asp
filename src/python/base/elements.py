@@ -201,6 +201,7 @@ class FONDProblem(object):
     problem: str
     solution_type: str
     root: str
+    determiniser: str
     sas_translator: str
     translator_args: str
     controller_model: str

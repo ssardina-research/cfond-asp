@@ -29,6 +29,7 @@ inc_states = None
 filter_undo = False
 domain_kb = None
 solution_type = "strong-cyclic"
+determiniser = "fond-utils"
 FD_INV_LIMIT = 300
 
 def init():
@@ -40,6 +41,11 @@ def init():
     # check if clingo is in path
     if not shutil.which("clingo"):
         logger.error("Clingo not found in the path.")
+        sys.exit(1)
+        
+    # check if determiniser is in path
+    if not shutil.which(determiniser):
+        logger.error("fond-utils not found in the path.")
         sys.exit(1)
 
     # create output folder if it does not exist
@@ -64,7 +70,7 @@ def get_fond_problem() -> FONDProblem:
         clingo_args = []
 
     # set the controller model
-    fond_problem = FONDProblem(domain=domain, problem=problem, solution_type=solution_type, root=root, sas_translator=translator, translator_args=translator_args, 
+    fond_problem = FONDProblem(domain=domain, problem=problem, solution_type=solution_type, root=root, determiniser=determiniser, sas_translator=translator, translator_args=translator_args, 
                                controller_model=model, clingo=clingo, clingo_args=clingo_args, max_states=max_states, min_states=min_states, inc_states=inc_states,
                                 time_limit=timeout, filter_undo=filter_undo, extra_kb=extra_kb, classical_planner=classical_planner, domain_knowledge=domain_kb)
 
