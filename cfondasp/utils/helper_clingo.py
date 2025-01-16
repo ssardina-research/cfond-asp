@@ -10,7 +10,7 @@ from cfondasp.utils.system_utils import get_now
 logger: logging.Logger = None
 ERROR_IGNORE = ["mutexgroup"]
 
-DEBUG = False
+DEBUG = True
 
 def _should_ignore_error(error) -> bool:
     for _i in ERROR_IGNORE:
