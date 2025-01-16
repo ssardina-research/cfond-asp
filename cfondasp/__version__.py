@@ -1,5 +1,5 @@
 #
-# Copyright 2024 Christian Muise & Sebastian Sardina
+# Copyright 2023-2025 Sebastian Sardina & Nitin Yadav
 #
 # ------------------------------
 #
@@ -19,4 +19,4 @@ __version__ = "0.1.5"
 __author__ = "Sebastian Sardina, Nitin Yadav"
 __author_email__ = "ssardina@gmail.com, nitin.yadav@unimelb.edu.au"
 __license__ = "MIT License"
-__copyright__ = "2023-2024 Sebastian Sardina & Nitin Yadav"
+__copyright__ = "2023-2025 Sebastian Sardina & Nitin Yadav"
