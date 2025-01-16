@@ -1,6 +1,0 @@
-#!/bin/bash
-
-REALPATH=$(realpath "$0")
-BASEDIR="$(dirname "$REALPATH")"
-
-python "$BASEDIR/python/main.py" "$@"
