@@ -10,10 +10,13 @@ The `benchmarks/` folder contains problem instances, while folder `experiments/`
 
 ## Requirements
 
-- Python 3.11 with dependencies as per `requirements.txt`.
-  - The listed Python packages may have other dependencies (e.g., `libxml2` and `libxslt` development packages).
+The following software need to be available:
+
+- Python 3.11+ with dependencies as per `requirements.txt`.
 - [Clingo](https://potassco.org/clingo/) 5.5+ ASP solver.
   - Note version 5.4 does not support chained comparisons used of the form `X < Y < Z`.
+- [SAS Translator](https://github.com/aibasel/downward/tree/main/src/translate) from [downward library](https://github.com/aibasel/downward).
+  - This translates a deterministic PDDL domain and problem to an (optimized) SAS encoding. Note only the Python-based translator is used by CFOND-ASP.
 
 #### FOND Translator to SAS
 

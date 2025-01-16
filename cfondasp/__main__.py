@@ -11,15 +11,16 @@ from cfondasp import VERSION
 from .base.elements import FONDProblem
 from .checker.verify import verify, build_controller
 from .utils.system_utils import get_package_root
-from .solver.asp import solve, parse, solve
+from .solver.asp import solve, parse_and_translate, solve
 
 PYTHON_MINOR_VERSION = 10
 logger: logging.Logger = None
 
 DEFAULT_SOL_TYPE = "strong-cyclic"
-DETERMINIZER = "fond-utils"
 FD_INV_LIMIT = 300
 
+CLINGO_BIN = "clingo"
+DETERMINISER_BIN = "fond-utils"
 
 def init(args):
     # check python version
@@ -28,13 +29,13 @@ def init(args):
         sys.exit(1)
 
     # check if clingo is in path
-    if not shutil.which("clingo"):
+    if not shutil.which(CLINGO_BIN):
         logger.error("Clingo not found in the path.")
         sys.exit(1)
 
     # check if determiniser is in path
-    if not shutil.which(DETERMINIZER):
-        logger.error("fond-utils not found in the path.")
+    if not shutil.which(DETERMINISER_BIN):
+        logger.error("fond-utils determinizer not found in the path.")
         sys.exit(1)
 
     # create output folder if it does not exist
@@ -42,10 +43,10 @@ def init(args):
         os.makedirs(args.output_dir)
 
 
-def get_fond_problem(conf) -> FONDProblem:
+def get_fond_problem(args) -> FONDProblem:
     # determiniser. We use a recent version of FD
     root: Path = get_package_root()
-    translator: str = os.path.join(root, "utils", "translate", "translate.py")
+
     translator_args: str = (
         "{domain} {instance} --sas-file {sas_file}"
         + f" --invariant-generation-max-time {FD_INV_LIMIT}"
@@ -55,42 +56,40 @@ def get_fond_problem(conf) -> FONDProblem:
     classical_planner: str = os.path.join(root, "asp", "weakplanInc.lp")
 
     # asp tools-reg
-    clingo = "clingo"
-    if conf.clingo_args:
-        clingo_args = conf.clingo_args.split()
+    if args.clingo_args:
+        clingo_args = args.clingo_args.split()
     else:
         clingo_args = []
 
     # build a full FOND problem task
     fond_problem = FONDProblem(
-        domain=conf.domain,
-        problem=conf.problem,
-        solution_type=conf.solution_type,
+        domain=args.domain,
+        problem=args.problem,
+        solution_type=args.solution_type,
         root=root,
-        determiniser=DETERMINIZER,
-        sas_translator=translator,
+        sas_translator=args.translator_path,
         translator_args=translator_args,
-        controller_model=conf.model,
-        clingo=clingo,
+        controller_model=args.model,
+        clingo=CLINGO_BIN,
         clingo_args=clingo_args,
-        max_states=conf.max_states,
-        min_states=conf.min_states,
-        inc_states=conf.inc_states,
-        time_limit=conf.timeout,
-        filter_undo=conf.filter_undo,
-        extra_kb=conf.extra_constraints,
+        max_states=args.max_states,
+        min_states=args.min_states,
+        inc_states=args.inc_states,
+        time_limit=args.timeout,
+        filter_undo=args.filter_undo,
+        extra_kb=args.extra_constraints,
         classical_planner=classical_planner,
-        domain_knowledge=conf.domain_kb,
+        domain_knowledge=args.domain_kb,
     )
 
     fond_problem.controller_constraints = {}
 
-    if conf.extra_constraints:
+    if args.extra_constraints:
         fond_problem.controller_constraints["extra"] = os.path.abspath(
-            conf.extra_constraints
+            args.extra_constraints
         )
 
-    if conf.filter_undo:
+    if args.filter_undo:
         undo_constraint = os.path.join(root, "asp", "control", "undo.lp")
         fond_problem.controller_constraints["undo"] = undo_constraint
 
@@ -98,6 +97,7 @@ def get_fond_problem(conf) -> FONDProblem:
 
 
 def main():
+    """Main function to run the planner. Entry point of the program."""
     # set logger
     logger = logging.getLogger(__name__)
     coloredlogs.install(level=logging.DEBUG)
@@ -184,6 +184,12 @@ def main():
         type=str,
         default="./output",
     )
+    parser.add_argument(
+        "--translator-path",
+        help="SAS translator binary to use (Default: %(default)s).",
+        default="translate.py",
+        type=str,
+    )
 
     args = parser.parse_args()
     args.domain = os.path.abspath(args.domain)
@@ -199,6 +205,7 @@ def main():
     init(args)
 
     start = timer()
+    # build a whole FOND problem task (with all info needed!)
     fond_problem = get_fond_problem(args)
 
     if args.mode == "solve":
@@ -210,7 +217,7 @@ def main():
     elif args.mode == "verify":
         verify(args.output_dir)
     elif args.mode == "determinise":
-        parse(fond_problem, args.output_dir)
+        parse_and_translate(fond_problem, args.output_dir)
 
     end = timer()
     total_time = end - start

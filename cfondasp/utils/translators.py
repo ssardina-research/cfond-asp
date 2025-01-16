@@ -12,62 +12,6 @@ from fondutils.determizer import determinize
 import subprocess
 
 
-def lifted_determinize(fond_problem: FONDProblem, output_dir, sas_stats_file):
-    """
-    Lifted determinisation involves first doing the all outcomes determinisation, and then using the FD SAS translator.
-    :param fond_problem: Fond Problem
-    :param output_dir: Output directory
-    :param sas_stats_file: sas translation statistics
-    """
-
-    # step 1. Do the all outcomes determinisation
-    domain_file = fond_problem.domain
-    all_outcomes_domain_file: str = os.path.join(
-        output_dir, f"{Path(domain_file).stem}_all_outcomes.pddl"
-    )
-    execute_determiniser(
-        fond_problem.determiniser,
-        domain_file,
-        all_outcomes_domain_file,
-        output_dir,
-        DETERMINISTIC_ACTION_SUFFIX,
-    )
-
-    # step 2. Use the FD SAS translator
-    translator: str = fond_problem.sas_translator
-    sas_file = os.path.join(output_dir, "output.sas")
-    execute_translator(
-        translator,
-        all_outcomes_domain_file,
-        fond_problem.problem,
-        fond_problem.translator_args,
-        output_dir,
-        sas_file,
-        sas_stats_file,
-    )
-
-
-def determinise(fond_problem: FONDProblem, output_dir, sas_stats_file):
-    """
-    Determinise using FD translator
-    :param fond_problem:
-    :param output_dir:
-    :param sas_stats_file:
-    :return:
-    """
-    translator: str = fond_problem.sas_translator
-    sas_file = os.path.join(output_dir, "output.sas")
-    execute_translator(
-        translator,
-        fond_problem.domain,
-        fond_problem.problem,
-        fond_problem.translator_args,
-        output_dir,
-        sas_file,
-        sas_stats_file,
-    )
-
-
 def parse_sas(
     sas_file: str,
 ) -> (State, State, tuple[list[Action], list[Variable]], List[State]):
@@ -123,7 +67,7 @@ def parse_sas(
     return initial_state, goal_state, actions, variables, mutexs
 
 
-def execute_translator(
+def execute_sas_translator(
     translate_path: str,
     domain: str,
     problem: str,
@@ -148,7 +92,7 @@ def execute_translator(
         .replace("{instance}", problem)
         .replace("{sas_file}", sas_file)
     )
-    execution_cmd = ["python", translate_path] + translator_cmd.split()
+    execution_cmd = translate_path + translator_cmd.split()
     process = subprocess.Popen(
         execution_cmd, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )

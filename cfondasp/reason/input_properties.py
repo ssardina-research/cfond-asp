@@ -7,7 +7,7 @@ import os
 import coloredlogs
 
 from main import parse_config
-from cfondasp.solver.asp import parse
+from cfondasp.solver.asp import parse_and_translate
 
 OUTPUT_DIR: str = "./"
 OUTPUT_FILE = "./output/props.csv"
@@ -24,7 +24,7 @@ _logger = _get_logger()
 
 def extract_properties(config: str):
     fond_problem = parse_config(config)
-    initial_state, goal_state, det_actions, nd_actions, variables, mutexs = parse(fond_problem, OUTPUT_DIR)
+    initial_state, goal_state, det_actions, nd_actions, variables, mutexs = parse_and_translate(fond_problem, OUTPUT_DIR)
     num_variables = len(variables)
     num_det_actions = 0
     num_nd_actions = 0

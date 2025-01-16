@@ -1,11 +1,12 @@
 import asyncio
 import logging
+from pathlib import Path
 import subprocess
 from typing import List
 import coloredlogs
 from async_timeout import timeout
 
-from cfondasp.base.config import ASP_CLINGO_OUTPUT_PREFIX
+from cfondasp.base.config import ASP_CLINGO_OUTPUT_PREFIX, DETERMINISTIC_ACTION_SUFFIX
 from cfondasp.base.elements import FONDProblem, Action, Variable, State
 from cfondasp.base.logic_operators import entails
 from cfondasp.utils.system_utils import remove_files
@@ -13,7 +14,7 @@ from cfondasp.utils.backbone import get_backbone_asp, create_backbone_constraint
 from cfondasp.utils.helper_asp import write_goal, write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
 from cfondasp.utils.helper_clingo import execute_asp, execute_asp_async, set_logger
 from cfondasp.utils.helper_sas import organize_actions
-from cfondasp.utils.translators import determinise, lifted_determinize, parse_sas
+from cfondasp.utils.translators import execute_sas_translator, parse_sas
 from cfondasp.knowledge.blocksworld import BlocksworldKnowledge
 from cfondasp.knowledge.tireworld import TireworldKnowledge
 from cfondasp.knowledge.miner import MinerKnowledge
@@ -37,7 +38,7 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
     # determinise, translate to SAS and parse the SAS file
     initial_state: State = None
     goal_state: State = None
-    initial_state, goal_state, det_actions, nd_actions, variables, mutexs = parse(fond_problem, output_dir)
+    initial_state, goal_state, det_actions, nd_actions, variables, mutexs = parse_and_translate(fond_problem, output_dir)
 
     # check if initial state is the goal state
     if entails(initial_state, goal_state):
@@ -323,7 +324,7 @@ def generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd
     write_actions(file, nd_actions, variables, variable_mapping=action_var_affects)
 
 
-def parse(fond_problem: FONDProblem, output_dir: str) -> (State, State, dict[str: Action], dict[str: List[Action]], list[Variable], list[State]):
+def parse_and_translate(fond_problem: FONDProblem, output_dir: str) -> (State, State, dict[str: Action], dict[str: List[Action]], list[Variable], list[State]):
     """
     Returns the parsed PDDL Domain, PDDL problem, SAS initial state, SAS goal state, dictionary of deterministic and non-deterministic actions
     :param fond_problem: A Fond problem with the required inputs
@@ -335,8 +336,36 @@ def parse(fond_problem: FONDProblem, output_dir: str) -> (State, State, dict[str
     sas_file = os.path.join(output_dir, "output.sas")
 
     # determinise!
-    # determinise(fond_problem, output_dir, sas_stats_file)
-    lifted_determinize(fond_problem, output_dir, sas_stats_file)
+    from pddl import parse_domain
+    from pddl.formatter import domain_to_string
+    from fondutils.determizer import determinize
+
+    # step 1. Do the all outcomes determinisation at the lifted level (will produce all outcomes domain file)
+    domain_file = fond_problem.domain
+    all_outcomes_domain_file = os.path.join(
+        output_dir, f"{Path(domain_file).stem}_all_outcomes.pddl"
+    )
+    domain = parse_domain(domain_file)
+    domain_det = determinize(
+        domain, dom_suffix="", op_prefix=DETERMINISTIC_ACTION_SUFFIX
+    )
+    with open(all_outcomes_domain_file, "w") as f:
+        f.write(domain_to_string(domain_det))
+
+    determinize(fond_problem, output_dir, sas_stats_file)
+
+    # step 2. Use the FD SAS translator (will produce output.sas)
+    translator: str = fond_problem.sas_translator
+    sas_file = os.path.join(output_dir, "output.sas")
+    execute_sas_translator(
+        translator,
+        all_outcomes_domain_file,
+        fond_problem.problem,
+        fond_problem.translator_args,
+        output_dir,
+        sas_file,
+        sas_stats_file,
+    )
 
     initial_state, goal_state, actions, variables, mutexs = parse_sas(sas_file)
     det_actions, nd_actions = organize_actions(actions)
