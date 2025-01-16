@@ -9,7 +9,7 @@ from timeit import default_timer as timer
 
 from .base.elements import FONDProblem
 from .checker.verify import verify, build_controller
-from .utils.system_utils import get_root
+from .utils.system_utils import get_package_root
 from .solver.asp import solve, parse, solve
 
 PYTHON_MINOR_VERSION = 10
@@ -57,8 +57,8 @@ def init():
 
 def get_fond_problem() -> FONDProblem:
     # determiniser. We use a recent version of FD
-    root: Path = get_root()
-    translator: str = os.path.join(root, "translate", "translate.py")
+    root: Path = get_package_root()
+    translator: str = os.path.join(root, "utils", "translate", "translate.py")
     translator_args: str = (
         "{domain} {instance} --sas-file {sas_file}"
         + f" --invariant-generation-max-time {FD_INV_LIMIT}"
@@ -110,6 +110,9 @@ def get_fond_problem() -> FONDProblem:
 
 def main():
     global domain, problem, mode, output_dir, timeout, model, clingo_args_str, extra_kb, max_states, min_states, inc_states, filter_undo, domain_kb, solution_type
+
+    logger = logging.getLogger(__name__)
+    coloredlogs.install(level=logging.DEBUG)
 
     # CLI options
     parser: argparse.ArgumentParser = argparse.ArgumentParser(

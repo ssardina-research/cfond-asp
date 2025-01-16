@@ -18,6 +18,6 @@ from .__version__ import (
     __url__,
     __version__,
 )
-from .utils.helper_base import _get_current_path
+from .utils.system_utils import get_package_root
 
-_ROOT_PATH = _get_current_path()
+ROOT_PATH = get_package_root()

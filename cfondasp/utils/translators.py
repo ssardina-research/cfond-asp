@@ -13,7 +13,7 @@ from fondutils.normalizer import normalize
 import subprocess
 
 
-def lifted_determinise(fond_problem: FONDProblem, output_dir, sas_stats_file):
+def lifted_determinize(fond_problem: FONDProblem, output_dir, sas_stats_file):
     """
     Lifted determinisation involves first doing the all outcomes determinisation, and then using the FD SAS translator.
     :param fond_problem: Fond Problem

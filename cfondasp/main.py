@@ -7,7 +7,7 @@ import os
 import sys
 import shutil
 from checker.verify import verify, build_controller
-from utils.system_utils import get_root
+from utils.system_utils import get_package_root
 from solver.asp import solve, parse, solve
 from timeit import default_timer as timer
 
@@ -55,7 +55,7 @@ def init():
 
 def get_fond_problem() -> FONDProblem:
     # determiniser. We use a recent version of FD
-    root:Path = get_root()
+    root:Path = get_package_root()
     translator: str = os.path.join(root, "translate", "translate.py")
     translator_args: str = "{domain} {instance} --sas-file {sas_file}" + f" --invariant-generation-max-time {FD_INV_LIMIT}"
 
