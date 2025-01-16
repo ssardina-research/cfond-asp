@@ -8,7 +8,6 @@ from cfondasp.utils.helper_sas import get_indices_variables
 from pddl import parse_domain
 from pddl.formatter import domain_to_string
 from fondutils.determizer import determinize
-from fondutils.normalizer import normalize
 
 import subprocess
 
