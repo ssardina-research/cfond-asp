@@ -21,26 +21,7 @@ FD_INV_LIMIT = 300
 
 CLINGO_BIN = "clingo"
 DETERMINISER_BIN = "fond-utils"
-
-def init(args):
-    # check python version
-    if sys.version_info[0] < 3 or sys.version_info[1] < PYTHON_MINOR_VERSION:
-        logger.error(f"Python version sould be at least 3.{PYTHON_MINOR_VERSION}")
-        sys.exit(1)
-
-    # check if clingo is in path
-    if not shutil.which(CLINGO_BIN):
-        logger.error("Clingo not found in the path.")
-        sys.exit(1)
-
-    # check if determiniser is in path
-    if not shutil.which(DETERMINISER_BIN):
-        logger.error("fond-utils determinizer not found in the path.")
-        sys.exit(1)
-
-    # create output folder if it does not exist
-    if not os.path.exists(args.output_dir):
-        os.makedirs(args.output_dir)
+TRANSLATOR_BIN = "translate.py"
 
 
 def get_fond_problem(args) -> FONDProblem:
@@ -187,30 +168,54 @@ def main():
     parser.add_argument(
         "--translator-path",
         help="SAS translator binary to use (Default: %(default)s).",
-        default="translate.py",
+        default=TRANSLATOR_BIN,
         type=str,
     )
-
     args = parser.parse_args()
     args.domain = os.path.abspath(args.domain)
     args.problem = os.path.abspath(args.problem)
     args.clingo_args = args.clingo_args.replace("'", "").replace('"', "")
     args.output_dir = os.path.abspath(args.output)
+    print(args)
 
+    # 1. perform necessary checks before starting...
+
+    # check python version
+    if sys.version_info[0] < 3 or sys.version_info[1] < PYTHON_MINOR_VERSION:
+        logger.error(f"Python version sould be at least 3.{PYTHON_MINOR_VERSION}")
+        sys.exit(1)
+
+    # check clingo is in path
+    if not shutil.which(CLINGO_BIN):
+        logger.error("Clingo not found in the path.")
+        sys.exit(1)
+
+    # check determiniser is in path
+    if not shutil.which(DETERMINISER_BIN):
+        logger.error("fond-utils determinizer not found.")
+        sys.exit(1)
+
+    # check determiniser is in path
+    if not shutil.which(args.translator_path):
+        logger.error("SAS translator determinizer not found.")
+        sys.exit(1)
+
+    # create output folder if it does not exist
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
+
+    # if we are verifying, we need the output folder to exist already
     if args.mode == "verify" and not os.path.exists(args.output_dir):
         logger.error(f"Output folder does not exist, cannot verify!: {args.output_dir}")
         exit(1)
 
-    # initialise
-    init(args)
-
+    # 2. All good to go. Next, build a whole FONDProblem object with all the info needed
     start = timer()
-    # build a whole FOND problem task (with all info needed!)
-    fond_problem = get_fond_problem(args)
+    fond_problem : FONDProblem = get_fond_problem(args)
 
+    # 3. Run the requested mode
     if args.mode == "solve":
         solve(fond_problem, args.output_dir, back_bone=args.use_backbone, only_size=True)
-
         if args.dump_cntrl:
             logger.info("Dumping controller...")
             build_controller(args.output_dir)
@@ -219,6 +224,7 @@ def main():
     elif args.mode == "determinise":
         parse_and_translate(fond_problem, args.output_dir)
 
+    # 4. Done! Wrap up and summary info
     end = timer()
     total_time = end - start
     logger.debug(f"Output folder: {args.output_dir}")
