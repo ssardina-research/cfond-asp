@@ -21,7 +21,6 @@ The planner uses a translator determinization system, which converts a FOND PDDL
 
 The FOND translator is under [src/translator-fond/](src/translator-fond/) and is a dump of commit [792f331](https://github.com/ssardina-research/translator-fond/tree/792f3317d3a8d7978a13cc41a48b7fd12f7690bc) in branch [fd22.12](https://github.com/ssardina-research/translator-fond/tree/fd22.12) in the [translator-fond](https://github.com/ssardina-research/translator-fond/) GH repo. Note this is version is a modification of [Fast-downard release 22.12](https://github.com/aibasel/downward/tree/release-22.12.0) (December 16, 2022) SAS translator for FOND determinization. This is different from the PRP's translator, which is based on the 2011 SAS FD translator (available, with fixes, in release [2011 PRP](https://github.com/ssardina-research/translator-fond/releases/tag/2011-prp) in [translator-fond repo](https://github.com/ssardina-research/translator-fond/)).
 
-
 ## Usage
 
 The planner can be executed with the following command:
@@ -42,11 +41,11 @@ Resulting output files will be left in the corresponding output directory (`./ou
 
 For example to solve the `p03.pddl` problem from the `Acrobatics` domain:
 
-```
-$ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchmarking/problems/acrobatics/p03.pddl
+```shell
+$ python src/python/main.py benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl
 
 ...
-2024-01-12 15:04:30 nitin FondASP[195427] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/p03.pddl!
+2024-01-12 15:04:30 nitin FondASP[195427] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/p03.pddl!
 2024-01-12 15:04:30 nitin __main__[195427] INFO Time(s) taken:1.6477028469962534
 ```
 
@@ -68,10 +67,10 @@ For strong solutions (via `--solution_type strong`), the encoding solver used is
 To pass specific argument to Clingo use `--clingo_args` as a quoted string. For example, to tell Clingo to use 4 threads and tell Clingo this is a single-shot task:
 
 ```shell
-$ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchmarking/problems/acrobatics/p03.pddl  --clingo_args '-t 4 --single-shot'
+$ python src/python/main.py benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl  --clingo_args '-t 4 --single-shot'
 
 ...
-2024-01-12 15:05:45 nitin FondASP[195707] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/p03.pddl!
+2024-01-12 15:05:45 nitin FondASP[195707] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/p03.pddl!
 2024-01-12 15:05:45 nitin __main__[195707] INFO Time(s) taken:1.3016068750002887
 ```
 
@@ -80,10 +79,10 @@ $ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchma
 To use _backbone_ size estimation (a lower bound on the size of the controller) to reduce the number of iterations, use `--use_backbone` option:
 
 ```
-$ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchmarking/problems/acrobatics/p03.pddl  --clingo_args '-t 4' --use_backbone True
+$ python src/python/main.py benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl  --clingo_args '-t 4' --use_backbone True
 
 ...
-2024-01-12 15:06:35 nitin FondASP[195939] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/p03.pddl!
+2024-01-12 15:06:35 nitin FondASP[195939] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/p03.pddl!
 2024-01-12 15:06:35 nitin __main__[195939] INFO Time(s) taken:1.2567479549907148
 ```
 
@@ -100,10 +99,10 @@ For example, to tell the planner to completely _exclude_ action `jump` in the `A
 If the file is called `acrobatics.lp`, one can then run the planner with option `--extra_constraints`:
 
 ```shell
-$ python src/python/main.py benchmarking/problems/acrobatics/domain.pddl benchmarking/problems/acrobatics/p03.pddl  --clingo_args '-t 4' --use_backbone --extra_constraints ./acrobatics.lp
+$ python src/python/main.py benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl  --clingo_args '-t 4' --use_backbone --extra_constraints ./acrobatics.lp
 
 ...
-Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarking/problems/acrobatics/p03.pddl!
+Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/p03.pddl!
 2024-01-12 15:15:58 nitin __main__[198321] INFO Time(s) taken:0.9603760419995524
 ```
 
@@ -114,7 +113,7 @@ To _verify_ a strong-cyclic solution one can set the mode to `verify` via option
 For example, to verify the solution for the `p03.pddl` problem from the `Acrobatics domain`:
 
 ```
-$ python src/python/main.py benchmarking/problems/beam-walk/domain.pddl benchmarking/problems/beam-walk/p03.pddl --mode verify
+$ python src/python/main.py benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p03.pddl --mode verify
 
 2024-01-12 14:45:31 nitin FondASP[192070] INFO Solution is sound? True
 2024-01-12 14:45:31 nitin __main__[192070] INFO Time(s) taken:0.032270914001856
@@ -129,7 +128,7 @@ Verification result will be saved in file `verify.out`.
 To only determinise the instance into the corresponding SAS encoding use the `determise` mode:
 
 ```shell
-$ python src/python/main.py benchmarking/problems/beam-walk/domain.pddl benchmarking/problems/beam-walk/p03.pddl --mode determinise
+$ python src/python/main.py benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p03.pddl --mode determinise
 ```
 
 This will just produce the corresponding SAS one-outcome determinised encoding of the problem instance, but it will not solve it.
