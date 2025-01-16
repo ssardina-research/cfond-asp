@@ -38,10 +38,10 @@ def extract_properties(config: str):
 
 
 def extract(folder: str):
-    data = [f"scenario,instance,num_variables,num_det_actions,num_nd_actions\n"]
+    data = ["scenario,instance,num_variables,num_det_actions,num_nd_actions\n"]
     scenarios = os.listdir(folder)
     for scenario in scenarios:
-        scenario_path = f"{folder}/{scenario}"
+        scenario_path = os.path.join(folder, scenario)
         config_folders = os.listdir(scenario_path)
         _logger.info(f"Processing scenario {scenario}.")
         for s in config_folders:
@@ -51,7 +51,7 @@ def extract(folder: str):
                 config_files = sorted([f for f in files if f.endswith("ini")])
                 for c in config_files:
                     instance = c.split("_")[0]
-                    num_variables, num_det_actions, num_nd_actions = extract_properties(f"{solver_path}/{c}")
+                    num_variables, num_det_actions, num_nd_actions = extract_properties(os.path.join(solver_path, c))
                     data.append(f"{scenario},{instance},{num_variables},{num_det_actions},{num_nd_actions}\n")
             continue
 

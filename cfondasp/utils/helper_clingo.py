@@ -10,6 +10,7 @@ from cfondasp.utils.system_utils import get_now
 logger: logging.Logger = None
 ERROR_IGNORE = ["mutexgroup"]
 
+DEBUG = False
 
 def _should_ignore_error(error) -> bool:
     for _i in ERROR_IGNORE:
@@ -34,7 +35,7 @@ def set_logger(l):
 
 def execute_asp(executable: str, args: List[str], input_files: List[str], output_dir: str, output_file: str) -> bool:
     """
-    Execute the fast-downward translator on the given domain and problem to generate a SAS output
+    Execute the ASP solver
     :param executable: path to fast-downward
     :param args: arguments to clingo
     :param input_files: list of input files to clingo
@@ -52,6 +53,8 @@ def execute_asp(executable: str, args: List[str], input_files: List[str], output
         file_out.write(cmd_executable)
         file_out.write("\n")
 
+        if DEBUG:
+            print("Execute-ASP executable:", executable_list)
         process = subprocess.Popen(executable_list, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True)
         stdout, stderr = process.communicate()
         returncode = process.returncode
