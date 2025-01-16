@@ -92,7 +92,7 @@ def execute_sas_translator(
         .replace("{instance}", problem)
         .replace("{sas_file}", sas_file)
     )
-    execution_cmd = translate_path + translator_cmd.split()
+    execution_cmd = [translate_path] + translator_cmd.split()
     process = subprocess.Popen(
         execution_cmd, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )

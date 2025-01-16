@@ -352,8 +352,6 @@ def parse_and_translate(fond_problem: FONDProblem, output_dir: str) -> (State, S
     with open(all_outcomes_domain_file, "w") as f:
         f.write(domain_to_string(domain_det))
 
-    determinize(fond_problem, output_dir, sas_stats_file)
-
     # step 2. Use the FD SAS translator (will produce output.sas)
     translator: str = fond_problem.sas_translator
     sas_file = os.path.join(output_dir, "output.sas")
