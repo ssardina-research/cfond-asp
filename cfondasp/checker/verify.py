@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import queue
+import sys
 import coloredlogs
 import re
 import networkit as nk
@@ -41,7 +42,7 @@ class SolutionSpace(object):
         self._graph = nk.Graph(directed=True)
         self._initialise()
 
-    def progress(self, controller_node, action, transitions):
+    def progress(self, controller_node, nd_action, transitions):
         # get the corresponding internal graph node
         node = self._controller_nodes[controller_node]
 
@@ -51,7 +52,7 @@ class SolutionSpace(object):
         new_nodes = []
 
         # apply the action to planning state
-        actions = self._nd_actions[action]
+        actions = self._nd_actions[nd_action]
         for action in actions:
             effect = self.get_effect(action)
 
@@ -97,7 +98,6 @@ class SolutionSpace(object):
         else:
             effect_num = (
                 int(action.name.lower().split(DETERMINISTIC_ACTION_SUFFIX.lower())[1])
-                + 1
             )
             return f"{ASP_EFFECT_TERM}{effect_num}"
 
@@ -280,8 +280,12 @@ def _timed_out(output_file: str) -> bool:
 
 def verify(output_dir: str):
     _logger = _get_logger()
-
-    last_clingo_out_file = os.path.join(output_dir, _get_last_output_file(output_dir))
+    last_output_file = _get_last_output_file(output_dir)
+    if last_output_file is None:
+        _logger.warning("Could not find clingo output files. Please solve the problem first.")
+        sys.exit(1)
+        
+    last_clingo_out_file = os.path.join(output_dir, last_output_file)
     if not _timed_out(last_clingo_out_file):
 
         # build controller from ASP model and SAS file (write controller to txt and json files)
