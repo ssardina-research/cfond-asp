@@ -7,6 +7,7 @@ import sys
 import shutil
 from timeit import default_timer as timer
 
+from cfondasp import VERSION
 from .base.elements import FONDProblem
 from .checker.verify import verify, build_controller
 from .utils.system_utils import get_package_root
@@ -103,7 +104,7 @@ def main():
 
     # CLI options
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
-        description="High-level interface for solving and experimenting with FOND problems."
+        description=f"CFOND-ASP: A FOND planner for compact controllers via ASP. - Version: {VERSION}"
     )
     parser.add_argument("domain", help="Domain PDDL file")
     parser.add_argument("problem", help="Problem PDDL file")

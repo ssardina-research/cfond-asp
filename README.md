@@ -21,6 +21,46 @@ The planner uses a translator determinization system, which converts a FOND PDDL
 
 The FOND translator is under [src/translator-fond/](src/translator-fond/) and is a dump of commit [792f331](https://github.com/ssardina-research/translator-fond/tree/792f3317d3a8d7978a13cc41a48b7fd12f7690bc) in branch [fd22.12](https://github.com/ssardina-research/translator-fond/tree/fd22.12) in the [translator-fond](https://github.com/ssardina-research/translator-fond/) GH repo. Note this is version is a modification of [Fast-downard release 22.12](https://github.com/aibasel/downward/tree/release-22.12.0) (December 16, 2022) SAS translator for FOND determinization. This is different from the PRP's translator, which is based on the 2011 SAS FD translator (available, with fixes, in release [2011 PRP](https://github.com/ssardina-research/translator-fond/releases/tag/2011-prp) in [translator-fond repo](https://github.com/ssardina-research/translator-fond/)).
 
+## Install
+
+The planner is distributed as a package and can then be installed via pip directly.
+
+
+One can also install it from the repo itself:
+
+```shell
+$ pip install https://github.com/ssardina-research/cfond-asp
+```
+
+Alternatively, one can clone first and install the planner:
+
+```shell
+$ git clone https://github.com/ssardina-research/cfond-asp
+$ cd cfond-asp
+$ pip install .
+```
+
+> [!TIP]
+> If you plan to develop on CFOND-ASP it can be useful to install the cloned repo as [editable project](https://setuptools.pypa.io/en/latest/userguide/development_mode.html) via `pip install -e .`
+
+Once installed, the planner is available via its CLI interface:
+
+```shell
+$ cfond-asp -h
+usage: cfond-asp [-h] [--max_states MAX_STATES] [--min_states MIN_STATES] [--inc_states INC_STATES]
+                 [--mode {solve,verify,determinise}] [--solution_type {strong,strong-cyclic}] [--timeout TIMEOUT]
+                 [--model {fondsat,regression}] [--clingo_args CLINGO_ARGS] [--extra_constraints EXTRA_CONSTRAINTS]
+                 [--filter_undo] [--use_backbone] [--domain_kb {triangle-tireworld,miner,acrobatics,spikytireworld}]
+                 [--dump_cntrl] [--output OUTPUT]
+                 domain problem
+
+CFOND-ASP: A FOND planner for compact controllers via ASP. - Version: 0.1.5
+
+positional arguments:
+  domain                Domain PDDL file
+  problem               Problem PDDL file
+```
+
 ## Usage
 
 The planner can be executed with the following command:
