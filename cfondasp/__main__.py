@@ -109,19 +109,19 @@ def main():
     parser.add_argument("domain", help="Domain PDDL file")
     parser.add_argument("problem", help="Problem PDDL file")
     parser.add_argument(
-        "--max_states",
+        "--max-states",
         help="Maximum number of controller states (Default: %(default)s).",
         type=int,
         default=100,
     )
     parser.add_argument(
-        "--min_states",
+        "--min-states",
         help="Minimum number of controller states (Default: %(default)s).",
         type=int,
         default=1,
     )
     parser.add_argument(
-        "--inc_states",
+        "--inc-states",
         help="Step size of controller size iteration (Default: %(default)s).",
         type=int,
         default=1,
@@ -134,7 +134,7 @@ def main():
         default="solve",
     )
     parser.add_argument(
-        "--solution_type",
+        "--solution-type",
         help="Select type of plan solutions the planner should look for (Default: %(default)s).",
         choices=["strong", "strong-cyclic"],
         default=DEFAULT_SOL_TYPE,
@@ -149,32 +149,32 @@ def main():
         default="fondsat",
     )
     parser.add_argument(
-        "--clingo_args", help="Arguments to pass to Clingo.", type=str, default=""
+        "--clingo-args", help="Arguments to pass to Clingo.", type=str, default=""
     )
     parser.add_argument(
-        "--extra_constraints",
+        "--extra-constraints",
         help="Additional asp constraints (as input file to Clingo)",
         type=str,
         default=None,
     )
     parser.add_argument(
-        "--filter_undo",
+        "--filter-undo",
         help="Filter undo actions from policy consideration.",
         action="store_true",
     )
     parser.add_argument(
-        "--use_backbone",
+        "--use-backbone",
         help="Use backbone size for minimum controller size estimation.",
         action="store_true",
     )
     parser.add_argument(
-        "--domain_kb",
+        "--domain-kb",
         help="Add pre-defined domain knowledge (Default: %(default)s).",
         choices=["triangle-tireworld", "miner", "acrobatics", "spikytireworld"],
         default=None,
     )
     parser.add_argument(
-        "--dump_cntrl",
+        "--dump-cntrl",
         help="Save controller in text and json files.",
         action="store_true",
     )
@@ -221,8 +221,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # set logger
-    logger = logging.getLogger(__name__)
-    coloredlogs.install(level=logging.DEBUG)
-
     main()
