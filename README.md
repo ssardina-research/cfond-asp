@@ -63,30 +63,53 @@ positional arguments:
 
 ## Usage
 
-The planner can be executed with the following command:
+The planner is offered as a binary application:
 
 ```shell
-$ python src/python/main.py [options] fond_domain fond_problem
+$ cfond-asp [options] fond_domain fond_problem
 ```
 
 Use `-h` to get all options available.
 
-The `main.py` script parses the input and solves the planning instance as follows:
+Note this is equivalent to cloning the planner repo and from tis root folder execute:
 
-1. Ground the planning planning instance and generate corresponding [SAS](https://www.fast-downward.org/TranslatorOutputFormat) file (uses translator under [`src/translator-fond/`](src/translator-fond/)).
-2. Translate the SAS file to a ASP file `instance.lp`.
-3. Call Clingo with `instance.lp` and the chosen ASP planning solver model.
+```shell
+$ python -m cfondasp [options] fond_domain fond_problem
+ ```
+
+The planner main script parses the input and solves the planning instance as follows:
+
+1. Computes the all-outcome determinization of the FOND domain using [fond-utils](https://github.com/AI-Planning/fond-utils) project.
+2. Translates (and grounds) the now deterministic all-outcome domain and problem instance to [SAS](https://www.fast-downward.org/TranslatorOutputFormat) encoding using the translator from [Fast-Downward](https://www.fast-downward.org/) available in [translator-fond](https://github.com/ssardina-research/translator-fond) repo.
+3. Translate the SAS file to a ASP file `instance.lp`.
+4. Call Clingo ASP solver with `instance.lp` and the chosen ASP planning solver model.
 
 Resulting output files will be left in the corresponding output directory (`./output` by default), including Clingo output for each iteration (wrt controller size), SAS encoding and output, ASP instance used, and stat file.
 
 For example to solve the `p03.pddl` problem from the `Acrobatics` domain:
 
 ```shell
-$ python src/python/main.py benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl
+$ cfond-asp  benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl
 
-...
-2024-01-12 15:04:30 nitin FondASP[195427] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/p03.pddl!
-2024-01-12 15:04:30 nitin __main__[195427] INFO Time(s) taken:1.6477028469962534
+2025-01-16 15:26:43 surface FondASP[1848420] INFO Solving benchmarks/acrobatics/domain.pddl with problem benchmarks/acrobatics/p03.pddl using backbone=False.
+2025-01-16 15:26:43 surface FondASP[1848420] INFO  -Solving with numStates=1.
+2025-01-16 15:26:43 surface FondASP[1848420] INFO  -Solving with numStates=2.
+2025-01-16 15:26:43 surface FondASP[1848420] INFO  -Solving with numStates=3.
+2025-01-16 15:26:43 surface FondASP[1848420] INFO  -Solving with numStates=4.
+2025-01-16 15:26:43 surface FondASP[1848420] INFO  -Solving with numStates=5.
+2025-01-16 15:26:43 surface FondASP[1848420] INFO  -Solving with numStates=6.
+2025-01-16 15:26:43 surface FondASP[1848420] INFO  -Solving with numStates=7.
+2025-01-16 15:26:43 surface FondASP[1848420] INFO  -Solving with numStates=8.
+2025-01-16 15:26:43 surface FondASP[1848420] INFO  -Solving with numStates=9.
+2025-01-16 15:26:44 surface FondASP[1848420] INFO  -Solving with numStates=10.
+2025-01-16 15:26:44 surface FondASP[1848420] INFO  -Solving with numStates=11.
+2025-01-16 15:26:44 surface FondASP[1848420] INFO  -Solving with numStates=12.
+2025-01-16 15:26:44 surface FondASP[1848420] INFO  -Solving with numStates=13.
+2025-01-16 15:26:45 surface FondASP[1848420] INFO  -Solving with numStates=14.
+2025-01-16 15:26:45 surface FondASP[1848420] INFO  -Solving with numStates=15.
+2025-01-16 15:26:46 surface FondASP[1848420] INFO Solution found for instance (benchmarks/acrobatics/domain.pddl, acrobatics/p03.pddl)!
+2025-01-16 15:26:46 surface FondASP[1848420] INFO Number of states in controller: 16
+2025-01-16 15:26:46 surface cfondasp.__main__[1848420] WARNING Time taken: 2.9394077729957644
 ```
 
 Use `--dump_cntrl` to dump controller found, if any, into text and JSON formats.
@@ -100,35 +123,35 @@ For strong-cyclic solutions (chosen via `--model`):
 - `controller-fondsat`: encoding following FONDSAT in propagating negative propositions forward.
 - `controller-reg`: encoding implementing weakest-precondition via regression (like PRP).
 
-For strong solutions (via `--solution_type strong`), the encoding solver used is [`controller-strong.lp`](src/asp/controller-strong.lp).
+For strong solutions (via `--solution-type strong`), the encoding solver used is [`controller-strong.lp`](src/asp/controller-strong.lp).
 
 ### Clingo parameters
 
 To pass specific argument to Clingo use `--clingo_args` as a quoted string. For example, to tell Clingo to use 4 threads and tell Clingo this is a single-shot task:
 
 ```shell
-$ python src/python/main.py benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl  --clingo_args '-t 4 --single-shot'
+$ cfond-asp benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl --clingo-args '-t 4 --single-shot'
 
 ...
-2024-01-12 15:05:45 nitin FondASP[195707] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/p03.pddl!
+2024-01-12 15:05:45 nitin FondASP[195707] INFO Solution found for id benchmarks/acrobatics/domain.pddl, benchmarks/acrobatics/p03.pddl!
 2024-01-12 15:05:45 nitin __main__[195707] INFO Time(s) taken:1.3016068750002887
 ```
 
 ### Use backbone for minimum controller size estimation
 
-To use _backbone_ size estimation (a lower bound on the size of the controller) to reduce the number of iterations, use `--use_backbone` option:
+To use _backbone_ size estimation (a lower bound on the size of the controller) to reduce the number of iterations, use `--use-backbone` option:
 
-```
-$ python src/python/main.py benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl  --clingo_args '-t 4' --use_backbone True
+```shell
+$ cfond-asp benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl  --clingo-args '-t 4' --use-backbone True
 
 ...
-2024-01-12 15:06:35 nitin FondASP[195939] INFO Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/p03.pddl!
+2024-01-12 15:06:35 nitin FondASP[195939] INFO Solution found for id benchmarks/acrobatics/domain.pddl, benchmarks/acrobatics/p03.pddl!
 2024-01-12 15:06:35 nitin __main__[195939] INFO Time(s) taken:1.2567479549907148
 ```
 
 ### Use domain knowledge
 
-One can incorporate additional domain (control) knowledge in the planner by specifying additional ASP code, usually integrity constraints forbidding certain situations, and use option `--extra_constraints`.
+One can incorporate additional domain (control) knowledge in the planner by specifying additional ASP code, usually integrity constraints forbidding certain situations, and use option `--extra-constraints`.
 
 For example, to tell the planner to completely _exclude_ action `jump` in the `Acrobatics` domain, we create a new file with the following ASP constraint:
 
@@ -136,10 +159,10 @@ For example, to tell the planner to completely _exclude_ action `jump` in the `A
 :- policy(State, Action), state(State), actionType("jump-over", Action).
 ```
 
-If the file is called `acrobatics.lp`, one can then run the planner with option `--extra_constraints`:
+If the file is called `acrobatics.lp`, one can then run the planner with option `--extra-constraints`:
 
 ```shell
-$ python src/python/main.py benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl  --clingo_args '-t 4' --use_backbone --extra_constraints ./acrobatics.lp
+$ cfond-asp benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl  --clingo-args '-t 4' --use-backbone --extra-constraints ./acrobatics.lp
 
 ...
 Solution found for id /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/domain.pddl, /home/nitin/Work/Software/cfond-asp/benchmarks/acrobatics/p03.pddl!
@@ -152,8 +175,8 @@ To _verify_ a strong-cyclic solution one can set the mode to `verify` via option
 
 For example, to verify the solution for the `p03.pddl` problem from the `Acrobatics domain`:
 
-```
-$ python src/python/main.py benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p03.pddl --mode verify
+```shell
+$ cfond-asp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p03.pddl --mode verify
 
 2024-01-12 14:45:31 nitin FondASP[192070] INFO Solution is sound? True
 2024-01-12 14:45:31 nitin __main__[192070] INFO Time(s) taken:0.032270914001856
@@ -168,13 +191,12 @@ Verification result will be saved in file `verify.out`.
 To only determinise the instance into the corresponding SAS encoding use the `determise` mode:
 
 ```shell
-$ python src/python/main.py benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p03.pddl --mode determinise
+$ cfond-asp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p03.pddl --mode determinise
 ```
 
-This will just produce the corresponding SAS one-outcome determinised encoding of the problem instance, but it will not solve it.
+This will just produce the corresponding domain determinization and its SAS encoding, but it will not solve it.
 
-The determinisation and SAS encoder is done by the code under [`src/translator-fond/`](src/translator-fond/) which has been borrowed from PRP codebase.
-
+The determinisation and SAS encoder is done by the code under [`src/translator-fond/`](src/translator-fond/) which has been borrowed from the Fast-Downward codebase.
 
 ## Experiments
 
