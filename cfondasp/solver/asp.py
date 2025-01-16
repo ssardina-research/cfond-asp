@@ -13,7 +13,7 @@ from cfondasp.utils.backbone import get_backbone_asp, create_backbone_constraint
 from cfondasp.utils.helper_asp import write_goal, write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
 from cfondasp.utils.helper_clingo import execute_asp, execute_asp_async, set_logger
 from cfondasp.utils.helper_sas import organize_actions
-from cfondasp.utils.translators import determinise, lifted_determinise, parse_sas
+from cfondasp.utils.translators import determinise, lifted_determinize, parse_sas
 from cfondasp.knowledge.blocksworld import BlocksworldKnowledge
 from cfondasp.knowledge.tireworld import TireworldKnowledge
 from cfondasp.knowledge.miner import MinerKnowledge
@@ -336,7 +336,7 @@ def parse(fond_problem: FONDProblem, output_dir: str) -> (State, State, dict[str
 
     # determinise!
     # determinise(fond_problem, output_dir, sas_stats_file)
-    lifted_determinise(fond_problem, output_dir, sas_stats_file)
+    lifted_determinize(fond_problem, output_dir, sas_stats_file)
 
     initial_state, goal_state, actions, variables, mutexs = parse_sas(sas_file)
     det_actions, nd_actions = organize_actions(actions)
