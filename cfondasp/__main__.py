@@ -15,26 +15,12 @@ from .solver.asp import solve, parse, solve
 PYTHON_MINOR_VERSION = 10
 logger: logging.Logger = None
 
-# instance values
-domain = None
-problem = None
-mode = None
-output_dir = None
-timeout = None
-model = None
-clingo_args_str = None
-extra_kb = None
-max_states = None
-min_states = None
-inc_states = None
-filter_undo = False
-domain_kb = None
-solution_type = "strong-cyclic"
-determiniser = "fond-utils"
+DEFAULT_SOL_TYPE = "strong-cyclic"
+DETERMINIZER = "fond-utils"
 FD_INV_LIMIT = 300
 
 
-def init():
+def init(args):
     # check python version
     if sys.version_info[0] < 3 or sys.version_info[1] < PYTHON_MINOR_VERSION:
         logger.error(f"Python version sould be at least 3.{PYTHON_MINOR_VERSION}")
@@ -46,16 +32,16 @@ def init():
         sys.exit(1)
 
     # check if determiniser is in path
-    if not shutil.which(determiniser):
+    if not shutil.which(DETERMINIZER):
         logger.error("fond-utils not found in the path.")
         sys.exit(1)
 
     # create output folder if it does not exist
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
 
 
-def get_fond_problem() -> FONDProblem:
+def get_fond_problem(conf) -> FONDProblem:
     # determiniser. We use a recent version of FD
     root: Path = get_package_root()
     translator: str = os.path.join(root, "utils", "translate", "translate.py")
@@ -67,41 +53,43 @@ def get_fond_problem() -> FONDProblem:
     # classical planner
     classical_planner: str = os.path.join(root, "asp", "weakplanInc.lp")
 
-    # asp tools
+    # asp tools-reg
     clingo = "clingo"
-    if clingo_args_str:
-        clingo_args = clingo_args_str.split()
+    if conf.clingo_args:
+        clingo_args = conf.clingo_args.split()
     else:
         clingo_args = []
 
-    # set the controller model
+    # build a full FOND problem task
     fond_problem = FONDProblem(
-        domain=domain,
-        problem=problem,
-        solution_type=solution_type,
+        domain=conf.domain,
+        problem=conf.problem,
+        solution_type=conf.solution_type,
         root=root,
-        determiniser=determiniser,
+        determiniser=DETERMINIZER,
         sas_translator=translator,
         translator_args=translator_args,
-        controller_model=model,
+        controller_model=conf.model,
         clingo=clingo,
         clingo_args=clingo_args,
-        max_states=max_states,
-        min_states=min_states,
-        inc_states=inc_states,
-        time_limit=timeout,
-        filter_undo=filter_undo,
-        extra_kb=extra_kb,
+        max_states=conf.max_states,
+        min_states=conf.min_states,
+        inc_states=conf.inc_states,
+        time_limit=conf.timeout,
+        filter_undo=conf.filter_undo,
+        extra_kb=conf.extra_constraints,
         classical_planner=classical_planner,
-        domain_knowledge=domain_kb,
+        domain_knowledge=conf.domain_kb,
     )
 
     fond_problem.controller_constraints = {}
 
-    if extra_kb:
-        fond_problem.controller_constraints["extra"] = os.path.abspath(extra_kb)
+    if conf.extra_constraints:
+        fond_problem.controller_constraints["extra"] = os.path.abspath(
+            conf.extra_constraints
+        )
 
-    if filter_undo:
+    if conf.filter_undo:
         undo_constraint = os.path.join(root, "asp", "control", "undo.lp")
         fond_problem.controller_constraints["undo"] = undo_constraint
 
@@ -109,8 +97,7 @@ def get_fond_problem() -> FONDProblem:
 
 
 def main():
-    global domain, problem, mode, output_dir, timeout, model, clingo_args_str, extra_kb, max_states, min_states, inc_states, filter_undo, domain_kb, solution_type
-
+    # set logger
     logger = logging.getLogger(__name__)
     coloredlogs.install(level=logging.DEBUG)
 
@@ -149,7 +136,7 @@ def main():
         "--solution_type",
         help="Select type of plan solutions the planner should look for (Default: %(default)s).",
         choices=["strong", "strong-cyclic"],
-        default="strong-cyclic",
+        default=DEFAULT_SOL_TYPE,
     )
     parser.add_argument(
         "--timeout", help="Timeout for solving the problem (in seconds).", type=int
@@ -198,49 +185,37 @@ def main():
     )
 
     args = parser.parse_args()
-    domain = os.path.abspath(args.domain)
-    problem = os.path.abspath(args.problem)
-    mode = args.mode
-    output_dir = os.path.abspath(args.output)
-    timeout = args.timeout
-    model = args.model
-    clingo_args_str = args.clingo_args.replace("'", "").replace('"', "")
-    extra_kb = args.extra_constraints
-    max_states = args.max_states
-    min_states = args.min_states
-    inc_states = args.inc_states
-    filter_undo = args.filter_undo
-    domain_kb = args.domain_kb
-    use_backbone = args.use_backbone
-    solution_type = args.solution_type
-    dump_cntrl = args.dump_cntrl
+    args.domain = os.path.abspath(args.domain)
+    args.problem = os.path.abspath(args.problem)
+    args.clingo_args = args.clingo_args.replace("'", "").replace('"', "")
+    args.output_dir = os.path.abspath(args.output)
 
-    if mode == "verify" and not os.path.exists(output_dir):
-        logger.error(f"Output folder does not exist, cannot verify!: {output_dir}")
+    if args.mode == "verify" and not os.path.exists(args.output_dir):
+        logger.error(f"Output folder does not exist, cannot verify!: {args.output_dir}")
         exit(1)
 
     # initialise
-    init()
+    init(args)
 
     start = timer()
-    fond_problem = get_fond_problem()
+    fond_problem = get_fond_problem(args)
 
-    if mode == "solve":
-        solve(fond_problem, output_dir, back_bone=use_backbone, only_size=True)
+    if args.mode == "solve":
+        solve(fond_problem, args.output_dir, back_bone=args.use_backbone, only_size=True)
 
-        if dump_cntrl:
+        if args.dump_cntrl:
             logger.info("Dumping controller...")
-            build_controller(output_dir)
-    elif mode == "verify":
-        verify(output_dir)
-    elif mode == "determinise":
-        parse(fond_problem, output_dir)
+            build_controller(args.output_dir)
+    elif args.mode == "verify":
+        verify(args.output_dir)
+    elif args.mode == "determinise":
+        parse(fond_problem, args.output_dir)
 
     end = timer()
     total_time = end - start
-    logger.debug(f"Output folder: {output_dir}")
+    logger.debug(f"Output folder: {args.output_dir}")
     logger.warning(f"Time taken: {total_time}")
-    with open(os.path.join(output_dir, f"{mode}_time.out"), "w+") as f:
+    with open(os.path.join(args.output_dir, f"{args.mode}_time.out"), "w+") as f:
         f.write(f"Total time: {total_time}\n")
 
 
