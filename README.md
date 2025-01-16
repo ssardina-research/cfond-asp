@@ -1,6 +1,6 @@
-# A Declarative Approach to Compact Controllers for FOND Planning via Answer Set Programming
+# CFOND-ASP: A Declarative Approach to Compact Controllers for FOND Planning via Answer Set Programming
 
-A FOND planner based on Answer Set Programming, inspired by a synthesis between [FOND-SAT](https://github.com/tomsons22/FOND-SAT) and [PRP](https://github.com/QuMuLab/planner-for-relevant-policies) planners.
+CFOND-ASP is a FOND planner based on Answer Set Programming that computes compact controller solutions. It was inspired by a synthesis between [FOND-SAT](https://github.com/tomsons22/FOND-SAT) and [PRP](https://github.com/QuMuLab/planner-for-relevant-policies) planners.
 
 The planner and its underlying technique were reported in the following paper:
 
