@@ -202,13 +202,24 @@ def main():
         logger.error("SAS translator not found.")
         sys.exit(1)
 
-    # create output folder if it does not exist
-    if not os.path.exists(args.output_dir):
+    # if we are verifying, we need the output folder to exist already
+    # otherwise create a fresh output folder
+    if args.mode == "verify":
+        if not os.path.exists(args.output_dir):
+            logger.error(f"Output folder does not exist, cannot verify!: {args.output_dir}")
+            exit(1)
+    else:
+        if os.path.exists(args.output_dir):
+            logger.warning(f"Output folder already exists, deleting: {args.output_dir}")
+            shutil.rmtree(args.output_dir)
         os.makedirs(args.output_dir)
 
-    # if we are verifying, we need the output folder to exist already
-    if args.mode == "verify" and not os.path.exists(args.output_dir):
-        logger.error(f"Output folder does not exist, cannot verify!: {args.output_dir}")
+    # check for domain and problem files do exist
+    if not os.path.exists(args.domain):
+        logger.error(f"Domain file does not exist: {args.domain}")
+        exit(1)
+    if not os.path.exists(args.problem):
+        logger.error(f"Problem file does not exist: {args.problem}")
         exit(1)
 
     # 2. All good to go. Next, build a whole FONDProblem object with all the info needed
