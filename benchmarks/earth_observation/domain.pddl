@@ -12,42 +12,42 @@
         north-east south-east - cost-direction
     )
 
-    (:predicates 
+    (:predicates
         (CONNECTED ?p ?n - patch ?d - direction)
         (is-focal-point ?p - patch)
         (is-target ?p - patch)
         (scanned ?p - patch)
-    ) 
- 
-    (:action slew 
+    )
+
+    (:action slew
      :parameters (?p ?n - patch ?d - cost-direction)
-     :precondition 
-        (and 
+     :precondition
+        (and
             (CONNECTED ?p ?n ?d)
             (is-focal-point ?p)
-        ) 
-     :effect 
-        (and 
+        )
+     :effect
+        (and
             (increase (total-cost) 1)
             (not (is-focal-point ?p))
             (is-focal-point ?n)
         )
-    ) 
+    )
 
     (:action slew
      :parameters (?p ?n - patch)
-     :precondition 
-        (and 
+     :precondition
+        (and
             (CONNECTED ?p ?n east)
             (is-focal-point ?p)
-        ) 
-     :effect 
-        (and 
+        )
+     :effect
+        (and
             (not (is-focal-point ?p))
             (is-focal-point ?n)
         )
-    ) 
- 
+    )
+
     (:action take-image
      :parameters (?p ?n - patch)
      :precondition
