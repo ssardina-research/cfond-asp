@@ -191,13 +191,14 @@ def main():
         sys.exit(1)
 
     # check determiniser is in path
+    print(DETERMINISER_BIN)
     if not shutil.which(DETERMINISER_BIN):
         logger.error("fond-utils determinizer not found.")
         sys.exit(1)
 
     # check determiniser is in path
     if not shutil.which(args.translator_path):
-        logger.error("SAS translator determinizer not found.")
+        logger.error("SAS translator not found.")
         sys.exit(1)
 
     # create output folder if it does not exist
