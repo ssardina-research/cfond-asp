@@ -11,6 +11,10 @@ from fondutils.determizer import determinize
 
 import subprocess
 
+import logging
+import coloredlogs
+from cfondasp.utils.helper_clingo import set_logger
+
 
 def parse_sas(
     sas_file: str,
@@ -97,8 +101,11 @@ def execute_sas_translator(
         execution_cmd, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     stdout, stderr = process.communicate()
+    if process.returncode != 0:
+        _get_logger().error("Error in executing the SAS translator: \n %s", stderr.decode())
+        raise Exception("Error in executing the SAS translator")
 
-    # save output
+    # all good, save the console output of the translator
     with open(stats_file, "w") as f:
         f.write(stdout.decode())
 
@@ -120,6 +127,16 @@ def execute_determiniser(
     domain_det = determinize(domain, dom_suffix="", op_prefix=prefix)
     with open(det_domain_path, "w") as f:
         f.write(domain_to_string(domain_det))
+
+
+def _get_logger() -> logging.Logger:
+    logger = logging.getLogger("FondASP")
+    coloredlogs.install(level="INFO")
+    return logger
+
+
+set_logger(_get_logger())
+
 
 if __name__ == "__main__":
     # parse the pddl file
