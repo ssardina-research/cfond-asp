@@ -23,7 +23,6 @@ The `benchmarks/` folder contains problem instances, while folder `experiments/`
   - [Experiments](#experiments)
   - [Contributors](#contributors)
 
-
 ## Requirements
 
 The following software need to be available:
