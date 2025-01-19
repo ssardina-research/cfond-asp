@@ -332,9 +332,6 @@ def parse_and_translate(fond_problem: FONDProblem, output_dir: str) -> (State, S
     :param temp_dir: Path to the temporary directory
     :return: Parsed PDDL domain, PDDL problem, SAS initial state, SAS goal state, dictionary of deterministic actions, dictionary of non-deterministic actions
     """
-    sas_stats_file = os.path.join(output_dir, "sas_stats.txt")
-    sas_file = os.path.join(output_dir, "output.sas")
-
     # determinise!
     from pddl import parse_domain
     from pddl.formatter import domain_to_string
@@ -346,6 +343,7 @@ def parse_and_translate(fond_problem: FONDProblem, output_dir: str) -> (State, S
         output_dir, f"{Path(domain_file).stem}_all_outcomes.pddl"
     )
     domain = parse_domain(domain_file)
+
     domain_det = determinize(
         domain, dom_suffix="", op_prefix=DETERMINISTIC_ACTION_SUFFIX
     )
@@ -353,16 +351,15 @@ def parse_and_translate(fond_problem: FONDProblem, output_dir: str) -> (State, S
         f.write(domain_to_string(domain_det))
 
     # step 2. Use the FD SAS translator (will produce output.sas)
-    translator: str = fond_problem.sas_translator
     sas_file = os.path.join(output_dir, "output.sas")
     execute_sas_translator(
-        translator,
+        fond_problem.sas_translator,
         all_outcomes_domain_file,
         fond_problem.problem,
         fond_problem.translator_args,
         output_dir,
         sas_file,
-        sas_stats_file,
+        os.path.join(output_dir, "sas_stats.txt"),
     )
 
     initial_state, goal_state, actions, variables, mutexs = parse_sas(sas_file)
