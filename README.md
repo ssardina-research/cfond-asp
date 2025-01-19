@@ -30,14 +30,14 @@ The following software need to be available:
 - Python 3.11+ with dependencies as per `requirements.txt`.
 - [Clingo](https://potassco.org/clingo/) 5.5+ ASP solver.
   - Note version 5.4 does not support chained comparisons used of the form `X < Y < Z`.
-- [SAS Translator](https://www.fast-downward.org/TranslatorOutputFormat) from [downward library](https://github.com/aibasel/downward). The Python-based translator is located in the [src/translate](https://github.com/aibasel/downward/tree/main/src/translate) folder of downward.
+- Patched version of [SAS Translator](https://www.fast-downward.org/TranslatorOutputFormat) from [downward library](https://github.com/aibasel/downward). A minor patch needs to be applied to handle FOND problems; see below for how to do this. This will produce a [SAS encoding]([SAS encoding](https://www.fast-downward.org/TranslatorOutputFormat)) of a problem instance.
   - This tool translates a deterministic PDDL domain and problem to an (optimized) SAS encoding. Note only the Python-based translator is used by CFOND-ASP.
-  - At this point it has been tested with Jan 15, 2024 version at commit [3c8a65b](https://github.com/aibasel/downward/tree/3c8a65b5d54da8db50378d66b806b34b07357f35).
+  - Current version tested: Jan 15, 2024 version at commit [3c8a65b](https://github.com/aibasel/downward/tree/3c8a65b5d54da8db50378d66b806b34b07357f35).
 
 > [!NOTE]
-> Previous version (before Jan 2025) of the planner did the determinization and SAS translator all at once, using the extended FOND translator in [translator-fond](https://github.com/ssardina-research/translator-fond/) repo. Such translator was a modification of [Fast-downard release 22.12](https://github.com/aibasel/downward/tree/release-22.12.0) (December 16, 2022) SAS translator, extended to also implement the FOND all-outcome determinization. Note this was a different from the PRP's translator, which is based on the 2011 SAS FD translator (available, with small fixes to handle no-op actions well, in release [2011 PRP](https://github.com/ssardina-research/translator-fond/releases/tag/2011-prp) of [translator-fond](https://github.com/ssardina-research/translator-fond/) repo).
+> Previous version (before January 2025) of the planner did the determinization and SAS translator all at once, using the extended FOND translator in [translate-allout](https://github.com/ssardina-research/translator-fond/tree/main/translate-allout) script. Such translator was a modification of [Fast-downard release 22.12](https://github.com/aibasel/downward/tree/release-22.12.0) (December 16, 2022) SAS translator, extended to also implement the FOND all-outcome determinization. Note this is a different from the one used in the [2011 PRP](https://github.com/ssardina-research/translator-fond/releases/tag/2011-prp) planner: it is much updated and includes fixes to handle no-op actions correctly (i.e., without simplifying them).
 >
-> From Jan 2025, the planner has decoupled determinization (via [fond-utils](https://github.com/AI-Planning/fond-utils) library) from SAS translation encoding, so that the standard SAS translator from downward library can be used against the already determinized PDDL model.
+> From January 2025, the planner has decoupled determinization (now via [fond-utils](https://github.com/AI-Planning/fond-utils) library at the PDDL level) from SAS translation encoding, so that the standard SAS translator from downward library can be used against the already determinized PDDL model.
 
 ## Install
 
@@ -80,13 +80,32 @@ positional arguments:
 
 ### SAS translator setup
 
-The CFOND-ASP planner requires the SAS translator to be available. By default it will assume it is in the path, but its specific path can be set via `--translator-path` option.
+The CFOND-ASP planner requires the SAS translator (adapted for FOND) to be available.  It is the resulting [SAS encoding](https://www.fast-downward.org/TranslatorOutputFormat) what is actually translated into an ASP problem.
 
-Basically, what is needed is the script in folder [src/translate](https://github.com/aibasel/downward/tree/main/src/translate) folder of downward. To get it, just clone the whole repo and extend the `PATH` to include the translator:
+By default, the planner will assume the binary `translate.py` is in the path, but its specific path can be set via `--translator-path` option.
+
+The SAS translator used is a modified version of the classical SAS translator shipped with [downward](https://github.com/aibasel/downward) planning framework (located under [src/translate](https://github.com/aibasel/downward/tree/main/src/translate). The minor modification done to such translation involves always keeping (never simplifying) any action that resulted from the determinization of a FOND planning domain. The planner determinizes a FOND domain using the [fond-utils]([fond-utils](https://github.com/AI-Planning/fond-utils)) and annotates every resulting operator from a determinization with the suffix `DETUP` which are always kept by the modified translator, even if they end up being trivial no-op actions.
+
+There are two ways to obtain the modified translator. The simplest way is to get it from the [translator-fond](https://github.com/ssardina-research/translator-fond) repo (under `translate/` folder).
+
+The second way is to get the `src/translate` folder from [downward](https://github.com/aibasel/downward) and apply the corresponding patch:
 
 ```shell
-$ git clone https://github.com/aibasel/downward.git
-$ export PATH=$PATH:$PWD/downward/src/translate/  # make translate.py available in the path
+$ wget https://github.com/aibasel/downward/archive/refs/tags/release-24.06.0.zip
+$ wget https://raw.githubusercontent.com/ssardina-research/translator-fond/refs/heads/main/translate/translate-fond-3c8a65b.patch
+
+$ unzip release-24.06.0.zip
+
+# apply patch to classical SAS translator
+$ patch --directory=./downward-release-24.06.0/src/translate --strip=1 <  translate-fond-3c8a65b.patch
+patching file pddl/actions.py
+patching file pddl_parser/parsing_functions.py
+patching file simplify.py
+patching file translate.py
+patching file variable_order.py
+
+# optional: make translate.py available in the path
+$ export PATH=$PATH:$PWD/downward-release-24.06.0/src/translate/
 ```
 
 Otherwise, specify the full path to `translate.py` using `--translator-path` option when running the planner.
