@@ -15,6 +15,10 @@ import logging
 import coloredlogs
 from cfondasp.utils.helper_clingo import set_logger
 
+LOG_LEVEL="DEBUG"
+LOG_LEVEL="INFO"
+
+
 
 def parse_sas(
     sas_file: str,
@@ -97,9 +101,11 @@ def execute_sas_translator(
         .replace("{sas_file}", sas_file)
     )
     execution_cmd = [translate_path] + translator_cmd.split()
+    _get_logger().debug("Executing the SAS translator with command: %s", execution_cmd)
     process = subprocess.Popen(
         execution_cmd, cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
+    print(" ".join(execution_cmd))
     stdout, stderr = process.communicate()
     if process.returncode != 0:
         _get_logger().error("Error in executing the SAS translator: \n %s", stderr.decode())
@@ -131,7 +137,7 @@ def execute_determiniser(
 
 def _get_logger() -> logging.Logger:
     logger = logging.getLogger("FondASP")
-    coloredlogs.install(level="INFO")
+    coloredlogs.install(level=LOG_LEVEL)
     return logger
 
 
