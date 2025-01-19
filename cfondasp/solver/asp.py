@@ -27,11 +27,10 @@ from cfondasp.knowledge.spiky import SpikyTireworldKnowledge
 import os
 
 
-def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size=False):
+def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
     """
     First we generate a backbone using classical planner and then use that to constrain the controller.
     :param fond_problem: FOND problem
-    :param output_dir:
     :param back_bone: Use backbone technique
     :param only_size: Only the size of the backbone is considered as a lower bound to the controller
     :return:
@@ -42,7 +41,9 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
     # 1. determinise, translate to SAS and parse the SAS file
     initial_state: State = None
     goal_state: State = None
-    initial_state, goal_state, det_actions, nd_actions, variables, mutexs = parse_and_translate(fond_problem, output_dir)
+    initial_state, goal_state, det_actions, nd_actions, variables, mutexs = (
+        parse_and_translate(fond_problem)
+    )
 
     # 2. check if initial state is the goal state
     if entails(initial_state, goal_state):
@@ -51,22 +52,24 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
         return
 
     # 3. generate ASP instance
-    file: str = os.path.join(output_dir, "instance.lp")
+    file: str = os.path.join(fond_problem.output_dir, "instance.lp")
     generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False)
 
     min_controller_size = fond_problem.min_states
     # 4. generate weak plan for backbone if requested
     if back_bone:
-        file_weak_plan: str = os.path.join(output_dir, "instance_inc.lp")
+        file_weak_plan: str = os.path.join(fond_problem.output_dir, "instance_inc.lp")
         generate_asp_instance_inc(file_weak_plan, initial_state, goal_state, variables, mutexs, nd_actions)
 
         classical_planner = fond_problem.classical_planner
         clingo_inputs = [classical_planner, file_weak_plan]
         args = ["--stats"]
-        out_file = os.path.join(output_dir, "weak_plan.out")
+        out_file = os.path.join(fond_problem.output_dir, "weak_plan.out")
         if fond_problem.seq_kb:
             clingo_inputs.append(fond_problem.seq_kb)
-        execute_asp(fond_problem.clingo, args, clingo_inputs, output_dir, out_file)
+        execute_asp(
+            fond_problem.clingo, args, clingo_inputs, fond_problem.output_dir, out_file
+        )
 
         # get the backbone
         backbone: List[tuple[str, str]] = get_backbone_asp(out_file)
@@ -84,21 +87,21 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
         _logger.info(f"Backbone is of size {backbone_size}.")
 
         if not only_size:
-            constraint_file = os.path.join(output_dir, "backbone.lp")
+            constraint_file = os.path.join(fond_problem.output_dir, "backbone.lp")
             create_backbone_constraint(backbone, constraint_file)
             fond_problem.controller_constraints["backbone"] = constraint_file
 
     # 5. done, process and solve!
     # remove any old clingo output files
-    remove_files(output_dir, ASP_CLINGO_OUTPUT_PREFIX)
+    remove_files(fond_problem.output_dir, ASP_CLINGO_OUTPUT_PREFIX)
 
     # set the overall solver model to be used, copy it to output folder
     model_file = f"controller-{fond_problem.controller_model}.lp"
     fond_problem.controller_model = os.path.join(get_package_root(), "asp", model_file)
-    shutil.copy(fond_problem.controller_model, output_dir)
+    shutil.copy(fond_problem.controller_model, fond_problem.output_dir)
 
     if fond_problem.filter_undo:
-        compile_undo_actions(fond_problem, output_dir)
+        compile_undo_actions(fond_problem, fond_problem.output_dir)
 
     if fond_problem.domain_knowledge:
         generate_knowledge(
@@ -107,7 +110,6 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
             goal_state,
             nd_actions,
             variables,
-            output_dir,
             fond_problem.domain_knowledge,
         )
 
@@ -116,21 +118,20 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
     if time_limit:
         asyncio.run(
             solve_asp_instance_async(
-                fond_problem, file, output_dir, min_states=min_controller_size
+                fond_problem, file, min_states=min_controller_size
             )
         )
     else:
         solve_asp_instance(
-            fond_problem, file, output_dir, min_states=min_controller_size
+            fond_problem, file, min_states=min_controller_size
         )
     return
 
-async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, output_dir: str, min_states: int = 1):
+async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str,min_states: int = 1):
     """
        Solve FOND instance by incrementing the number of states and looking for a solution.
        :param fond_problem: Fond problem
        :param instance: ASP instance
-       :param output_dir: output directory to store clingo output
        :param min_states: Minimum number of controller states
        :return:
        """
@@ -141,7 +142,9 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
         try:
             # check if a solution exists with the given minimum states
             num_states = min_states # time out may occur in the next step, hence we need to initialise the num_states for later reporting
-            solution_found = await _run_clingo_async(fond_problem, instance, num_states, output_dir)
+            solution_found = await _run_clingo_async(
+                fond_problem, instance, num_states, fond_problem.output_dir
+            )
             if solution_found:
                 # solution found! we can exit (we don't need to compute the smallest size controller for efficiency)
                 _logger.info(f"Solution found!")
@@ -155,7 +158,9 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
             num_states = min_states + direction
 
             while 0 < num_states <= fond_problem.max_states and not stop:
-                solution_found = await _run_clingo_async(fond_problem, instance, num_states, output_dir)
+                solution_found = await _run_clingo_async(
+                    fond_problem, instance, num_states, fond_problem.output_dir
+                )
 
                 # check if a solution was found or the process timed out
                 if solution_found and direction > 0:
@@ -171,19 +176,20 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, out
                 num_states += direction
         except asyncio.CancelledError:
             _logger.info(f"Timed Out with numStates={num_states}.")
-            out_file = os.path.join(output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out")
+            out_file = os.path.join(
+                fond_problem.output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
+            )
             with open(out_file, "a") as f:
                 f.write(f"Timed out with time limit={fond_problem.time_limit}.\n")
 
 
-def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str, min_states: int = 1):
+def solve_asp_instance(fond_problem: FONDProblem, instance: str, min_states: int = 1):
     """
     Solve FOND instance by incrementing or decrementing the number of states and looking for a solution.
     To check if we need to increase or decrease the states, one first checks the solution with the given min_states.
     If a solution does not exist one increments, else one decrements.
     :param fond_problem: Fond problem
     :param instance: ASP instance
-    :param output_dir: output directory to store clingo output
     :param min_states: Minimum number of controller states
     :return:
     """
@@ -192,7 +198,7 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
 
     # check if a solution exists with the given minimum states
     num_states = min_states
-    solution_found = _run_clingo(fond_problem, instance, min_states, output_dir)
+    solution_found = _run_clingo(fond_problem, instance, min_states)
     if solution_found:
         # solution found! we can exit (we don't need to compute the smallest size controller for efficiency)
         _logger.info(f"Solution found!")
@@ -206,7 +212,7 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, output_dir: str
     num_states = min_states + direction
 
     while 0 < num_states <= fond_problem.max_states and not stop:
-        solution_found = _run_clingo(fond_problem, instance, num_states, output_dir)
+        solution_found = _run_clingo(fond_problem, instance, num_states)
 
         # check if a solution was found or the process timed out
         if solution_found and direction > 0:
@@ -255,7 +261,7 @@ async def _run_clingo_async(fond_problem: FONDProblem, instance, num_states, out
     return solution_found
 
 
-def _run_clingo(fond_problem: FONDProblem, instance, num_states, output_dir):
+def _run_clingo(fond_problem: FONDProblem, instance, num_states):
     """
     Run clingo with the given configuration
     :param fond_problem: FOND Problem
@@ -266,7 +272,9 @@ def _run_clingo(fond_problem: FONDProblem, instance, num_states, output_dir):
     """
     _logger: logging.Logger = _get_logger()
     _logger.info(f" -Solving with numStates={num_states}.")
-    out_file = os.path.join(output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out")
+    out_file = os.path.join(
+        fond_problem.output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
+    )
     args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
 
     controller = fond_problem.controller_model
@@ -279,7 +287,9 @@ def _run_clingo(fond_problem: FONDProblem, instance, num_states, output_dir):
         input_files += constraints
 
     # run clingo in a separate process
-    solution_found = execute_asp(fond_problem.clingo, args, input_files, output_dir, out_file)
+    solution_found = execute_asp(
+        fond_problem.clingo, args, input_files, fond_problem.output_dir, out_file
+    )
 
     return solution_found
 
@@ -326,7 +336,7 @@ def generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd
     write_actions(file, nd_actions, variables, variable_mapping=action_var_affects)
 
 
-def parse_and_translate(fond_problem: FONDProblem, output_dir: str) -> (State, State, dict[str: Action], dict[str: List[Action]], list[Variable], list[State]):
+def parse_and_translate(fond_problem: FONDProblem) -> (State, State, dict[str: Action], dict[str: List[Action]], list[Variable], list[State]):
     """
     Returns the parsed PDDL Domain, PDDL problem, SAS initial state, SAS goal state, dictionary of deterministic and non-deterministic actions
     :param fond_problem: A Fond problem with the required inputs
@@ -342,7 +352,7 @@ def parse_and_translate(fond_problem: FONDProblem, output_dir: str) -> (State, S
     # step 1. Do the all outcomes determinisation at the lifted level (will produce all outcomes domain file)
     domain_file = fond_problem.domain
     all_outcomes_domain_file = os.path.join(
-        output_dir, f"{Path(domain_file).stem}_all_outcomes.pddl"
+        fond_problem.output_dir, f"{Path(domain_file).stem}_all_outcomes.pddl"
     )
     domain = parse_domain(domain_file)
 
@@ -353,15 +363,15 @@ def parse_and_translate(fond_problem: FONDProblem, output_dir: str) -> (State, S
         f.write(domain_to_string(domain_det))
 
     # step 2. Use the FD SAS translator (will produce output.sas)
-    sas_file = os.path.join(output_dir, "output.sas")
+    sas_file = os.path.join(fond_problem.output_dir, "output.sas")
     execute_sas_translator(
         fond_problem.sas_translator,
         all_outcomes_domain_file,
         fond_problem.problem,
         fond_problem.translator_args,
-        output_dir,
+        fond_problem.output_dir,
         sas_file,
-        os.path.join(output_dir, "sas_stats.txt"),
+        os.path.join(fond_problem.output_dir, "sas_stats.txt"),
     )
 
     initial_state, goal_state, actions, variables, mutexs = parse_sas(sas_file)
@@ -391,18 +401,20 @@ def compile_undo_actions(fond_problem: FONDProblem, output_dir: str):
     fond_problem.controller_constraints["undo"] = grounded_undo_file
 
 
-def generate_knowledge(fond_problem, initial_state, goal_state, nd_actions, variables, output_dir, domain_knowledge):
+def generate_knowledge(fond_problem, initial_state, goal_state, nd_actions, variables, domain_knowledge):
     if domain_knowledge.lower() == "triangle-tireworld":
-        kb = TireworldKnowledge(fond_problem, variables, output_dir)
+        kb = TireworldKnowledge(fond_problem, variables, fond_problem.output_dir)
         kb.add_knowledge()
     elif domain_knowledge.lower() == "miner":
-        kb = MinerKnowledge(fond_problem, variables, output_dir)
+        kb = MinerKnowledge(fond_problem, variables, fond_problem.output_dir)
         kb.add_knowledge()
     elif domain_knowledge.lower() == "acrobatics":
-        kb = AcrobaticsKnowledge(fond_problem, variables, output_dir)
+        kb = AcrobaticsKnowledge(fond_problem, variables, fond_problem.output_dir)
         kb.add_knowledge()
     elif domain_knowledge.lower() == "spikytireworld":
-        kb = SpikyTireworldKnowledge(fond_problem, variables, nd_actions, output_dir)
+        kb = SpikyTireworldKnowledge(
+            fond_problem, variables, nd_actions, fond_problem.output_dir
+        )
         kb.add_knowledge()
 
 

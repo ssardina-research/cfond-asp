@@ -219,19 +219,19 @@ def main():
 
     # 3. Run the requested mode
     if args.mode == "solve":
-        solve(fond_problem, args.output_dir, back_bone=args.use_backbone, only_size=True)
+        solve(fond_problem, back_bone=args.use_backbone, only_size=True)
         if args.dump_cntrl:
             logger.info("Dumping controller...")
-            build_controller(args.output_dir)
+            build_controller(fond_problem.output_dir)
     elif args.mode == "verify":
         verify(args.output_dir)
     elif args.mode == "determinise":
-        parse_and_translate(fond_problem, args.output_dir)
+        parse_and_translate(fond_problem, fond_problem.output_dir)
 
     # 4. Done! Wrap up and summary info
     end = timer()
     total_time = end - start
-    logger.debug(f"Output folder: {args.output_dir}")
+    logger.debug(f"Output folder: {fond_problem.output_dir}")
     logger.warning(f"Time taken: {total_time}")
     with open(os.path.join(args.output_dir, f"{args.mode}_time.out"), "w+") as f:
         f.write(f"Total time: {total_time}\n")
