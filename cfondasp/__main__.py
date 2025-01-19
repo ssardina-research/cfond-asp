@@ -16,7 +16,7 @@ from .solver.asp import solve, parse_and_translate, solve
 PYTHON_MINOR_VERSION = 10
 logger: logging.Logger = None
 
-DEFAULT_SOL_TYPE = "strong-cyclic"
+DEFAULT_MODEL = "fondsat"   # strong-cyclic fondsat-type encoding
 FD_INV_LIMIT = 300
 
 CLINGO_BIN = "clingo"
@@ -46,7 +46,6 @@ def get_fond_problem(args) -> FONDProblem:
     fond_problem = FONDProblem(
         domain=args.domain,
         problem=args.problem,
-        solution_type=args.solution_type,
         root=root,
         sas_translator=args.translator_path,
         translator_args=translator_args,
@@ -115,19 +114,13 @@ def main():
         default="solve",
     )
     parser.add_argument(
-        "--solution-type",
-        help="Select type of plan solutions the planner should look for (Default: %(default)s).",
-        choices=["strong", "strong-cyclic"],
-        default=DEFAULT_SOL_TYPE,
-    )
-    parser.add_argument(
         "--timeout", help="Timeout for solving the problem (in seconds).", type=int
     )
     parser.add_argument(
         "--model",
-        help="ASP model to use for FOND (only relevant for strong-cyclic solutions) (Default: %(default)s)",
-        choices=["fondsat", "regression"],
-        default="fondsat",
+        help="ASP model to use for FOND (Default: %(default)s)",
+        choices=["fondsat", "regression", "strong"],
+        default=DEFAULT_MODEL
     )
     parser.add_argument(
         "--clingo-args", help="Arguments to pass to Clingo.", type=str, default=""
@@ -245,6 +238,8 @@ def main():
     with open(os.path.join(args.output_dir, f"{args.mode}_time.out"), "w+") as f:
         f.write(f"Total time: {total_time}\n")
 
+
+# run all code (marcos' funny comment)
 
 if __name__ == "__main__":
     main()

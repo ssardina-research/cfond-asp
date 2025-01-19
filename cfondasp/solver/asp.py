@@ -1,5 +1,6 @@
 import asyncio
 from pathlib import Path
+import shutil
 import subprocess
 from typing import List
 import logging
@@ -35,24 +36,24 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
     _logger: logging.Logger = _get_logger()
     _logger.info(f"Solving {fond_problem.domain} with problem {fond_problem.problem} using backbone={back_bone}.")
 
-    # determinise, translate to SAS and parse the SAS file
+    # 1. determinise, translate to SAS and parse the SAS file
     initial_state: State = None
     goal_state: State = None
     initial_state, goal_state, det_actions, nd_actions, variables, mutexs = parse_and_translate(fond_problem, output_dir)
 
-    # check if initial state is the goal state
+    # 2. check if initial state is the goal state
     if entails(initial_state, goal_state):
         _logger.info("Goal met in the initial state!")
         _logger.info("Solution found!")
         return
 
-    # generate ASP instance
+    # 3. generate ASP instance
     file: str = os.path.join(output_dir, "instance.lp")
     generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False)
 
     min_controller_size = fond_problem.min_states
+    # 4. generate weak plan for backbone if requested
     if back_bone:
-
         file_weak_plan: str = os.path.join(output_dir, "instance_inc.lp")
         generate_asp_instance_inc(file_weak_plan, initial_state, goal_state, variables, mutexs, nd_actions)
 
@@ -84,46 +85,42 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
             create_backbone_constraint(backbone, constraint_file)
             fond_problem.controller_constraints["backbone"] = constraint_file
 
-    preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd_actions, variables, file, min_controller_size)
-
-def set_model(nd_actions, fond_problem: FONDProblem):
-    """
-    If the maximum degree of non determinism is only 2 then we can solve it slightly more efficiently.
-    """
-    if fond_problem.solution_type == "strong":
-            controller = f"controller-strong.lp"
-    else:
-        match(fond_problem.controller_model):
-            case "fondsat":
-                name = "fondsat"
-            case "regression":
-                name = "reg"
-        controller = f"controller-{name}.lp"
-
-    fond_problem.controller_model = os.path.join(fond_problem.root, "asp", controller)
-
-
-def preprocess_and_solve(fond_problem, output_dir, initial_state, goal_state, nd_actions, variables, file, min_controller_size=1):
+    # 5. done, process and solve!
     # remove any old clingo output files
     remove_files(output_dir, ASP_CLINGO_OUTPUT_PREFIX)
 
-    # set the solver model
-    set_model(nd_actions, fond_problem)
+    # set the overall solver model to be used
+    model_file = f"controller-{fond_problem.controller_model}.lp"
+    fond_problem.controller_model = os.path.join(fond_problem.root, "asp", model_file)
+    shutil.copy(fond_problem.controller_model, output_dir)
 
     if fond_problem.filter_undo:
         compile_undo_actions(fond_problem, output_dir)
 
     if fond_problem.domain_knowledge:
-        generate_knowledge(fond_problem, initial_state, goal_state, nd_actions, variables, output_dir, fond_problem.domain_knowledge)
+        generate_knowledge(
+            fond_problem,
+            initial_state,
+            goal_state,
+            nd_actions,
+            variables,
+            output_dir,
+            fond_problem.domain_knowledge,
+        )
 
     # solve the asp instance with a time limit
     time_limit: int = fond_problem.time_limit
     if time_limit:
-        asyncio.run(solve_asp_instance_async(fond_problem, file, output_dir, min_states=min_controller_size))
+        asyncio.run(
+            solve_asp_instance_async(
+                fond_problem, file, output_dir, min_states=min_controller_size
+            )
+        )
     else:
-        solve_asp_instance(fond_problem, file, output_dir, min_states=min_controller_size)
+        solve_asp_instance(
+            fond_problem, file, output_dir, min_states=min_controller_size
+        )
     return
-
 
 async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str, output_dir: str, min_states: int = 1):
     """
@@ -237,6 +234,8 @@ async def _run_clingo_async(fond_problem: FONDProblem, instance, num_states, out
     args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
 
     controller = fond_problem.controller_model
+
+    #TODO: we should remove kb as it is not used?
     kb = fond_problem.domain_knowledge
     constraints = fond_problem.controller_constraints.values()
 
