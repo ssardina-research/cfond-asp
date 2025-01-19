@@ -16,7 +16,6 @@ The `benchmarks/` folder contains problem instances, while folder `experiments/`
     - [Solver configurations available](#solver-configurations-available)
     - [Clingo parameters](#clingo-parameters)
     - [Verification of controller](#verification-of-controller)
-    - [Determinisation of instance](#determinisation-of-instance)
   - [Extension features](#extension-features)
     - [Use backbone for minimum controller size estimation](#use-backbone-for-minimum-controller-size-estimation)
     - [Use domain knowledge](#use-domain-knowledge)
@@ -65,8 +64,8 @@ Once installed, the planner is available via its CLI interface:
 ```shell
 $ cfond-asp -h
 usage: cfond-asp [-h] [--max_states MAX_STATES] [--min_states MIN_STATES] [--inc_states INC_STATES]
-                 [--mode {solve,verify,determinise}] [--solution_type {strong,strong-cyclic}] [--timeout TIMEOUT]
-                 [--model {fondsat,regression}] [--clingo_args CLINGO_ARGS] [--extra_constraints EXTRA_CONSTRAINTS]
+                 [--mode {solve,verify}][--timeout TIMEOUT]
+                 [--model {fondsat,regression,strong}] [--clingo_args CLINGO_ARGS] [--extra_constraints EXTRA_CONSTRAINTS]
                  [--filter_undo] [--use_backbone] [--domain_kb {triangle-tireworld,miner,acrobatics,spikytireworld}]
                  [--dump_cntrl] [--output OUTPUT]
                  domain problem
@@ -168,14 +167,13 @@ Use `--dump_cntrl` to dump controller found, if any, into text and JSON formats.
 
 ### Solver configurations available
 
-The available ASP solver configurations, as reported in the ECAI23 paper, can be found under folder [cfondasp/asp/](cfondasp/asp/). The default solve model is for strong-cyclic solutions via the `fondsat` type encoding.
+The available ASP solver configurations can be chosen via `--model` option and can be found under folder [cfondasp/asp/](cfondasp/asp/) as ASP Clingo programs.
 
-For strong-cyclic solutions (chosen via `--model`):
+The default solve model is for strong-cyclic solutions via the `fondsat` type encoding. Other models include:
 
-- `controller-fondsat`: encoding following FONDSAT in propagating negative propositions forward.
-- `controller-reg`: encoding implementing weakest-precondition via regression (like PRP).
-
-For strong solutions (via `--solution-type strong`), the encoding solver used is [`controller-strong.lp`](cfondasp/asp/controller-strong.lp).
+- `controller-fondsat`: strong-cyclic encoding following FONDSAT in propagating negative propositions forward.
+- `controller-reg`: strong-cyclic encoding implementing weakest-precondition via regression (like PRP).
+- `strong`: strong solutions.
 
 ### Clingo parameters
 
@@ -206,17 +204,6 @@ This will first translate Clingo output to a readable controller format (see the
 
 Verification result will be saved in file `verify.out`.
 
-### Determinisation of instance
-
-To only determinise the instance into the corresponding SAS encoding use the `determise` mode:
-
-```shell
-$ cfond-asp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p03.pddl --mode determinise
-```
-
-This will just produce the corresponding domain determinization and its SAS encoding, but it will not solve it.
-
-The determinisation is done via [fond-utils](https://github.com/AI-Planning/fond-utils) system, while the SAS encoding is done by the [translator](https://github.com/aibasel/downward/tree/main/src/translate)) shipped with downward library.
 
 ## Extension features
 
@@ -227,7 +214,7 @@ The ECAI23 paper reports two optimisations: the use of weak-plan backbones and t
 To use _backbone_ size estimation (a lower bound on the size of the controller) to reduce the number of iterations, use `--use-backbone` option:
 
 ```shell
-$ cfond-asp benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl  --clingo-args '-t 4' --use-backbone True
+$ cfond-asp benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl  --use-backbone
 
 ...
 2024-01-12 15:06:35 nitin FondASP[195939] INFO Solution found for id benchmarks/acrobatics/domain.pddl, benchmarks/acrobatics/p03.pddl!

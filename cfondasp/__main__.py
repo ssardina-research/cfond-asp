@@ -108,7 +108,7 @@ def main():
     parser.add_argument(
         "--mode",
         help="Functionality of the system to execute. Currently, verification only works for strong-cyclic plans (Default: %(default)s).",
-        choices=["solve", "verify", "determinise"],
+        choices=["solve", "verify"],
         default="solve",
     )
     parser.add_argument(

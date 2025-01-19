@@ -30,7 +30,7 @@ import os
 def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
     """
     First we generate a backbone using classical planner and then use that to constrain the controller.
-    :param fond_problem: FOND problem
+    :param fond_problem: FOND problem with all the info needed
     :param back_bone: Use backbone technique
     :param only_size: Only the size of the backbone is considered as a lower bound to the controller
     :return:
@@ -78,7 +78,7 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
         if backbone_size == 0:
             # problem is unsatisfiable
             _logger.info(f"Problem does not have a solution, since backbone could not be found!")
-            with open (os.path.join(output_dir, "unsat.out"), "w+") as f:
+            with open(os.path.join(fond_problem.output_dir, "unsat.out"), "w+") as f:
                 f.write("Unsat")
             return
         else:
