@@ -5,7 +5,7 @@
 		(q)
 	)
 
-	;; Action to move while being on the beam
+	;; deterministically make q true
 	(:action sq
 		:parameters ()
 		:precondition (p)

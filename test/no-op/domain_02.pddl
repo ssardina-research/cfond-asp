@@ -1,19 +1,14 @@
 (define (domain nooptest)
-	(:requirements :strips)
+	(:requirements :strips :non-deterministic)
 	(:predicates
 		(p)
 		(q)
 	)
 
-	;; Action to move while being on the beam
+	;; make q true or no-op
 	(:action sq
 		:parameters ()
 		:precondition (p)
-		:effect (q)
-	)
-	(:action snp
-		:parameters ()
-		:precondition (p)
-		:effect (not (p))
+		:effect (oneof (q) (and))
 	)
 )
