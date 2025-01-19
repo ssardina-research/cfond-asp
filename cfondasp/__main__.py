@@ -26,15 +26,13 @@ TRANSLATOR_BIN = "translate.py"
 
 def get_fond_problem(args) -> FONDProblem:
     # determiniser. We use a recent version of FD
-    root: Path = get_package_root()
-
     translator_args: str = (
         "{domain} {instance} --sas-file {sas_file}"
         + f" --invariant-generation-max-time {FD_INV_LIMIT}"
     )
 
     # classical planner
-    classical_planner: str = os.path.join(root, "asp", "weakplanInc.lp")
+    classical_planner: str = os.path.join(get_package_root(), "asp", "weakplanInc.lp")
 
     # asp tools-reg
     if args.clingo_args:
@@ -46,7 +44,7 @@ def get_fond_problem(args) -> FONDProblem:
     fond_problem = FONDProblem(
         domain=args.domain,
         problem=args.problem,
-        root=root,
+        output_dir=args.output_dir,
         sas_translator=args.translator_path,
         translator_args=translator_args,
         controller_model=args.model,

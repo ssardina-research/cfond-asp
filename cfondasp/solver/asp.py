@@ -7,6 +7,9 @@ import logging
 import coloredlogs
 from async_timeout import timeout
 
+from cfondasp.utils.system_utils import get_package_root
+
+
 from cfondasp.base.config import ASP_CLINGO_OUTPUT_PREFIX, DETERMINISTIC_ACTION_SUFFIX
 from cfondasp.base.elements import FONDProblem, Action, Variable, State
 from cfondasp.base.logic_operators import entails
@@ -89,9 +92,9 @@ def solve(fond_problem: FONDProblem, output_dir: str, back_bone=False, only_size
     # remove any old clingo output files
     remove_files(output_dir, ASP_CLINGO_OUTPUT_PREFIX)
 
-    # set the overall solver model to be used
+    # set the overall solver model to be used, copy it to output folder
     model_file = f"controller-{fond_problem.controller_model}.lp"
-    fond_problem.controller_model = os.path.join(fond_problem.root, "asp", model_file)
+    fond_problem.controller_model = os.path.join(get_package_root(), "asp", model_file)
     shutil.copy(fond_problem.controller_model, output_dir)
 
     if fond_problem.filter_undo:
