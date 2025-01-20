@@ -113,7 +113,10 @@ not holds(NextState, Variable, Value) :- not holds(State, Variable, Value), vari
 :::Strong solution: This is specified by three constraints.
 ---------------------------------------------------------------------------------------------------------------*%
 terminate(X) :- goalState(X).
-terminate(Y) :- state(Y), {not terminate(X): successor(Y,X)} 0.
+terminate(Y) :- state(Y), terminate(X): successor(Y, X).
+%TODO: why are the following two rules each not equivalent to the previous one? 
+% terminate(Y) :- state(Y), {not terminate(X) : successor(Y, X)} = 0.
+% terminate(Y) :- state(Y), #count {X : state(X), not terminate(X), successor(Y, X)} = 0.
 :- not terminate(X), state(X).
 
 %*---------------------------------------------------------------------------------------------------------------
@@ -123,3 +126,5 @@ terminate(Y) :- state(Y), {not terminate(X): successor(Y,X)} 0.
 #show holds/3.
 #show policy/2.
 
+#show successor/2.
+#show terminate/1.
