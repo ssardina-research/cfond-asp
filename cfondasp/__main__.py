@@ -8,7 +8,7 @@ import shutil
 from timeit import default_timer as timer
 
 from cfondasp import VERSION
-from cfondasp.base.config import CLINGO_BIN, DEFAULT_MODEL, PYTHON_MINOR_VERSION, TRANSLATOR_BIN
+from cfondasp.base.config import CLINGO_BIN, DEFAULT_MODEL, FD_INV_LIMIT, FILE_CONTROLLER_WEAK, PYTHON_MINOR_VERSION, TRANSLATOR_BIN
 from cfondasp.checker.verify import build_controller
 from .base.elements import FONDProblem
 from .utils.system_utils import get_package_root
@@ -24,7 +24,7 @@ def get_fond_problem(args) -> FONDProblem:
     )
 
     # classical planner model
-    classical_planner: str = os.path.join(get_package_root(), "asp", "weakplanInc.lp")
+    classical_planner: str = os.path.join(get_package_root(), "asp", FILE_CONTROLLER_WEAK)
 
     # asp tools-reg
     if args.clingo_args:
