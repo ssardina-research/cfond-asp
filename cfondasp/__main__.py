@@ -8,8 +8,8 @@ import shutil
 from timeit import default_timer as timer
 
 from cfondasp import VERSION
+from cfondasp.checker.verify import build_controller
 from .base.elements import FONDProblem
-from .checker.verify import verify, build_controller
 from .utils.system_utils import get_package_root
 from .solver.asp import solve, parse_and_translate, solve
 
@@ -31,7 +31,7 @@ def get_fond_problem(args) -> FONDProblem:
         + f" --invariant-generation-max-time {FD_INV_LIMIT}"
     )
 
-    # classical planner
+    # classical planner model
     classical_planner: str = os.path.join(get_package_root(), "asp", "weakplanInc.lp")
 
     # asp tools-reg
@@ -63,13 +63,15 @@ def get_fond_problem(args) -> FONDProblem:
     fond_problem.controller_constraints = {}
 
     if args.extra_constraints:
-        fond_problem.controller_constraints["extra"] = os.path.abspath(
-            args.extra_constraints
-        )
+        extra_constraints_file = os.path.abspath(
+            args.extra_constraints)
+        fond_problem.controller_constraints["extra"] = extra_constraints_file
+        shutil.copy(extra_constraints_file, fond_problem.output_dir)
 
     if args.filter_undo:
-        undo_constraint = os.path.join(root, "asp", "control", "undo.lp")
-        fond_problem.controller_constraints["undo"] = undo_constraint
+        undo_constraint_file = os.path.join(get_package_root(), "asp", "control", "undo.lp")
+        shutil.copy(undo_constraint_file, fond_problem.output_dir)
+        fond_problem.controller_constraints["undo"] = undo_constraint_file
 
     return fond_problem
 
@@ -103,13 +105,6 @@ def main():
         help="Step size of controller size iteration (Default: %(default)s).",
         type=int,
         default=1,
-    )
-
-    parser.add_argument(
-        "--mode",
-        help="Functionality of the system to execute. Currently, verification only works for strong-cyclic plans (Default: %(default)s).",
-        choices=["solve", "verify"],
-        default="solve",
     )
     parser.add_argument(
         "--timeout", help="Timeout for solving the problem (in seconds).", type=int
@@ -193,17 +188,11 @@ def main():
         logger.error("SAS translator not found.")
         sys.exit(1)
 
-    # if we are verifying, we need the output folder to exist already
-    # otherwise create a fresh output folder
-    if args.mode == "verify":
-        if not os.path.exists(args.output_dir):
-            logger.error(f"Output folder does not exist, cannot verify!: {args.output_dir}")
-            exit(1)
-    else:
-        if os.path.exists(args.output_dir):
-            logger.warning(f"Output folder already exists, deleting: {args.output_dir}")
-            shutil.rmtree(args.output_dir)
-        os.makedirs(args.output_dir)
+    # create a fresh output folder
+    if os.path.exists(args.output_dir):
+        logger.warning(f"Output folder already exists, deleting: {args.output_dir}")
+        shutil.rmtree(args.output_dir)
+    os.makedirs(args.output_dir)
 
     # check for domain and problem files do exist
     if not os.path.exists(args.domain):
@@ -218,22 +207,19 @@ def main():
     fond_problem : FONDProblem = get_fond_problem(args)
 
     # 3. Run the requested mode
-    if args.mode == "solve":
-        solve(fond_problem, back_bone=args.use_backbone, only_size=True)
-        if args.dump_cntrl:
-            logger.info("Dumping controller...")
-            build_controller(fond_problem.output_dir)
-    elif args.mode == "verify":
-        verify(args.output_dir)
-    elif args.mode == "determinise":
-        parse_and_translate(fond_problem, fond_problem.output_dir)
+    solve(fond_problem, back_bone=args.use_backbone, only_size=True)
+    if args.dump_cntrl:
+        logger.info("Dumping controller...")
+        build_controller(fond_problem.output_dir)
 
     # 4. Done! Wrap up and summary info
     end = timer()
     total_time = end - start
     logger.debug(f"Output folder: {fond_problem.output_dir}")
     logger.warning(f"Time taken: {total_time}")
-    with open(os.path.join(args.output_dir, f"{args.mode}_time.out"), "w+") as f:
+    with open(
+        os.path.join(fond_problem.output_dir, f"{args.mode}_time.out"), "w+"
+    ) as f:
         f.write(f"Total time: {total_time}\n")
 
 
