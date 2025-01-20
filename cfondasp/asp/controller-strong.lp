@@ -9,7 +9,7 @@ The total number of states in a controller will be numStates + 1.
 #const numStates = 2.
 
 %*---------------------------------------------------------------------------------------------------------------
-:::Definition: State 
+:::Definition: State
 A controller state is modelled by terms state(0), state(1), ..., state(n) where n is the upper bound (i.e., numStates).
 State 0 is reserved for the initial state and the highest number (i.e., numStates) is reserved for the goal state.
 ---------------------------------------------------------------------------------------------------------------*%
@@ -23,23 +23,23 @@ goalState(numStates).
 
 %*---------------------------------------------------------------------------------------------------------------
 :::GENERATION: A Policy is a tuple (State, Action). There should be one tuple per state, except for the goal state.
-    
+
 Action: An action is the name of a domain action. For example, "pick-from-table(b1)". An example of a policy tuple is (0, "pick-from-table(b1)").
 ---------------------------------------------------------------------------------------------------------------*%
 {policy(State, Action): action(Action)} = 1 :- state(State), not goalState(State).
 
 %*---------------------------------------------------------------------------------------------------------------
 :::GENERATION: A transition is a tuple (State, Effect, State), such that (State, Action) is in the policy, and Effect is an effect if the given action.
-    
+
 For a tuple (S, A) in the policy, generate Z transitions (S, E, S') where Z is the number of effects of action A.
 
-Nondeterministic planning actions are determinised by adding a suffix. 
-For example, the non-deterministic action put-on-block(b1, b2) has two nondeterministic effects. 
+Nondeterministic planning actions are determinised by adding a suffix.
+For example, the non-deterministic action put-on-block(b1, b2) has two nondeterministic effects.
 The determinisation produces two actions:
-1. put-on-block_det_0(b1, b2), and 
-2. put-on-block_det_1(b1, b2). 
+1. put-on-block_det_0(b1, b2), and
+2. put-on-block_det_1(b1, b2).
 
-In the ASP instance, we associate the action put-on-block(b1, b2) with two effects: e1 and e2. 
+In the ASP instance, we associate the action put-on-block(b1, b2) with two effects: e1 and e2.
 Effects e1 and e2 correspond to the effect of actions put-on-block_det_0(b1, b2) and put-on-block_det_1(b1, b2), respectively.
 
 In general, an action with suffix _det_{i} will correspond to effect e{i+1} in our model. A deterministic planning action always has one effect, labelled as e1.
@@ -67,7 +67,7 @@ Note:- This may not be required, but it speeds up solving.
 %*---------------------------------------------------------------------------------------------------------------
 :::Constraints: Action precondition: (n, a) -> p(n) if p in prec(a)
 
-P1. If a tuple (S, A) is in the policy and a variable Var has value Val in action A's precondition 
+P1. If a tuple (S, A) is in the policy and a variable Var has value Val in action A's precondition
     then it should not be the case that Var does not have value Val in state S.
 ---------------------------------------------------------------------------------------------------------------*%
 :- policy(State, Action), precondition(Action, Variable, Value), not holds(State, Variable, Value). % P1
@@ -75,7 +75,7 @@ P1. If a tuple (S, A) is in the policy and a variable Var has value Val in actio
 
 %*---------------------------------------------------------------------------------------------------------------
 :::Symmetry breaking based on directed graphs.
-    Symmetry breaking puts constraints on how nodes are connected. 
+    Symmetry breaking puts constraints on how nodes are connected.
     The constraint is (ni , nj ) -> k≤i \/ (nk , nl), where j > 1, l=j-1, and ni , nj , nl are not goal states.
     Intuition is that a state ni should connect to ni+l only if states nj where j ≤ i are unavailable.
 
@@ -93,7 +93,7 @@ S4. Siblings should obey lexicographic ordering (more than two siblings version)
 %*---------------------------------------------------------------------------------------------------------------
 :::Propagation of negative conditions.
 
-N1. If an action deletes a value Val of a variable Var, then it should be the case that Var does not hold value Val in the next state resulting from this action. 
+N1. If an action deletes a value Val of a variable Var, then it should be the case that Var does not hold value Val in the next state resulting from this action.
 N2. If a variable Var does not hold a value Val in a state, then Var should not hold value Val in the next state unless an action is done whose effect sets value of Var to Val.
 N3. If a variable Var does not hold a value Val in a state, then Var should not hold value Val in the next state if an effect does not add it, but its sibling adds it.
     This enforces that in this case the siblings yield a different state.

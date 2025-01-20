@@ -25,3 +25,20 @@ ASP_COMPATIBLE_ACTION_TERM = "compatible"
 ASP_CLINGO_OUTPUT_PREFIX = "clingo_out_"
 ASP_OUT_LINE_END = "$END$"
 ASP_OUT_DIVIDER = "--------"
+
+FILE_INSTANCE = "instance.lp"   # asp encoding for finding strong/strong-cyclic solutions
+FILE_INSTANCE_WEAK = "instance_weak.lp" # asp encoding for finding weak plans
+FILE_WEAK_PLAN_OUT = "weak_plan.out"    # file to drop Clingo output for weak plan solving
+FILE_BACKBONE = "backbone.lp"  # file to drop Clingo output for weak plan solving
+
+CLINGO_BIN = "clingo"
+DETERMINISER_BIN = "fond-utils" # not really used anymore, used via library API
+TRANSLATOR_BIN = "translate.py"
+
+DEFAULT_MODEL = "fondsat"  # strong-cyclic fondsat-type encoding
+FD_INV_LIMIT = 300
+
+PYTHON_MINOR_VERSION = 10   # minimum python version required
+
+FILE_CONTROLLER_WEAK = "controller-weak.lp"
+
