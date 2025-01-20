@@ -17,7 +17,6 @@ with open("README.md", "r") as fh:
 
 install_requires = [
     "async-timeout",
-    "benchexec[systemd]",
     "cffi",
     "clingo",
     "cmake",
@@ -62,7 +61,7 @@ setup(
     ],
     install_requires=install_requires,
     entry_points={
-        "console_scripts": ["cfond-asp=cfondasp.__main__:main"],
+        "console_scripts": ["cfond-asp=cfondasp.__main__:main","cfond-asp-verify=cfondasp.__verify__:main"]
     },
     zip_safe=False,
 )
