@@ -206,7 +206,7 @@ def main():
     start = timer()
     fond_problem : FONDProblem = get_fond_problem(args)
 
-    # 3. Run the requested mode
+    # 3. Solve the problem
     solve(fond_problem, back_bone=args.use_backbone, only_size=True)
     if args.dump_cntrl:
         logger.info("Dumping controller...")
@@ -218,7 +218,7 @@ def main():
     logger.debug(f"Output folder: {fond_problem.output_dir}")
     logger.warning(f"Time taken: {total_time}")
     with open(
-        os.path.join(fond_problem.output_dir, f"{args.mode}_time.out"), "w+"
+        os.path.join(fond_problem.output_dir, f"time.out"), "w+"
     ) as f:
         f.write(f"Total time: {total_time}\n")
 
