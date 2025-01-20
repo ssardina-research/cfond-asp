@@ -8,21 +8,13 @@ import shutil
 from timeit import default_timer as timer
 
 from cfondasp import VERSION
+from cfondasp.base.config import CLINGO_BIN, DEFAULT_MODEL, PYTHON_MINOR_VERSION, TRANSLATOR_BIN
 from cfondasp.checker.verify import build_controller
 from .base.elements import FONDProblem
 from .utils.system_utils import get_package_root
 from .solver.asp import solve, parse_and_translate, solve
 
-PYTHON_MINOR_VERSION = 10
 logger: logging.Logger = None
-
-DEFAULT_MODEL = "fondsat"  # strong-cyclic fondsat-type encoding
-FD_INV_LIMIT = 300
-
-CLINGO_BIN = "clingo"
-DETERMINISER_BIN = "fond-utils"
-TRANSLATOR_BIN = "translate.py"
-
 
 def get_fond_problem(args) -> FONDProblem:
     # determiniser. We use a recent version of FD
@@ -176,13 +168,6 @@ def main():
     if not shutil.which(CLINGO_BIN):
         logger.error("Clingo not found in the path.")
         sys.exit(1)
-
-    # check determiniser is in path
-    # not necessary anymore as we use the library directly
-    # print(DETERMINISER_BIN)
-    # if not shutil.which(DETERMINISER_BIN):
-    #     logger.error("fond-utils determinizer not found.")
-    #     sys.exit(1)
 
     # check determiniser is in path
     if not shutil.which(args.translator_path):
