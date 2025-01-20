@@ -61,12 +61,13 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
         file_weak_plan: str = os.path.join(fond_problem.output_dir, FILE_INSTANCE_WEAK)
         generate_asp_instance_inc(file_weak_plan, initial_state, goal_state, variables, mutexs, nd_actions)
 
-        classical_planner = fond_problem.classical_planner
-        clingo_inputs = [classical_planner, file_weak_plan]
+        clingo_inputs = [fond_problem.classical_planner, file_weak_plan]
         args = ["--stats"]
         out_file = os.path.join(fond_problem.output_dir, FILE_WEAK_PLAN_OUT)
         if fond_problem.seq_kb:
             clingo_inputs.append(fond_problem.seq_kb)
+
+        shutil.copy(fond_problem.classical_planner, fond_problem.output_dir)
         execute_asp(
             fond_problem.clingo, args, clingo_inputs, fond_problem.output_dir, out_file
         )
