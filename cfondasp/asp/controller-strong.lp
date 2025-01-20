@@ -126,5 +126,5 @@ terminate(Y) :- state(Y), terminate(X): successor(Y, X).
 #show holds/3.
 #show policy/2.
 
-#show successor/2.
-#show terminate/1.
+% #show successor/2.
+% #show terminate/1.
