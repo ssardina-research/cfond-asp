@@ -16,7 +16,7 @@ from .solver.asp import solve, parse_and_translate, solve
 PYTHON_MINOR_VERSION = 10
 logger: logging.Logger = None
 
-DEFAULT_MODEL = "fondsat"   # strong-cyclic fondsat-type encoding
+DEFAULT_MODEL = "fondsat"  # strong-cyclic fondsat-type encoding
 FD_INV_LIMIT = 300
 
 CLINGO_BIN = "clingo"
@@ -63,13 +63,14 @@ def get_fond_problem(args) -> FONDProblem:
     fond_problem.controller_constraints = {}
 
     if args.extra_constraints:
-        extra_constraints_file = os.path.abspath(
-            args.extra_constraints)
+        extra_constraints_file = os.path.abspath(args.extra_constraints)
         fond_problem.controller_constraints["extra"] = extra_constraints_file
         shutil.copy(extra_constraints_file, fond_problem.output_dir)
 
     if args.filter_undo:
-        undo_constraint_file = os.path.join(get_package_root(), "asp", "control", "undo.lp")
+        undo_constraint_file = os.path.join(
+            get_package_root(), "asp", "control", "undo.lp"
+        )
         shutil.copy(undo_constraint_file, fond_problem.output_dir)
         fond_problem.controller_constraints["undo"] = undo_constraint_file
 
@@ -113,7 +114,7 @@ def main():
         "--model",
         help="ASP model to use for FOND (Default: %(default)s)",
         choices=["fondsat", "regression", "strong"],
-        default=DEFAULT_MODEL
+        default=DEFAULT_MODEL,
     )
     parser.add_argument(
         "--clingo-args", help="Arguments to pass to Clingo.", type=str, default=""
@@ -204,7 +205,7 @@ def main():
 
     # 2. All good to go. Next, build a whole FONDProblem object with all the info needed
     start = timer()
-    fond_problem : FONDProblem = get_fond_problem(args)
+    fond_problem: FONDProblem = get_fond_problem(args)
 
     # 3. Run the requested mode
     solve(fond_problem, back_bone=args.use_backbone, only_size=True)
@@ -217,9 +218,7 @@ def main():
     total_time = end - start
     logger.debug(f"Output folder: {fond_problem.output_dir}")
     logger.warning(f"Time taken: {total_time}")
-    with open(
-        os.path.join(fond_problem.output_dir, f"{args.mode}_time.out"), "w+"
-    ) as f:
+    with open(os.path.join(fond_problem.output_dir, "solve_time.out"), "w+") as f:
         f.write(f"Total time: {total_time}\n")
 
 

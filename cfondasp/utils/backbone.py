@@ -4,7 +4,7 @@ import re
 re_policy_effect = r'policy\((?P<from>[\d]+),\"(?P<action>[\a-z-\(\d\,\)]+)\",\"(?P<effect>[e(\d\,\)]+)\"\)'
 DUMMY_POLICY = "policy(-1,-1,-1)"
 
-def create_backbone_constraint(backbone: List[tuple[str, str]], constraint_file: str, constraint_type = "loose"):
+def create_backbone_constraint(backbone: List[tuple[str, str]], constraint_file: str, strict = False):
     """
     Backbone constraints consist of ensuring each action is taken in a policy and the sequence of actions is as per the backbone.
     For example,
@@ -16,9 +16,9 @@ def create_backbone_constraint(backbone: List[tuple[str, str]], constraint_file:
     :return:
     """
 
-    if constraint_type == "loose":
+    if not strict:
         write_loose_constraints(backbone, constraint_file)
-    elif constraint_type == "strict":
+    else:
         write_strict_constraints(backbone, constraint_file)
 
 
