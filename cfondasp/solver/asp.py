@@ -10,7 +10,7 @@ from async_timeout import timeout
 from cfondasp.utils.system_utils import get_package_root
 
 
-from cfondasp.base.config import ASP_CLINGO_OUTPUT_PREFIX, DETERMINISTIC_ACTION_SUFFIX
+from cfondasp.base.config import ASP_CLINGO_OUTPUT_PREFIX, DETERMINISTIC_ACTION_SUFFIX, FILE_BACKBONE, FILE_INSTANCE, FILE_INSTANCE_WEAK, FILE_WEAK_PLAN_OUT
 from cfondasp.base.elements import FONDProblem, Action, Variable, State
 from cfondasp.base.logic_operators import entails
 from cfondasp.utils.system_utils import remove_files
@@ -52,19 +52,19 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
         return
 
     # 3. generate ASP instance
-    file: str = os.path.join(fond_problem.output_dir, "instance.lp")
+    file: str = os.path.join(fond_problem.output_dir, FILE_INSTANCE)
     generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False)
 
     min_controller_size = fond_problem.min_states
     # 4. generate weak plan for backbone if requested
     if back_bone:
-        file_weak_plan: str = os.path.join(fond_problem.output_dir, "instance_inc.lp")
+        file_weak_plan: str = os.path.join(fond_problem.output_dir, FILE_INSTANCE_WEAK)
         generate_asp_instance_inc(file_weak_plan, initial_state, goal_state, variables, mutexs, nd_actions)
 
         classical_planner = fond_problem.classical_planner
         clingo_inputs = [classical_planner, file_weak_plan]
         args = ["--stats"]
-        out_file = os.path.join(fond_problem.output_dir, "weak_plan.out")
+        out_file = os.path.join(fond_problem.output_dir, FILE_WEAK_PLAN_OUT)
         if fond_problem.seq_kb:
             clingo_inputs.append(fond_problem.seq_kb)
         execute_asp(
@@ -86,9 +86,10 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
 
         _logger.info(f"Backbone is of size {backbone_size}.")
 
+        # we want to use the backbone itself too: the actions in the weak plan must be in the controller
         if not only_size:
-            constraint_file = os.path.join(fond_problem.output_dir, "backbone.lp")
-            create_backbone_constraint(backbone, constraint_file)
+            constraint_file = os.path.join(fond_problem.output_dir, FILE_BACKBONE)
+            create_backbone_constraint(backbone, constraint_file, strict=True)
             fond_problem.controller_constraints["backbone"] = constraint_file
 
     # 5. done, process and solve!
