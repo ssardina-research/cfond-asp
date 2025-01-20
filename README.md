@@ -64,7 +64,7 @@ Once installed, the planner is available via its CLI interface:
 ```shell
 $ cfond-asp -h
 usage: cfond-asp [-h] [--max_states MAX_STATES] [--min_states MIN_STATES] [--inc_states INC_STATES]
-                 [--mode {solve,verify}][--timeout TIMEOUT]
+                 [--timeout TIMEOUT]
                  [--model {fondsat,regression,strong}] [--clingo_args CLINGO_ARGS] [--extra_constraints EXTRA_CONSTRAINTS]
                  [--filter_undo] [--use_backbone] [--domain_kb {triangle-tireworld,miner,acrobatics,spikytireworld}]
                  [--dump_cntrl] [--output OUTPUT]
@@ -189,15 +189,24 @@ $ cfond-asp benchmarks/acrobatics/domain.pddl benchmarks/acrobatics/p03.pddl --c
 
 ### Verification of controller
 
-To _verify_ a strong-cyclic solution one can set the mode to `verify` via option `--mode`. Note this requires the output folder from the solving process to be available.
-
-For example, to verify the solution for the `p03.pddl` problem from the `Acrobatics` domain:
+To _verify_ a solution already computed, use the `cfond-asp-verify` tool:
 
 ```shell
-$ cfond-asp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p03.pddl --mode verify
+$ cfond-asp-verify output
+Namespace(output_dir='/home/ssardina/PROJECTS/planning/FOND/cfond-asp/cfond-asp-private.git/output')
+2025-01-20 23:16:53 surface FondASP[4154414] INFO Solution is sound? True
+2025-01-20 23:16:53 surface cfondasp.__verify__[4154414] DEBUG Output folder: /home/ssardina/PROJECTS/planning/FOND/cfond-asp/cfond-asp-private.git/output
+2025-01-20 23:16:53 surface cfondasp.__verify__[4154414] WARNING Time taken: 0.0032609630143269897
+```
 
-2024-01-12 14:45:31 nitin FondASP[192070] INFO Solution is sound? True
-2024-01-12 14:45:31 nitin __main__[192070] INFO Time(s) taken:0.032270914001856
+If not installed as a package, this is equivalent to calling:
+
+```shell
+$ python -m cfondasp.__verify__ output
+Namespace(output_dir='/home/ssardina/PROJECTS/planning/FOND/cfond-asp/cfond-asp-private.git/output')
+2025-01-21 07:25:39 surface FondASP[4172347] INFO Solution is sound? True
+2025-01-21 07:25:39 surface __main__[4172347] DEBUG Output folder: /home/ssardina/PROJECTS/planning/FOND/cfond-asp/cfond-asp-private.git/output
+2025-01-21 07:25:39 surface __main__[4172347] WARNING Time taken: 0.01352302695158869
 ```
 
 This will first translate Clingo output to a readable controller format (see the file `controller.out` in the output directory), and then check the controller found is indeed strong-cyclic.

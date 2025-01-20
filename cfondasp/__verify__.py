@@ -8,11 +8,9 @@ import shutil
 from timeit import default_timer as timer
 
 from cfondasp import VERSION
-from cfondasp.checker.verify import build_controller, verify
-from .utils.system_utils import get_package_root
-from .solver.asp import solve, parse_and_translate, solve
+from cfondasp.base.config import PYTHON_MINOR_VERSION
+from cfondasp.checker.verify import verify
 
-PYTHON_MINOR_VERSION = 10
 logger: logging.Logger = None
 
 
