@@ -112,13 +112,15 @@ not holds(NextState, Variable, Value) :- not holds(State, Variable, Value), vari
 %*---------------------------------------------------------------------------------------------------------------
 :::Strong solution: This is specified by three constraints.
 ---------------------------------------------------------------------------------------------------------------*%
-% terminate(X) :- goalState(X).
-terminte(2).
-% terminate(Y) :- state(Y), terminate(X): successor(Y, X).
-%TODO: why are the following two rules each not equivalent to the previous one? 
-terminate(Y) :- state(Y), {not terminate(X) : successor(Y, X)} = 0.
-% terminate(Y) :- state(Y), #count {X : state(X), not terminate(X), successor(Y, X)} = 0.
-:- not terminate(X), state(X).
+terminates(X) :- goalState(X).
+terminates(X) :- state(X), terminates(Y): successor(X, Y).
+:- not terminates(X), state(X).
+
+% NOTE: these are not equivalent to the 2nd rule above!
+% they will support the derivation of terminatess(X) when it shouldn't!
+% details: https://github.com/ssardina-research/cfond-asp-private/issues/74
+% terminates(X) :- state(X), {not terminates(X) : successor(X, Y)} = 0.
+% terminates(X) :- state(X), #count {Y : state(Y), not terminates(Y), successor(X, Y)} = 0.
 
 %*---------------------------------------------------------------------------------------------------------------
 :::Output. Show transition, holds, and policy.
@@ -127,5 +129,6 @@ terminate(Y) :- state(Y), {not terminate(X) : successor(Y, X)} = 0.
 #show holds/3.
 #show policy/2.
 
+% show for debugging as needed
 % #show successor/2.
-% #show terminate/1.
+% #show terminates/1.
