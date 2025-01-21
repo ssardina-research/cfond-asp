@@ -45,7 +45,7 @@ The planner is distributed as a package and can then be installed via pip direct
 One can also install it from the repo itself:
 
 ```shell
-$ pip install https://github.com/ssardina-research/cfond-asp
+$ pip install git+https://github.com/ssardina-research/cfond-asp
 ```
 
 Alternatively, one can clone first and install the planner:

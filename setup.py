@@ -57,7 +57,7 @@ setup(
     packages=find_packages(include=["cfondasp*"]),
     include_package_data=True,
     data_files=[
-        ("cfondasp/asp/", glob.glob("cfondasp/asp/**/*.lp")),
+        ("cfondasp/asp/", glob.glob("cfondasp/asp/**/*.lp", recursive=True)),
     ],
     install_requires=install_requires,
     entry_points={
