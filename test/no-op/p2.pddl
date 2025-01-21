@@ -1,5 +1,5 @@
 
-(define (problem nooptest-p01)
+(define (problem nooptest-p02)
     (:domain nooptest)
     (:init
         (p)
