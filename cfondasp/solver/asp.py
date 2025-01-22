@@ -129,7 +129,7 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
         )
     return
 
-async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str,min_states: int = 1):
+async def solve_asp_instance_async(fond_problem: FONDProblem, instance_file: str,min_states: int = 1):
     """
        Solve FOND instance by incrementing the number of states and looking for a solution.
        :param fond_problem: Fond problem
@@ -138,43 +138,23 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str,min_
        :return:
        """
     _logger: logging.Logger = _get_logger()
-    stop = False
+
     # if fond_problem.time_limit == None, no timeout is enforced
     async with timeout(fond_problem.time_limit):
         try:
-            # check if a solution exists with the given minimum states
-            num_states = min_states # time out may occur in the next step, hence we need to initialise the num_states for later reporting
-            solution_found = await _run_clingo_async(
-                fond_problem, instance, num_states, fond_problem.output_dir
-            )
-            if solution_found:
-                # solution found! we can exit (we don't need to compute the smallest size controller for efficiency)
-                _logger.info(f"Solution found!")
-                _logger.info(f"Number of states in controller: {num_states+1}")
-                stop = True
-                return
-                # direction = -1 * fond_problem.inc_states
-            else:
-                direction = 1 * fond_problem.inc_states
-
-            num_states = min_states + direction
-
-            while 0 < num_states <= fond_problem.max_states:
+            for num_states in range(
+                min_states, fond_problem.max_states + 1, fond_problem.inc_states
+            ):
                 solution_found = await _run_clingo_async(
-                    fond_problem, instance, num_states, fond_problem.output_dir
+                    fond_problem, instance_file, num_states, fond_problem.output_dir
                 )
 
-                # check if a solution was found or the process timed out
-                if solution_found and direction > 0:
+                if solution_found:
                     _logger.info(f"Solution found!")
-                    _logger.info(f"Number of states in controller: {num_states+1}")
-                    break
-                elif not solution_found and direction < 0:
-                    _logger.info(f"Solution found!")
-                    _logger.info(f"Number of states in controller: {num_states+1}")
-                    break
-
-                num_states += direction
+                    _logger.info(
+                        f"Number of states in controller (1 for goal): {num_states+1}"
+                    )
+                    return True
         except asyncio.CancelledError:
             _logger.info(f"Timed Out with numStates={num_states}.")
             out_file = os.path.join(
@@ -182,7 +162,7 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str,min_
             )
             with open(out_file, "a") as f:
                 f.write(f"Timed out with time limit={fond_problem.time_limit}.\n")
-        #TODO: wont catch anything! ouch!
+        # TODO: wont catch anything! ouch!
         except Exception as e:
             _logger.info(f"Error: {e}")
             out_file = os.path.join(
@@ -192,7 +172,8 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str,min_
                 f.write(f"Error: {e}.\n")
 
 
-def solve_asp_instance(fond_problem: FONDProblem, instance: str, min_states: int = 1):
+# TODO: move instance_file inside fond_problem as done with other files (e.g., kb)
+def solve_asp_instance(fond_problem: FONDProblem, instance_file: str, min_states = 1):
     """
     Solve FOND instance by incrementing or decrementing the number of states and looking for a solution.
     To check if we need to increase or decrease the states, one first checks the solution with the given min_states.
@@ -203,38 +184,15 @@ def solve_asp_instance(fond_problem: FONDProblem, instance: str, min_states: int
     :return:
     """
     _logger: logging.Logger = _get_logger()
-    stop = False
 
-    # check if a solution exists with the given minimum states
-    num_states = min_states
-    solution_found = _run_clingo(fond_problem, instance, min_states)
-    if solution_found:
-        # solution found! we can exit (we don't need to compute the smallest size controller for efficiency)
-        _logger.info(f"Solution found!")
-        _logger.info(f"Number of states in controller: {num_states+1}")
-        stop = True
-        return
-        # direction = -1 * fond_problem.inc_states
-    else:
-        direction = 1 * fond_problem.inc_states
+    for num_states in range(min_states, fond_problem.max_states + 1, fond_problem.inc_states):
+        solution_found = _run_clingo(fond_problem, instance_file, num_states)
 
-    num_states = min_states + direction
-
-    while 0 < num_states <= fond_problem.max_states and not stop:
-        solution_found = _run_clingo(fond_problem, instance, num_states)
-
-        # check if a solution was found or the process timed out
-        if solution_found and direction > 0:
-            _logger.info(f"Solution found for instance ({fond_problem.domain}, {fond_problem.problem})!")
-            _logger.info(f"Number of states in controller: {num_states+1}")
-            stop = True
-
-        elif not solution_found and direction < 0:
-            _logger.info(f"Solution found for instance ({fond_problem.domain}, {fond_problem.problem})!")
-            _logger.info(f"Number of states in controller: {num_states+1}")
-            stop = True
-
-        num_states += direction
+        if solution_found:
+            _logger.info(f"Solution found!")
+            _logger.info(f"Number of states in controller (1 for goal): {num_states+1}")
+            return True
+    return False
 
 
 async def _run_clingo_async(fond_problem: FONDProblem, instance, num_states, output_dir):
