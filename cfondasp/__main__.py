@@ -194,17 +194,19 @@ def main():
 
     # 3. Solve the problem
     solve(fond_problem, back_bone=args.use_backbone, only_size=True)
+
+    # 4. If requested, dump the controller
     if args.dump_cntrl:
-        logger.info("Dumping controller...")
+        logger.info("Dumping controller (if problem has been solved!)...")
         build_controller(fond_problem.output_dir)
 
-    # 4. Done! Wrap up and summary info
+    # 5. Done! Wrap up and summary info
     end = timer()
     total_time = end - start
     logger.debug(f"Output folder: {fond_problem.output_dir}")
     logger.warning(f"Time taken: {total_time}")
 
-    with open(os.path.join(fond_problem.output_dir, "solve_time.out"), "w+") as f:
+    with open(os.path.join(fond_problem.output_dir, "time_taken.out"), "w+") as f:
         f.write(f"Total time: {total_time}\n")
 
 

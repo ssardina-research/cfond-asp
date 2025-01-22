@@ -159,7 +159,7 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str,min_
 
             num_states = min_states + direction
 
-            while 0 < num_states <= fond_problem.max_states and not stop:
+            while 0 < num_states <= fond_problem.max_states:
                 solution_found = await _run_clingo_async(
                     fond_problem, instance, num_states, fond_problem.output_dir
                 )
@@ -168,12 +168,11 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str,min_
                 if solution_found and direction > 0:
                     _logger.info(f"Solution found!")
                     _logger.info(f"Number of states in controller: {num_states+1}")
-                    stop = True
-
+                    break
                 elif not solution_found and direction < 0:
                     _logger.info(f"Solution found!")
                     _logger.info(f"Number of states in controller: {num_states+1}")
-                    stop = True
+                    break
 
                 num_states += direction
         except asyncio.CancelledError:
@@ -183,6 +182,14 @@ async def solve_asp_instance_async(fond_problem: FONDProblem, instance: str,min_
             )
             with open(out_file, "a") as f:
                 f.write(f"Timed out with time limit={fond_problem.time_limit}.\n")
+        #TODO: wont catch anything! ouch!
+        except Exception as e:
+            _logger.info(f"Error: {e}")
+            out_file = os.path.join(
+                fond_problem.output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
+            )
+            with open(out_file, "a") as f:
+                f.write(f"Error: {e}.\n")
 
 
 def solve_asp_instance(fond_problem: FONDProblem, instance: str, min_states: int = 1):

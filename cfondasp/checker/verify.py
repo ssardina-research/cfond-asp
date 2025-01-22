@@ -215,18 +215,25 @@ def build_controller(output_dir: str):
     sas_file: str = os.path.join(output_dir, SAS_FILE)
     solution_file: str = os.path.join(output_dir, CONTROLLER_TXT_FILE)
     controller_file = os.path.join(output_dir, CONTROLLER_JSON_FILE)
-    _last_output_file = _get_last_output_file(output_dir)
+    last_output_file = _get_last_output_file(output_dir)
 
-    if not _last_output_file:
+    if not last_output_file:
         _logger.warning(f"No clingo output, cannot build controller.")
         return None, None, None
 
-    last_clingo_out_file = os.path.join(output_dir, _last_output_file)
+    last_clingo_out_file = os.path.join(output_dir, last_output_file)
+    status = _get_status(last_clingo_out_file)
 
-    if _timed_out(last_clingo_out_file):
+    if status == "TIMEOUT":
         _logger.warning(
             f"Solution timed out, cannot build controller: {last_clingo_out_file}"
         )
+        return None, None, None
+    elif status == "UNSOLVED":
+        _logger.warning(f"Solution NOT found: {last_clingo_out_file}")
+        return None, None, None
+    elif status == "UNKNOWN":
+        _logger.error(f"Solution UNKNOWN (should not happen!): {last_clingo_out_file}")
         return None, None, None
 
     # produce first part of solution controller file by parsing the answer model found in the the (last) clingo out file
@@ -267,16 +274,18 @@ def _get_file_id(f: str) -> int:
     return idx
 
 
-def _timed_out(output_file: str) -> bool:
+def _get_status(output_file: str) -> bool:
     with open(output_file) as f:
         info = f.readlines()
 
-    for _l in info:
-        if "timed out" in _l.lower():
-            return True
-
-    return False
-
+    for line in info:
+        if "timed out" in line.lower():
+            return "TIMEOUT"
+        elif "UNSATISFIABLE" in line:
+            return "UNSOLVED"
+        elif "SATISFIABLE" in line: # has to come after UNSAT eh! ;-)
+            return "SOLVED"
+    return "UNKNOWN"
 
 def verify(output_dir: str):
     _logger = _get_logger()
@@ -284,29 +293,24 @@ def verify(output_dir: str):
     if last_output_file is None:
         _logger.warning("Could not find clingo output files. Please solve the problem first.")
         sys.exit(1)
-        
-    last_clingo_out_file = os.path.join(output_dir, last_output_file)
-    if not _timed_out(last_clingo_out_file):
 
+    last_clingo_out_file = os.path.join(output_dir, last_output_file)
+    status = _get_status(last_clingo_out_file)
+    logging.debug(f"Last CLINGO file found: {last_clingo_out_file}")
+    logging.debug(f"Status of run found: {status}")
+    if status == "SOLVED":
         # build controller from ASP model and SAS file (write controller to txt and json files)
         controller, initial_state, nd_actions = build_controller(output_dir)
         goal_node, _ = controller.goal_state()
 
         solution_space = execute_controller(controller, initial_state, nd_actions)
         sound = solution_space.is_strong_cyclic(goal_node)
-
-        timed_out = False
         _logger.info(f"Solution is sound? {sound}")
+
+        return sound
     else:
-        sound = True
-        timed_out = True
-        _logger.info(f"Solution is sound? {sound} because of time out.")
-
-    output_file = os.path.join(output_dir, VERIFY_OUT)
-    with open(output_file, "w") as f:
-        f.write(f"Solution is sound: {sound}\n")
-        f.write(f"Timed Out: {timed_out}")
-
+        _logger.error(f"Problem not solved, so no controller can be built - Status of run: {status}.")
+        return None
 
 def _get_logger() -> logging.Logger:
     logger = logging.getLogger("FondASP")
