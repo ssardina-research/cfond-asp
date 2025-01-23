@@ -6,12 +6,31 @@
 	(:predicates
 		(p)
 		(q)
+		(r)	;; totally irrelevant predicate
 	)
 
 	;; deterministically make q true
-	(:action sq
+	(:action setq
 		:parameters ()
 		:precondition (p)
-		:effect (q) 
+		:effect (q)
 	)
+
+	;; just touch irrelevant predicate r
+	; (:action setnr
+	; 	:parameters ()
+	; 	:precondition ()
+	; 	:effect (not (r))
+	; )
+
+		; (:action bad1	;; makes precondition of landmark action setq false forever
+	; 	:parameters ()
+	; 	:precondition ()
+	; 	:effect (not (p))
+	; )
+	; (:action bad2	;; makes the goal false for no reason
+	; 	:parameters ()
+	; 	:precondition ()
+	; 	:effect (not (q))
+	; )
 )
