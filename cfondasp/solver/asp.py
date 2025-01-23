@@ -26,6 +26,7 @@ from cfondasp.knowledge.acrobatics import AcrobaticsKnowledge
 from cfondasp.knowledge.spiky import SpikyTireworldKnowledge
 import os
 
+# use asyncio for the solver when timeout is specified
 USE_ASYNCIO = False
 
 logger: logging.Logger = None
