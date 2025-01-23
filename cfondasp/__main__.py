@@ -37,7 +37,7 @@ def get_fond_problem(args) -> FONDProblem:
         domain=args.domain,
         problem=args.problem,
         output_dir=args.output_dir,
-        sas_translator=args.translator_path,
+        sas_translator=os.path.abspath(args.translator_path),
         translator_args=translator_args,
         controller_model=args.model,
         clingo=CLINGO_BIN,
