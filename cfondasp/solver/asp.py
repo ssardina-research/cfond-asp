@@ -2,12 +2,13 @@ import asyncio
 from pathlib import Path
 import shutil
 import subprocess
+import time
 from typing import List
 import logging
 import coloredlogs
 from async_timeout import timeout
 
-from cfondasp.utils.system_utils import get_package_root
+from cfondasp.utils.system_utils import get_now, get_package_root
 
 
 from cfondasp.base.config import ASP_CLINGO_OUTPUT_PREFIX, DETERMINISTIC_ACTION_SUFFIX, FILE_BACKBONE, FILE_INSTANCE, FILE_INSTANCE_WEAK, FILE_WEAK_PLAN_OUT
@@ -16,7 +17,6 @@ from cfondasp.base.logic_operators import entails
 from cfondasp.utils.system_utils import remove_files
 from cfondasp.utils.backbone import get_backbone_asp, create_backbone_constraint
 from cfondasp.utils.helper_asp import write_goal, write_variables, write_mutex, write_goal_state, write_actions, write_initial_state, write_undo_actions
-from cfondasp.utils.helper_clingo import execute_asp, execute_asp_async, set_logger
 from cfondasp.utils.helper_sas import organize_actions
 from cfondasp.utils.translators import execute_sas_translator, parse_sas
 from cfondasp.knowledge.blocksworld import BlocksworldKnowledge
@@ -26,6 +26,10 @@ from cfondasp.knowledge.acrobatics import AcrobaticsKnowledge
 from cfondasp.knowledge.spiky import SpikyTireworldKnowledge
 import os
 
+USE_ASYNCIO = False
+
+logger: logging.Logger = None
+DEBUG_LEVEL = "INFO"
 
 def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
     """
@@ -115,150 +119,201 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
             fond_problem.domain_knowledge,
         )
 
-    # solve the asp instance with a time limit
-    time_limit: int = fond_problem.time_limit
-    if time_limit:
+    # time to SOLVE the problem by the iterative process
+    if fond_problem.time_limit and USE_ASYNCIO:
         asyncio.run(
-            solve_asp_instance_async(
-                fond_problem, file, min_states=min_controller_size
-            )
+            solve_asp_iteratively_async(fond_problem, file, min_controller_size)
         )
     else:
-        solve_asp_instance(
+        solve_asp_iteratively(
             fond_problem, file, min_states=min_controller_size
         )
     return
 
-async def solve_asp_instance_async(fond_problem: FONDProblem, instance_file: str,min_states: int = 1):
-    """
-       Solve FOND instance by incrementing the number of states and looking for a solution.
-       :param fond_problem: Fond problem
-       :param instance: ASP instance
-       :param min_states: Minimum number of controller states
-       :return:
-       """
+# TODO: just put file into fond_problem as the other files (e.g., kb, constraints
+async def solve_asp_iteratively_async(fond_problem, file, min_states):
+    """Runs the function `n` times with an overall timeout of `timeout` seconds."""
     _logger: logging.Logger = _get_logger()
 
-    # if fond_problem.time_limit == None, no timeout is enforced
-    async with timeout(fond_problem.time_limit):
-        try:
-            for num_states in range(
+    time_limit = fond_problem.time_limit
+
+    # a local function to run the function with a time limit
+    async def run_with_time_limit():
+        time_left = time_limit
+        for num_states in range(
                 min_states, fond_problem.max_states + 1, fond_problem.inc_states
             ):
-                solution_found = await _run_clingo_async(
-                    fond_problem, instance_file, num_states, fond_problem.output_dir
+            start_time = time.time()
+            _logger.info(
+                f"Solving with number of controller states={num_states} - Time left: {time_left:.2f}"
+            )
+
+            # ASP input files for Clingo
+            input_files = [fond_problem.controller_model, file]
+            if fond_problem.domain_knowledge is not None:
+                input_files.append(fond_problem.domain_knowledge)
+            if fond_problem.controller_constraints.values() is not None:
+                input_files += fond_problem.controller_constraints.values()
+
+            # build executable command
+            args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
+            cmd_executable = [fond_problem.clingo] + input_files + args
+
+            # cmd_executable = ["echo", "Hello, world!"]
+            # print(cmd_executable)
+
+            # write start info on the output file for this run
+            asp_output_file = os.path.join(
+                fond_problem.output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
+            )
+            file_out = open(asp_output_file, "a")
+            file_out.write(f"Time start: {get_now()}\n\n")
+            file_out.write(' '.join(cmd_executable))
+            file_out.write("\n")
+
+            # now do the async run with a time limit
+            return_code, stdout = await run_subprocess(cmd_executable, time_left)
+
+            # save the ASP run output to the ouput file (already opened above)
+            file_out.write(stdout)
+            file_out.write("\n\n")
+            file_out.write(f"Time end: {get_now()}\n")
+            file_out.write(f"Clingo return code: {return_code}\n")
+            file_out.close()
+
+            if stdout is None:
+                _logger.warning(f"No output on ASP run with {num_states} controller states?")
+                continue
+            if "SATISFIABLE" in stdout and "UNSATISFIABLE" not in stdout:
+                return True # yes, found solution!
+
+            # not a solution yet, keep looping with more controller states
+            # if < 0, just set a minimal timeout for the next cycle
+            time_left -= time.time() - start_time
+            if time_left <= 0:
+                time_left = 0.1
+
+    # main process
+    try:
+        await asyncio.wait_for(run_with_time_limit(), timeout=time_limit)
+    except asyncio.TimeoutError:
+        print("Overall timeout reached before completing all runs.")
+
+
+async def run_subprocess(args, time_left):
+    """Runs an external program using asyncio.
+        Integrate stderr into stdout
+
+        return both process return code and stdout
+    """
+
+    _logger: logging.Logger = _get_logger()
+
+    # run clingo in a separate process
+    process = await asyncio.create_subprocess_exec(
+        *args,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
+    )
+
+    stdout, _ = await asyncio.wait_for(process.communicate(), time_left)
+    stdout = stdout.decode().strip()
+
+    return process.returncode, stdout
+
+
+# TODO: just put file into fond_problem as the other files (e.g., kb, constraints
+def solve_asp_iteratively(fond_problem, file, min_states):
+    """Runs the function `n` times with an overall timeout of `timeout` seconds."""
+    _logger: logging.Logger = _get_logger()
+
+    # a local function to run the function with a time limit
+    def run_with_time_limit():
+        time_left = float("inf")    # default
+        if fond_problem.time_limit is not None:
+            time_left = fond_problem.time_limit
+        for num_states in range(
+            min_states, fond_problem.max_states + 1, fond_problem.inc_states
+        ):
+            start_time = time.time()
+            _logger.info(f"Solving with number of controller states={num_states} - Time left: {time_left:.2f}")
+
+            # ASP input files for Clingo
+            input_files = [fond_problem.controller_model, file]
+            if fond_problem.domain_knowledge is not None:
+                input_files.append(fond_problem.domain_knowledge)
+            if fond_problem.controller_constraints.values() is not None:
+                input_files += fond_problem.controller_constraints.values()
+
+            # build executable command
+            args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
+            cmd_executable = [fond_problem.clingo] + input_files + args
+
+            # cmd_executable = ["echo", "Hello, world!"]
+            # print(cmd_executable)
+
+            # write start info on the output file for this run
+            asp_output_file = os.path.join(
+                fond_problem.output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
+            )
+            file_out = open(asp_output_file, "a")
+            file_out.write(f"Time start: {get_now()}\n\n")
+            file_out.write(" ".join(cmd_executable))
+            file_out.write("\n")
+
+            # now do the async run with a time limit
+            process = subprocess.run(
+                cmd_executable,
+                cwd=fond_problem.output_dir,
+                # capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                timeout=time_left if time_left < float("inf") else None,
+            )
+            return_code = process.returncode
+            stdout = process.stdout.decode()
+
+            # save the ASP run output to the ouput file (already opened above)
+            file_out.write(stdout)
+            file_out.write("\n\n")
+            file_out.write(f"Time end: {get_now()}\n")
+            file_out.write(f"Clingo return code: {return_code}\n")
+            file_out.close()
+
+            if stdout is None:
+                _logger.warning(
+                    f"No output on ASP run with {num_states} controller states?"
                 )
+                continue
+            if "SATISFIABLE" in stdout and "UNSATISFIABLE" not in stdout:
+                return True  # yes, found solution!
 
-                if solution_found:
-                    _logger.info(f"Solution found!")
-                    _logger.info(
-                        f"Number of states in controller (1 for goal): {num_states+1}"
-                    )
-                    return True
-        except asyncio.CancelledError:
-            _logger.info(f"Timed Out with numStates={num_states}.")
-            out_file = os.path.join(
-                fond_problem.output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
-            )
-            with open(out_file, "a") as f:
-                f.write(f"Timed out with time limit={fond_problem.time_limit}.\n")
-        # TODO: wont catch anything! ouch!
-        except Exception as e:
-            _logger.info(f"Error: {e}")
-            out_file = os.path.join(
-                fond_problem.output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
-            )
-            with open(out_file, "a") as f:
-                f.write(f"Error: {e}.\n")
+            # not a solution yet, keep looping with more controller states
+            # if < 0, just set a minimal timeout for the next cycle
+            time_left -= time.time() - start_time
+            if time_left <= 0:
+                time_left = 0.1
+
+        return False # have tried all sizes and no solution found!
+
+    # main process
+    try:
+        return run_with_time_limit()
+    except subprocess.TimeoutExpired as e:
+        _logger.error(f"Time limit reached: {e}")
+        return False
 
 
-# TODO: move instance_file inside fond_problem as done with other files (e.g., kb)
-def solve_asp_instance(fond_problem: FONDProblem, instance_file: str, min_states = 1):
-    """
-    Solve FOND instance by incrementing or decrementing the number of states and looking for a solution.
-    To check if we need to increase or decrease the states, one first checks the solution with the given min_states.
-    If a solution does not exist one increments, else one decrements.
-    :param fond_problem: Fond problem
-    :param instance: ASP instance
-    :param min_states: Minimum number of controller states
-    :return:
-    """
-    _logger: logging.Logger = _get_logger()
+def is_satisfiable(clingo_output_file: str):
+    with open(clingo_output_file) as f:
+        info = f.readlines()
 
-    for num_states in range(min_states, fond_problem.max_states + 1, fond_problem.inc_states):
-        solution_found = _run_clingo(fond_problem, instance_file, num_states)
-
-        if solution_found:
-            _logger.info(f"Solution found!")
-            _logger.info(f"Number of states in controller (1 for goal): {num_states+1}")
+    for _line in info:
+        if "UNSATISFIABLE" in _line:
+            return False
+        elif "SATISFIABLE" in _line:
             return True
-    return False
-
-
-async def _run_clingo_async(fond_problem: FONDProblem, instance, num_states, output_dir):
-    """
-    Run clingo with the given configuration
-    :param fond_problem: FOND Problem
-    :param instance: Clingo input for the instance
-    :param num_states: number of states for the controller
-    :param output_dir: output directory to store the output
-    :return:
-    """
-    _logger: logging.Logger = _get_logger()
-    _logger.info(f" -Solving with numStates={num_states}.")
-    out_file = os.path.join(output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out")
-    args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
-
-    controller = fond_problem.controller_model
-
-    #TODO: we should remove kb as it is not used?
-    kb = fond_problem.domain_knowledge
-    constraints = fond_problem.controller_constraints.values()
-
-    # input files for clingo
-    input_files = [controller, instance]
-    # if kb is not None:
-    #     input_files.append(kb)
-    if constraints is not None:
-        input_files += constraints
-
-    # run clingo in a separate process
-    [solution_found] = await asyncio.gather(execute_asp_async(fond_problem.clingo, args, input_files, output_dir, out_file))
-
-    return solution_found
-
-
-def _run_clingo(fond_problem: FONDProblem, instance, num_states):
-    """
-    Run clingo with the given configuration
-    :param fond_problem: FOND Problem
-    :param instance: Clingo input for the instance
-    :param num_states: number of states for the controller
-    :param output_dir: output directory to store the output
-    :return:
-    """
-    _logger: logging.Logger = _get_logger()
-    _logger.info(f" -Solving with numStates={num_states}.")
-    out_file = os.path.join(
-        fond_problem.output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
-    )
-    args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
-
-    controller = fond_problem.controller_model
-    kb = fond_problem.extra_kb
-    constraints = fond_problem.controller_constraints.values()
-
-    # input files for clingo
-    input_files = [controller, instance]
-    if constraints is not None:
-        input_files += constraints
-
-    # run clingo in a separate process
-    solution_found = execute_asp(
-        fond_problem.clingo, args, input_files, fond_problem.output_dir, out_file
-    )
-
-    return solution_found
+    return None  # should never get here
 
 
 def generate_asp_instance_inc(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False):
@@ -386,8 +441,8 @@ def generate_knowledge(fond_problem, initial_state, goal_state, nd_actions, vari
 
 
 def _get_logger() -> logging.Logger:
-    logger = logging.getLogger("FondASP")
-    coloredlogs.install(level='INFO')
+    logger = logging.getLogger(__name__)
+    coloredlogs.install(level=DEBUG_LEVEL)
     return logger
 
-set_logger(_get_logger())
+logger = _get_logger()

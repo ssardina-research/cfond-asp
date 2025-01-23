@@ -13,7 +13,6 @@ import subprocess
 
 import logging
 import coloredlogs
-from cfondasp.utils.helper_clingo import set_logger
 
 LOG_LEVEL="DEBUG"
 LOG_LEVEL="INFO"
@@ -136,12 +135,12 @@ def execute_determiniser(
 
 
 def _get_logger() -> logging.Logger:
-    logger = logging.getLogger("FondASP")
+    logger = logging.getLogger(__name__)
     coloredlogs.install(level=LOG_LEVEL)
     return logger
 
 
-set_logger(_get_logger())
+logger = _get_logger()
 
 
 if __name__ == "__main__":
