@@ -8,7 +8,7 @@ import shutil
 from timeit import default_timer as timer
 
 from cfondasp import VERSION
-from cfondasp.base.config import CLINGO_BIN, DEFAULT_MODEL, FD_INV_LIMIT, FILE_CONTROLLER_WEAK, PYTHON_MINOR_VERSION, TRANSLATOR_BIN
+from cfondasp.base.config import CLINGO_BIN, DEFAULT_MODEL, FD_INV_LIMIT, FILE_CONTROLLER_WEAK, FILE_INSTANCE, PYTHON_MINOR_VERSION, TRANSLATOR_BIN
 from cfondasp.checker.verify import build_controller
 from .base.elements import FONDProblem
 from .utils.system_utils import get_package_root
@@ -47,6 +47,7 @@ def get_fond_problem(args) -> FONDProblem:
         inc_states=args.inc_states,
         time_limit=args.timeout,
         filter_undo=args.filter_undo,
+        instance_file = os.path.join(args.output_dir, FILE_INSTANCE),
         extra_kb=args.extra_constraints,
         classical_planner=classical_planner,
         domain_knowledge=args.domain_kb,

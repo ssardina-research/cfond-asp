@@ -34,7 +34,10 @@ DEBUG_LEVEL = "INFO"
 
 def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
     """
+    Main solver function for FOND problems.
+
     First we generate a backbone using classical planner and then use that to constrain the controller.
+
     :param fond_problem: FOND problem with all the info needed
     :param back_bone: Use backbone technique
     :param only_size: Only the size of the backbone is considered as a lower bound to the controller
@@ -57,8 +60,7 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
         return
 
     # 3. generate ASP instance
-    file: str = os.path.join(fond_problem.output_dir, FILE_INSTANCE)
-    generate_asp_instance(file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False)
+    generate_asp_instance(fond_problem.instance_file, initial_state, goal_state, variables, mutexs, nd_actions, initial_state_encoding="both", action_var_affects=False)
 
     min_controller_size = fond_problem.min_states
     # 4. generate weak plan for backbone if requested
@@ -123,16 +125,15 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
     # time to SOLVE the problem by the iterative process
     if fond_problem.time_limit and USE_ASYNCIO:
         asyncio.run(
-            solve_asp_iteratively_async(fond_problem, file, min_controller_size)
+            solve_asp_iteratively_async(fond_problem, min_controller_size)
         )
     else:
         solve_asp_iteratively(
-            fond_problem, file, min_states=min_controller_size
+            fond_problem, min_states=min_controller_size
         )
     return
 
-# TODO: just put file into fond_problem as the other files (e.g., kb, constraints
-async def solve_asp_iteratively_async(fond_problem, file, min_states):
+async def solve_asp_iteratively_async(fond_problem, min_states):
     """Runs the function `n` times with an overall timeout of `timeout` seconds."""
     _logger: logging.Logger = _get_logger()
 
@@ -150,7 +151,7 @@ async def solve_asp_iteratively_async(fond_problem, file, min_states):
             )
 
             # ASP input files for Clingo
-            input_files = [fond_problem.controller_model, file]
+            input_files = [fond_problem.controller_model, fond_problem.instance_file]
             if fond_problem.domain_knowledge is not None:
                 input_files.append(fond_problem.domain_knowledge)
             if fond_problem.controller_constraints.values() is not None:
@@ -223,8 +224,7 @@ async def run_subprocess(args, time_left):
     return process.returncode, stdout
 
 
-# TODO: just put file into fond_problem as the other files (e.g., kb, constraints
-def solve_asp_iteratively(fond_problem, file, min_states):
+def solve_asp_iteratively(fond_problem, min_states):
     """Runs the function `n` times with an overall timeout of `timeout` seconds."""
     _logger: logging.Logger = _get_logger()
 
@@ -240,7 +240,7 @@ def solve_asp_iteratively(fond_problem, file, min_states):
             _logger.info(f"Solving with number of controller states={num_states} - Time left: {time_left:.2f}")
 
             # ASP input files for Clingo
-            input_files = [fond_problem.controller_model, file]
+            input_files = [fond_problem.controller_model, fond_problem.instance_file]
             if fond_problem.domain_knowledge is not None:
                 input_files.append(fond_problem.domain_knowledge)
             if fond_problem.controller_constraints.values() is not None:

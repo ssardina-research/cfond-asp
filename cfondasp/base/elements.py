@@ -209,6 +209,7 @@ class FONDProblem(object):
     min_states: int = 1
     inc_states: int = 1
     time_limit: int = 300
+    instance_file : str = None  # ASP encoding of the problem
     extra_kb: str = None
     filter_undo: bool = False
     classical_planner: str = None
