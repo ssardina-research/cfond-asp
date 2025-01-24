@@ -42,7 +42,7 @@ from cfondasp.knowledge.spiky import SpikyTireworldKnowledge
 import os
 
 # use asyncio for the solver when timeout is specified
-USE_ASYNCIO = True
+USE_ASYNCIO = False
 
 logger: logging.Logger = None
 DEBUG_LEVEL = "INFO"
