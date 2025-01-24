@@ -15,11 +15,9 @@ from cfondasp.base.config import (
     ASP_CLINGO_OUTPUT_PREFIX,
     DETERMINISTIC_ACTION_SUFFIX,
     FILE_BACKBONE,
-    FILE_INSTANCE,
     FILE_INSTANCE_WEAK,
     FILE_UNDO_ACTIONS,
     FILE_WEAK_PLAN_OUT,
-    FILE_INSTANCE
 )
 from cfondasp.base.elements import FONDProblem, Action, Variable, State
 from cfondasp.base.logic_operators import entails
@@ -44,7 +42,7 @@ from cfondasp.knowledge.spiky import SpikyTireworldKnowledge
 import os
 
 # use asyncio for the solver when timeout is specified
-USE_ASYNCIO = False
+USE_ASYNCIO = True
 
 logger: logging.Logger = None
 DEBUG_LEVEL = "INFO"
@@ -193,38 +191,25 @@ async def solve_asp_iteratively_async(fond_problem, min_states):
                 f"Solving with number of controller states={num_states} - Time left: {time_left:.2f}"
             )
 
-            # ASP input files for Clingo
-            input_files = [fond_problem.controller_model, fond_problem.instance_file]
-            if fond_problem.domain_knowledge is not None:
-                input_files.append(fond_problem.domain_knowledge)
-            if fond_problem.controller_constraints.values() is not None:
-                input_files += fond_problem.controller_constraints.values()
-
-            # build executable command
-            args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
-            cmd_executable = [fond_problem.clingo] + input_files + args
-
-            # cmd_executable = ["echo", "Hello, world!"]
-            # print(cmd_executable)
-
             # write start info on the output file for this run
             asp_output_file = os.path.join(
                 fond_problem.output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
             )
-            file_out = open(asp_output_file, "a")
-            file_out.write(f"Time start: {get_now()}\n\n")
-            file_out.write(" ".join(cmd_executable))
-            file_out.write("\n")
+            with open(asp_output_file, "w") as file_out:
+                file_out = open(asp_output_file, "a")
+                file_out.write(f"Time start: {get_now()}\n\n")
+                file_out.write(" ".join(cmd_executable))
+                file_out.write("\n")
 
-            # now do the async run with a time limit
-            return_code, stdout = await run_subprocess(cmd_executable, time_left)
+                # now do the async run with a time limit - USE ASYNCIO!!
+                return_code, stdout = await run_subprocess(cmd_executable + [f"-c numStates={num_states}"], time_left)
 
-            # save the ASP run output to the ouput file (already opened above)
-            file_out.write(stdout)
-            file_out.write("\n\n")
-            file_out.write(f"Time end: {get_now()}\n")
-            file_out.write(f"Clingo return code: {return_code}\n")
-            file_out.close()
+                # save the ASP run output to the ouput file (already opened above)
+                file_out.write(stdout)
+                file_out.write("\n\n")
+                file_out.write(f"Time end: {get_now()}\n")
+                file_out.write(f"Clingo return code: {return_code}\n")
+                file_out.close()
 
             if stdout is None:
                 _logger.warning(
@@ -241,10 +226,25 @@ async def solve_asp_iteratively_async(fond_problem, min_states):
                 time_left = 0.1
 
     # main process
+    # ASP input files for Clingo
+    input_files = [fond_problem.instance_file, fond_problem.controller_model]
+    if fond_problem.domain_knowledge is not None:
+        input_files.append(fond_problem.domain_knowledge)
+    input_files += [
+        fond_problem.controller_constraints[k]
+        for k in fond_problem.controller_constraints
+    ]
+    # copy all ASP files to be used in the output directory (instance already there!    )
+    for f in input_files[1:]:
+        shutil.copy(f, fond_problem.output_dir, follow_symlinks=True)
+
+    # build executable command and arguments (which contains number of controller states)
+    cmd_executable = [fond_problem.clingo] + input_files + fond_problem.clingo_args
+
     try:
         await asyncio.wait_for(run_with_time_limit(), timeout=time_limit)
-    except asyncio.TimeoutError:
-        print("Overall timeout reached before completing all runs.")
+    except asyncio.TimeoutError as e:
+        print(f"Overall timeout reached before completing all runs:", e)
 
 
 async def run_subprocess(args, time_left):
@@ -312,7 +312,7 @@ def solve_asp_iteratively(fond_problem : FONDProblem, min_states):
                 file_out.write(" ".join(cmd_executable))
                 file_out.write("\n")
 
-                # now run clingo!
+                # now run clingo!  - USE SUBPROCESS.RUN (not ASYNCIO!)
                 return_code, stdout = _run_clingo(
                     cmd_executable + [f"-c numStates={num_states}"],
                     cwd=fond_problem.output_dir,
