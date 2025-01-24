@@ -244,7 +244,7 @@ async def solve_asp_iteratively_async(fond_problem, min_states):
     try:
         await asyncio.wait_for(run_with_time_limit(), timeout=time_limit)
     except asyncio.TimeoutError as e:
-        print(f"Overall timeout reached before completing all runs:", e)
+        _logger.warning(f"Overall timeout reached before completing all runs: {e}")
 
 
 async def run_subprocess(args, time_left):
