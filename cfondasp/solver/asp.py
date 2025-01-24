@@ -168,7 +168,15 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
 
     # 6. time to SOLVE the problem by the iterative process
     if fond_problem.time_limit and USE_ASYNCIO:
-        asyncio.run(solve_asp_iteratively_async(fond_problem, min_controller_size))
+        # this version leaves an unhandle exception behind on the event loop!
+        # https://github.com/ssardina-research/cfond-asp-private/issues/83
+        # asyncio.run(solve_asp_iteratively_async(fond_problem, min_controller_size))
+
+        # this one does not leave the hanging exception, but why?
+        # https://stackoverflow.com/questions/65682221/runtimeerror-exception-ignored-in-function-proactorbasepipetransport
+        asyncio.get_event_loop().run_until_complete(
+            solve_asp_iteratively_async(fond_problem, min_controller_size)
+        )
     else:
         solve_asp_iteratively(fond_problem, min_states=min_controller_size)
     return
