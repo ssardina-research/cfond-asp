@@ -98,19 +98,33 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
         )
 
         clingo_inputs = [fond_problem.classical_planner, file_weak_plan]
-        args = ["--stats"]
-        out_file = os.path.join(fond_problem.output_dir, FILE_WEAK_PLAN_OUT)
+        clingo_args = ["--stats"]
         if fond_problem.seq_kb:
             clingo_inputs.append(fond_problem.seq_kb)
+        for f in clingo_inputs:  # copy all ASP files to be used in the output directory
+            shutil.copy(f, fond_problem.output_dir)
+        cmd_executable = [fond_problem.clingo] + clingo_inputs + clingo_args
 
-        shutil.copy(fond_problem.classical_planner, fond_problem.output_dir)
-        execute_asp(
-            fond_problem.clingo, args, clingo_inputs, fond_problem.output_dir, out_file
-        )
+        asp_output_file = os.path.join(fond_problem.output_dir, FILE_WEAK_PLAN_OUT)
+        with open(asp_output_file, "w") as file_out:
+            # write start info on the output file for this run
+            file_out = open(asp_output_file, "a")
+            file_out.write(f"Time start: {get_now()}\n\n")
+            file_out.write(" ".join(cmd_executable))
+            file_out.write("\n")
 
-        # get the backbone
-        backbone: List[tuple[str, str]] = get_backbone_asp(out_file)
-        backbone_size = len(backbone)
+            return_code, stdout = _run_clingo(cmd_executable, fond_problem.output_dir)
+
+            # save the ASP run output to the ouput file (already opened above)
+            file_out.write(stdout)
+            file_out.write("\n\n")
+            file_out.write(f"Time end: {get_now()}\n")
+            file_out.write(f"Clingo return code: {return_code}\n")
+            file_out.close()
+
+            # get the backbone
+            backbone: List[tuple[str, str]] = get_backbone_asp(asp_output_file)
+            backbone_size = len(backbone)
 
         if backbone_size == 0:
             # problem is unsatisfiable
@@ -130,15 +144,7 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
             constraint_file = os.path.join(fond_problem.output_dir, FILE_BACKBONE)
             create_backbone_constraint(backbone, constraint_file, strict=True)
             fond_problem.controller_constraints["backbone"] = constraint_file
-
-    # 5. done, process and solve!
-    # remove any old clingo output files
-    remove_files(fond_problem.output_dir, ASP_CLINGO_OUTPUT_PREFIX)
-
-    # set the overall solver model to be used, copy it to output folder
-    model_file = f"controller-{fond_problem.controller_model}.lp"
-    fond_problem.controller_model = os.path.join(get_package_root(), "asp", model_file)
-    shutil.copy(fond_problem.controller_model, fond_problem.output_dir)
+            shutil.copy(constraint_file, fond_problem.output_dir)
 
     if fond_problem.filter_undo:
         compile_undo_actions(fond_problem, fond_problem.output_dir)
@@ -254,14 +260,12 @@ async def run_subprocess(args, time_left):
     return process.returncode, stdout
 
 
-def _run_clingo(files, args, cwd, time_limit=float("inf")):
+def _run_clingo(cmd_executable, cwd, time_limit=float("inf")):
     """Runs an external program using asyncio.
     Integrate stderr into stdout
 
     return both process return code and stdout
     """
-    cmd_executable = ["clingo"] + files + args
-
     process = subprocess.run(
         cmd_executable,
         cwd=cwd,
@@ -276,7 +280,7 @@ def _run_clingo(files, args, cwd, time_limit=float("inf")):
     return return_code, stdout
 
 
-def solve_asp_iteratively(fond_problem, min_states):
+def solve_asp_iteratively(fond_problem : FONDProblem, min_states):
     """Runs the function `n` times with an overall timeout of `timeout` seconds."""
     _logger: logging.Logger = _get_logger()
 
@@ -292,20 +296,6 @@ def solve_asp_iteratively(fond_problem, min_states):
             _logger.info(
                 f"Solving with number of controller states={num_states} - Time left: {time_left:.2f}"
             )
-
-            # ASP input files for Clingo
-            input_files = [fond_problem.controller_model, fond_problem.instance_file]
-            if fond_problem.domain_knowledge is not None:
-                input_files.append(fond_problem.domain_knowledge)
-            if fond_problem.controller_constraints.values() is not None:
-                input_files += fond_problem.controller_constraints.values()
-
-            # build executable command
-            args = [f"-c numStates={num_states}"] + fond_problem.clingo_args
-            cmd_executable = [fond_problem.clingo] + input_files + args
-
-            # cmd_executable = ["echo", "Hello, world!"]
-            # print(cmd_executable)
             asp_output_file = os.path.join(
                 fond_problem.output_dir, f"{ASP_CLINGO_OUTPUT_PREFIX}{num_states}.out"
             )
@@ -318,8 +308,7 @@ def solve_asp_iteratively(fond_problem, min_states):
 
                 # now run clingo!
                 return_code, stdout = _run_clingo(
-                    input_files,
-                    args,
+                    cmd_executable + [f"-c numStates={num_states}"],
                     cwd=fond_problem.output_dir,
                     time_limit=time_left,
                 )
@@ -347,7 +336,21 @@ def solve_asp_iteratively(fond_problem, min_states):
 
         return False  # have tried all sizes and no solution found!
 
-    # main process
+    # MAIN PROCESS
+    # ASP input files for Clingo
+    input_files = [fond_problem.instance_file, fond_problem.controller_model]
+    if fond_problem.domain_knowledge is not None:
+        input_files.append(fond_problem.domain_knowledge)
+    if fond_problem.controller_constraints.values() is not None:
+        input_files += fond_problem.controller_constraints.values()
+    for (
+        f
+    ) in input_files[1:]:  # copy all ASP files to be used in the output directory
+        shutil.copy(f, fond_problem.output_dir, follow_symlinks=True)
+
+    # build executable command and arguments (which contains number of controller states)
+    cmd_executable = [fond_problem.clingo] + input_files + fond_problem.clingo_args
+
     try:
         return run_with_time_limit()
     except subprocess.TimeoutExpired as e:

@@ -23,8 +23,9 @@ def get_fond_problem(args) -> FONDProblem:
         + f" --invariant-generation-max-time {FD_INV_LIMIT}"
     )
 
-    # classical planner model
+    # planner models ASP files needed
     classical_planner: str = os.path.join(get_package_root(), "asp", FILE_CONTROLLER_WEAK)
+    model_planner = os.path.join(get_package_root(), "asp", f"controller-{args.model}.lp")
 
     # asp tools-reg
     if args.clingo_args:
@@ -39,7 +40,7 @@ def get_fond_problem(args) -> FONDProblem:
         output_dir=args.output_dir,
         sas_translator=os.path.abspath(args.translator_path),
         translator_args=translator_args,
-        controller_model=args.model,
+        controller_model=model_planner,
         clingo=CLINGO_BIN,
         clingo_args=clingo_args,
         max_states=args.max_states,
@@ -58,13 +59,10 @@ def get_fond_problem(args) -> FONDProblem:
     if args.extra_constraints:
         extra_constraints_file = os.path.abspath(args.extra_constraints)
         fond_problem.controller_constraints["extra"] = extra_constraints_file
-        shutil.copy(extra_constraints_file, fond_problem.output_dir)
-
     if args.filter_undo:
         undo_constraint_file = os.path.join(
             get_package_root(), "asp", "control", "undo.lp"
         )
-        shutil.copy(undo_constraint_file, fond_problem.output_dir)
         fond_problem.controller_constraints["undo"] = undo_constraint_file
 
     return fond_problem
