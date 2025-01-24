@@ -97,11 +97,11 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
             file_weak_plan, initial_state, goal_state, variables, mutexs, nd_actions
         )
 
-        clingo_inputs = [fond_problem.classical_planner, file_weak_plan]
+        clingo_inputs = [file_weak_plan, fond_problem.classical_planner]
         clingo_args = ["--stats"]
         if fond_problem.seq_kb:
             clingo_inputs.append(fond_problem.seq_kb)
-        for f in clingo_inputs:  # copy all ASP files to be used in the output directory
+        for f in clingo_inputs[1:]:  # copy all ASP files to be used in the output dir (except instance)
             shutil.copy(f, fond_problem.output_dir)
         cmd_executable = [fond_problem.clingo] + clingo_inputs + clingo_args
 
@@ -343,9 +343,9 @@ def solve_asp_iteratively(fond_problem : FONDProblem, min_states):
         input_files.append(fond_problem.domain_knowledge)
     if fond_problem.controller_constraints.values() is not None:
         input_files += fond_problem.controller_constraints.values()
-    for (
-        f
-    ) in input_files[1:]:  # copy all ASP files to be used in the output directory
+
+    # copy all ASP files to be used in the output directory (instance already there!    )
+    for f in input_files[1:]:
         shutil.copy(f, fond_problem.output_dir, follow_symlinks=True)
 
     # build executable command and arguments (which contains number of controller states)
