@@ -8,7 +8,7 @@ import logging
 import coloredlogs
 from async_timeout import timeout
 
-from cfondasp.utils.system_utils import get_now, get_package_root
+from cfondasp.utils.system_utils import get_now, get_pkg_root
 
 
 from cfondasp.base.config import (
@@ -17,7 +17,9 @@ from cfondasp.base.config import (
     FILE_BACKBONE,
     FILE_INSTANCE,
     FILE_INSTANCE_WEAK,
+    FILE_UNDO_ACTIONS,
     FILE_WEAK_PLAN_OUT,
+    FILE_INSTANCE
 )
 from cfondasp.base.elements import FONDProblem, Action, Variable, State
 from cfondasp.base.logic_operators import entails
@@ -50,7 +52,14 @@ DEBUG_LEVEL = "INFO"
 
 def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
     """
-    Main solver function for FOND problems.
+    MAIN SOLVER FUNCTION FOR FONDPorblem
+
+    1. Determinize
+    2. Check if trivially solved.
+    3. Generate ASP instance encoding.
+    4. Handle backbone to estimate min number of controller states (if requested).
+    5. Add opitmizations: filter undo, domain kb
+    7. SOLVE!
 
     First we generate a backbone using classical planner and then use that to constrain the controller.
 
@@ -146,9 +155,9 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
             fond_problem.controller_constraints["backbone"] = constraint_file
             shutil.copy(constraint_file, fond_problem.output_dir)
 
+    # 5. Filter undo actions and include domain knowledge (if requested)
     if fond_problem.filter_undo:
-        compile_undo_actions(fond_problem, fond_problem.output_dir)
-
+        compile_undo_actions(fond_problem)
     if fond_problem.domain_knowledge:
         generate_knowledge(
             fond_problem,
@@ -159,7 +168,7 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
             fond_problem.domain_knowledge,
         )
 
-    # time to SOLVE the problem by the iterative process
+    # 6. time to SOLVE the problem by the iterative process
     if fond_problem.time_limit and USE_ASYNCIO:
         asyncio.run(solve_asp_iteratively_async(fond_problem, min_controller_size))
     else:
@@ -244,9 +253,6 @@ async def run_subprocess(args, time_left):
 
     return both process return code and stdout
     """
-
-    _logger: logging.Logger = _get_logger()
-
     # run clingo in a separate process
     process = await asyncio.create_subprocess_exec(
         *args,
@@ -341,8 +347,10 @@ def solve_asp_iteratively(fond_problem : FONDProblem, min_states):
     input_files = [fond_problem.instance_file, fond_problem.controller_model]
     if fond_problem.domain_knowledge is not None:
         input_files.append(fond_problem.domain_knowledge)
-    if fond_problem.controller_constraints.values() is not None:
-        input_files += fond_problem.controller_constraints.values()
+    input_files += [
+        fond_problem.controller_constraints[k]
+        for k in fond_problem.controller_constraints
+    ]
 
     # copy all ASP files to be used in the output directory (instance already there!    )
     for f in input_files[1:]:
@@ -483,27 +491,23 @@ def parse_and_translate(
     return initial_state, goal_state, det_actions, nd_actions, variables, mutexs
 
 
-def compile_undo_actions(fond_problem: FONDProblem, output_dir: str):
+def compile_undo_actions(fond_problem: FONDProblem):
     undo_controller = fond_problem.controller_constraints["undo"]
-    instance_file = os.path.join(output_dir, "instance.lp")
-    output_file = os.path.join(output_dir, "undo_actions.out")
-    executable_list = [fond_problem.clingo, instance_file, undo_controller, "--stats"]
-
-    process = subprocess.Popen(
-        executable_list,
-        cwd=output_dir,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        start_new_session=True,
-    )
-    stdout, stderr = process.communicate()
+    executable_list = [
+        fond_problem.clingo,
+        fond_problem.instance_file,
+        undo_controller,
+        "--stats",
+    ]
+    return_code, stdout = _run_clingo(executable_list, cwd=fond_problem.output_dir)
 
     # save output
+    output_file = os.path.join(fond_problem.output_dir, FILE_UNDO_ACTIONS)
     with open(output_file, "w") as f:
-        f.write(stdout.decode())
+        f.write(stdout)
 
     # create grounded file
-    grounded_undo_file = os.path.join(output_dir, "undo_actions.lp")
+    grounded_undo_file = os.path.join(fond_problem.output_dir, "undo_actions.lp")
     write_undo_actions(
         output_file, grounded_undo_file, process_action_type=fond_problem.filter_undo
     )

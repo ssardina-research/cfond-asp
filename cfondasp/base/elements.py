@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List
 
+from cfondasp.base.config import CLINGO_BIN, TRANSLATOR_BIN
+
 
 @dataclass(slots=True)
 class Variable(object):
@@ -197,23 +199,29 @@ class SASProblem(object):
 
 @dataclass(slots=True)
 class FONDProblem(object):
+    # core input
     domain: str
     problem: str
-    output_dir: str
-    sas_translator: str
-    translator_args: str
+    # main ASP files
     controller_model: str
-    clingo: str
-    clingo_args: List[str]
+    classical_planner: str
+    instance_file : str  # main ASP encoding of the problem
+    # systems properties
+    clingo: str = CLINGO_BIN
+    clingo_args: List[str] = ""
+    sas_translator: str = TRANSLATOR_BIN
+    translator_args: str = ""
+    output_dir: str = "output"
+    # solving contraints
     max_states: int = 1
     min_states: int = 1
     inc_states: int = 1
     time_limit: int = 300
-    instance_file : str = None  # ASP encoding of the problem
-    extra_kb: str = None
+    # additional optimizations
+    backbone : bool = False,
     filter_undo: bool = False
-    classical_planner: str = None
+    # domain to include control knowledge (e.g., tireworld)
     domain_knowledge: str = None
+    # dict of extra ASP files (extra constraints to use)
     controller_constraints: dict[str: str] = None
     seq_kb: str = None # use for weak plans (sequential knowledge base)
-

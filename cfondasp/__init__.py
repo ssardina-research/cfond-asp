@@ -18,7 +18,7 @@ from .__version__ import (
     __url__,
     __version__,
 )
-from .utils.system_utils import get_package_root
+from .utils.system_utils import get_pkg_root
 
-ROOT_PATH = get_package_root()
+ROOT_PATH = get_pkg_root()
 VERSION = __version__

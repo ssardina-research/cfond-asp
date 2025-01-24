@@ -26,7 +26,7 @@ def print_system_info():
     print(f"Memory:{str(round(psutil.virtual_memory().total / (1024.0 **3)))} GB")
     print("------------------------------------------------------------------------------")
 
-def get_package_root() -> Path:
+def get_pkg_root() -> Path:
     """
     Returns the root of the package folder
     :return: Root Path

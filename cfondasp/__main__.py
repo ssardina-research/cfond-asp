@@ -8,13 +8,22 @@ import shutil
 from timeit import default_timer as timer
 
 from cfondasp import VERSION
-from cfondasp.base.config import CLINGO_BIN, DEFAULT_MODEL, FD_INV_LIMIT, FILE_CONTROLLER_WEAK, FILE_INSTANCE, PYTHON_MINOR_VERSION, TRANSLATOR_BIN
+from cfondasp.base.config import (
+    CLINGO_BIN,
+    DEFAULT_MODEL,
+    FD_INV_LIMIT,
+    FILE_CONTROLLER_WEAK,
+    FILE_INSTANCE,
+    PYTHON_MINOR_VERSION,
+    TRANSLATOR_BIN,
+)
 from cfondasp.checker.verify import build_controller
 from .base.elements import FONDProblem
-from .utils.system_utils import get_package_root
+from .utils.system_utils import get_pkg_root
 from .solver.asp import solve, parse_and_translate, solve
 
 logger: logging.Logger = None
+
 
 def get_fond_problem(args) -> FONDProblem:
     # determiniser. We use a recent version of FD
@@ -22,10 +31,6 @@ def get_fond_problem(args) -> FONDProblem:
         "{domain} {instance} --sas-file {sas_file}"
         + f" --invariant-generation-max-time {FD_INV_LIMIT}"
     )
-
-    # planner models ASP files needed
-    classical_planner: str = os.path.join(get_package_root(), "asp", FILE_CONTROLLER_WEAK)
-    model_planner = os.path.join(get_package_root(), "asp", f"controller-{args.model}.lp")
 
     # asp tools-reg
     if args.clingo_args:
@@ -35,35 +40,41 @@ def get_fond_problem(args) -> FONDProblem:
 
     # build a full FOND problem task
     fond_problem = FONDProblem(
+        # core input
         domain=args.domain,
         problem=args.problem,
-        output_dir=args.output_dir,
-        sas_translator=os.path.abspath(args.translator_path),
-        translator_args=translator_args,
-        controller_model=model_planner,
+        # main ASP files
+        controller_model=os.path.join(
+            get_pkg_root(), "asp", f"controller-{args.model}.lp"
+        ),
+        classical_planner=os.path.join(get_pkg_root(), "asp", FILE_CONTROLLER_WEAK),
+        instance_file=os.path.join(args.output_dir, FILE_INSTANCE),
+        # systems properties
         clingo=CLINGO_BIN,
         clingo_args=clingo_args,
+        sas_translator=os.path.abspath(args.translator_path),
+        translator_args=translator_args,
+        output_dir=args.output_dir,
+        # solving contraints
         max_states=args.max_states,
         min_states=args.min_states,
         inc_states=args.inc_states,
         time_limit=args.timeout,
+        # additional optimizations
+        backbone=args.use_backbone,
         filter_undo=args.filter_undo,
-        instance_file = os.path.join(args.output_dir, FILE_INSTANCE),
-        extra_kb=args.extra_constraints,
-        classical_planner=classical_planner,
+        controller_constraints=(
+            {"extra": os.path.abspath(args.extra_constraints)}
+            if args.extra_constraints is not None
+            else dict({})
+        ),
         domain_knowledge=args.domain_kb,
     )
 
-    fond_problem.controller_constraints = {}
-
-    if args.extra_constraints:
-        extra_constraints_file = os.path.abspath(args.extra_constraints)
-        fond_problem.controller_constraints["extra"] = extra_constraints_file
     if args.filter_undo:
-        undo_constraint_file = os.path.join(
-            get_package_root(), "asp", "control", "undo.lp"
+        fond_problem.controller_constraints["undo"] = os.path.join(
+            get_pkg_root(), "asp", "control", "undo.lp"
         )
-        fond_problem.controller_constraints["undo"] = undo_constraint_file
 
     return fond_problem
 
