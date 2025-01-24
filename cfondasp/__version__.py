@@ -15,7 +15,7 @@
 __title__ = "cfond-asp"
 __description__ = "Compact FOND ASP Planner"
 __url__ = "https://github.com/ssardina-research/cfond-asp"
-__version__ = "0.1.5"
+__version__ = "0.1.6"
 __author__ = "Sebastian Sardina, Nitin Yadav"
 __author_email__ = "ssardina@gmail.com, nitin.yadav@unimelb.edu.au"
 __license__ = "MIT License"
