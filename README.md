@@ -213,7 +213,6 @@ This will first translate Clingo output to a readable controller format (see the
 
 Verification result will be saved in file `verify.out`.
 
-
 ## Extension features
 
 The ECAI23 paper reports two optimisations: the use of weak-plan backbones and the usef of control domain knolwedge.
@@ -259,7 +258,6 @@ Two more configurations of the planner were added, using the FOND-SAT forward pr
 ![sdasd](experiments/stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot_PRP.jpg)
 
 ![sdasd](experiments/stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot_FONDSAT.jpg)
-
 
 ## Contributors
 
