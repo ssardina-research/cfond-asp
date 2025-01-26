@@ -29,7 +29,7 @@ install_requires = [
     "markdown-it-py",
     "mdurl",
     "networkit",
-    "numpy",
+    "numpy==1.26.4",
     "psutil",
     "py-cpuinfo",
     "pddl",
