@@ -475,3 +475,6 @@ experiments/.Rhistory
 .vscode/launch-interactive.json
 .vscode/launch.json
 test*.lp
+results/
+bin
+.vscode
