@@ -42,6 +42,13 @@ from cfondasp.knowledge.spiky import SpikyTireworldKnowledge
 import os
 
 # use asyncio for the solver when timeout is specified
+# NOTE: as of Jan 2025, we changed the external call to clingo to use subprocess.run instead of asyncio
+#      because of a bug that leaves an unhandled exception in the event loop
+#       refer to issue #83: https://github.com/ssardina-research/cfond-asp-private/issues/83
+#      Seems that Python 3.12.x has a bug with asyncio
+#     Said so, subprocess.run() is enough for our needs as we only need timeout to external process
+#       and we don't need multiple async calls at all (one clingo at a time)
+#    subprocess.run() does timeout (albeit busy-waiting, but that's OK as clingo runs for minutes)
 USE_ASYNCIO = False
 
 logger: logging.Logger = None
