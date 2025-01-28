@@ -15,7 +15,7 @@ class Tool(BaseTool2):
         self._output_dir = "./benchexec_output/cfondasp"
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("cfondasp")
+        return tool_locator.find_executable("cfond-asp")
 
     def name(self):
         return "CFondASP"
@@ -27,7 +27,7 @@ class Tool(BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         """
-        ./src/cfondasp ./benchmarks/acrobatics/domain.pddl ./benchmarks/acrobatics/p03.pddl --model fondsat --use_backbone --filter_undo --clingo_args "-t 2" --output ./output 
+        ./src/cfondasp ./benchmarks/acrobatics/domain.pddl ./benchmarks/acrobatics/p03.pddl --model fondsat --use-backbone --filter_undo --clingo-args "-t 2" --output ./output 
         """
         use_control_kb = False
         new_options = []
@@ -38,8 +38,9 @@ class Tool(BaseTool2):
                 new_options.append(option)
             
         if use_control_kb and "kb" in task.options:
-            new_options += ["--domain_kb", task.options["kb"]]
+            new_options += ["--domain-kb", task.options["kb"]]
         new_options += ["--timeout", str(rlimits.cputime)]
+        # new_options += ["--translator-path", str(rlimits.cputime)]
         return [executable] + new_options + list(task.input_files) + ["--output", f"{self._output_dir}/{task.options['output']}"]
 
     def determine_result(self, run):
