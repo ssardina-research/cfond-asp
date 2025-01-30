@@ -136,7 +136,7 @@ terminates(X) :- state(X), terminates(Y): successor(X, Y).
 :- not terminates(X), state(X).
 
 % NOTE: these are not equivalent to the 2nd rule above!
-% they will support the derivation of terminatess(X) when it shouldn't!
+% they will support the derivation of terminates(X) when it shouldn't!
 % details: https://github.com/ssardina-research/cfond-asp-private/issues/74
 % terminates(X) :- state(X), {not terminates(X) : successor(X, Y)} = 0.
 % terminates(X) :- state(X), #count {Y : state(Y), not terminates(Y), successor(X, Y)} = 0.
