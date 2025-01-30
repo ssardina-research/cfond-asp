@@ -22,50 +22,64 @@ initialState(0).
 goalState(numStates).
 
 %*---------------------------------------------------------------------------------------------------------------
-:::GENERATION: A Policy is a tuple (State, Action). There should be one tuple per state, except for the goal state.
+:::GENERATION of action at controller states
 
-Action: An action is the name of a domain action. For example, "pick-from-table(b1)". An example of a policy tuple is (0, "pick-from-table(b1)").
+    1) policy(State, Action): an action is done in each state (except at goal state)
+    2) transition(State, Effect, NextState): State transitions to NextState under the Effect-th (of action at State)
+        For a tuple (S, A) in the policy, generate Z transitions (S, E, S') where Z = number of effects of action A.
+
+
+    Action: An action is the name of a domain action. For example, "pick-from-table(b1)".
+        An example of a policy tuple is (0, "pick-from-table(b1)").
+
+    Nondeterministic planning actions are determinised by adding a suffix.
+    For example, the non-deterministic action put-on-block(b1, b2) has two nondeterministic effects.
+    The determinisation produces two actions:
+    1. put-on-block_det_0(b1, b2), and
+    2. put-on-block_det_1(b1, b2).
+
+    In the ASP instance, we associate the action put-on-block(b1, b2) with two effects: e1 and e2.
+    Effects e1 and e2 correspond to the effect of put-on-block_det_0(b1, b2) and put-on-block_det_1(b1, b2), resp.
+
+    In general, an action with suffix _det_{i} will correspond to effect e{i+1} in our model.
+    A deterministic planning action always has one effect, labelled as e1.
 ---------------------------------------------------------------------------------------------------------------*%
 {policy(State, Action): action(Action)} = 1 :- state(State), not goalState(State).
 
-%*---------------------------------------------------------------------------------------------------------------
-:::GENERATION: A transition is a tuple (State, Effect, State), such that (State, Action) is in the policy, and Effect is an effect if the given action.
-
-For a tuple (S, A) in the policy, generate Z transitions (S, E, S') where Z is the number of effects of action A.
-
-Nondeterministic planning actions are determinised by adding a suffix.
-For example, the non-deterministic action put-on-block(b1, b2) has two nondeterministic effects.
-The determinisation produces two actions:
-1. put-on-block_det_0(b1, b2), and
-2. put-on-block_det_1(b1, b2).
-
-In the ASP instance, we associate the action put-on-block(b1, b2) with two effects: e1 and e2.
-Effects e1 and e2 correspond to the effect of actions put-on-block_det_0(b1, b2) and put-on-block_det_1(b1, b2), respectively.
-
-In general, an action with suffix _det_{i} will correspond to effect e{i+1} in our model. A deterministic planning action always has one effect, labelled as e1.
----------------------------------------------------------------------------------------------------------------*%
 {transition(State, Effect, NextState): state(NextState),  maxND(L), NextState <= (State+1) * L} = 1 :-
     policy(State, Action), actionEffect(Action, Effect).
 
 
 %*---------------------------------------------------------------------------------------------------------------
-::: holds(State, Variable, Value): Variable must have value Value in state State.
+:::Auxiliary atoms based on transitions.
 
-This implements a PRP-like regression/weakest-precondition approach, by regessing from the goal condition on what must be true in each controller state.
-
-HF. A variable cannot have 2 different values in a state.
-P1. Preconditions must be forced when an action is executed in a controller State
-    Action precondition: (n, a) -> p(n) if p in prec(a)
+- successor(X, Y): Y is a successor of X if there is a transition from X to Y.
+- sibling(X, Y): X and Y are two successor of the same parent, that is, two effects of the same action execution
 ---------------------------------------------------------------------------------------------------------------*%
-:- holds(State, Variable, Value1), holds(State, Variable, Value2), Value1 != Value2. % HF
-holds(State, Variable, Value) :- policy(State, Action), precondition(Action, Variable, Value). % P1
+successor(X, Y) :- transition(X, _, Y).
+sibling(X, Y) :- successor(Z, X), successor(Z, Y), X != Y.
+
+
+%*---------------------------------------------------------------------------------------------------------------
+::: holds(State, Variable, Value): Variable must have value Value in state State.
+--------------------------------------------------------------------------------------------------------------*%
+% A variable cannot have 2 different values in a state.
+:- holds(State, Variable, Value1), holds(State, Variable, Value2), Value1 != Value2.
+
+% P1. Preconditions must be forced when an action is executed in a controller State
+holds(State, Variable, Value) :- policy(State, Action), precondition(Action, Variable, Value).
 
 %%% REGRESSION IMPLEMENTATION --------------------------------
-% :- policy(S1, A), del(A, E, P), next(S1, E, S2), holds(S2, P).
--holds(NextState, Variable, Value) :-   % N1 ## cannot be integrity constraint
+% Forward propagation of negative effects
+-holds(NextState, Variable, Value) :-
     transition(State, Effect, NextState),
     policy(State, Action),
     del(Action, Effect, Variable, Value).
+
+% REGRESSION: backward propagation of positive effects
+% This implements a PRP-like regression/weakest-precondition approach, by regression from the goal condition
+%     on what must be true in each controller state.
+%   if Variable = Value in NextState, and action does not set it, then it has to be true already in State
 holds(State, Variable, Value) :-
     holds(NextState, Variable, Value),
     transition(State, Effect, NextState),
@@ -73,38 +87,41 @@ holds(State, Variable, Value) :-
 
 
 %*---------------------------------------------------------------------------------------------------------------
-:::Symmetry breaking based on directed graphs.
+:::SYMMETRY BREAKING BASED ON DIRECTED GRAPHS.
     Symmetry breaking puts constraints on how nodes are connected.
     The constraint is (ni , nj ) -> k≤i \/ (nk , nl), where j > 1, l=j-1, and ni , nj , nl are not goal states.
     Intuition is that a state ni should connect to ni+l only if states nj where j ≤ i are unavailable.
 
-- succesor(X,Y): Y is a succesor of X if there is a transition from X to Y.
-
 Note: The symmetry breaking produces a labelling as per breadth first search.
-S1. If J is a successor of I, then all non-sibling states K, where K < I, cannot connect to J.
-S2. If J is a successor of I, then all states K, where K <= I, should not have connection to J-1.
-S3. Siblings should obey lexicographic ordering (two siblings version)
-S4. Siblings should obey lexicographic ordering (more than two siblings version)
 ---------------------------------------------------------------------------------------------------------------*%
-successor(X, Y) :- transition(X, _, Y).
 
+% S1. If J is a successor of I, then all non-sibling states K, where K < I, cannot connect to J.
 % Left out; seems to be making it slower
-% -successor(K, J) :- successor(I, J), not sibling(K, I), J > I, not goalState(J), state(K), 1 < K < I. % S1
-% sibling(X, Y) :- successor(Z, X), successor(Z, Y), X != Y.
+% -successor(K, J) :- successor(I, J), not sibling(K, I), J > I, not goalState(J), state(K), 1 < K < I.
 
-:- successor(I, J), not goalState(J), J > I, J > 1, {successor(K, J-1): state(K), state(J-1), K <= I} 0. % S2
+% S2. If I connects to non-goal J, there must be some K <= I that connects to J-1 (we don´t skip states)
+:- successor(I, J), not goalState(J), J > I, J > 1, {successor(K, J-1): state(K), state(J-1), K <= I} 0.
 
-:- maxND(N), N<3, precedence(E1, E2), transition(S, E1, J1), J1 > S, not goalState(J1), 1 {transition(S, E2, J2): J2<J1, J2>S, not goalState(J2)}. % S3
-:- maxND(N), N>2, precedence(E1, E2), transition(S, E1, J1), transition(S, E2, J2), S < J2 < J1, not goalState(J1), {transition(S, E3, J2): precedence(E3, E2), not goalState(J2)} = 0. % S4
+% S3. Siblings should obey lexicographic ordering (two siblings version)
+:- maxND(N), N < 3, precedence(E1, E2), transition(S, E1, J1), J1 > S, not goalState(J1),
+    1 {transition(S, E2, J2): J2 < J1, J2 > S, not goalState(J2)}.
+% this integrity constraint should be equivalent? but a bit slower?
+% :- maxND(N), N < 3, precedence(E1, E2), transition(S, E1, J1), J1 > S, not goalState(J1),
+%     transition(S, E2, J2), J2 > S, J2 < J1.
 
+% S4. Siblings should obey lexicographic ordering (more than two siblings version)
+:- maxND(N), N > 2, precedence(E1, E2), transition(S, E1, J1), transition(S, E2, J2), S < J2 < J1, not goalState(J1),
+     {transition(S, E3, J2): precedence(E3, E2), not goalState(J2)} = 0.
 
 %*---------------------------------------------------------------------------------------------------------------
-:::Mutex (derived from SAS encoding). In any state, there should be at most one mutually exclusive variable value pairs.
+:::MUTEX (derived from SAS encoding).
+
+In any state, there should be at most one mutually exclusive variable value pairs.
 ---------------------------------------------------------------------------------------------------------------*%
 :- mutexGroup(Group), state(State), not {holds(State, Variable, Value) : mutex(Group, Variable, Value)} 1.
 
 %*---------------------------------------------------------------------------------------------------------------
-:::Strong cyclic solution: Goal should be reachable from all states. This is specified by three constraints.
+:::STRONG CYCLIC SOLUTION: Goal should be reachable from all states. This is specified by three constraints.
 
 S1. Goal is reachable from the goal state.
 S2. If goal is reachable from a state Y, then goal is reachable from all states X, such that Y is a successor of X.

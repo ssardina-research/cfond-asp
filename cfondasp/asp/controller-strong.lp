@@ -24,7 +24,7 @@ initialState(0).
 goalState(numStates).
 
 %*---------------------------------------------------------------------------------------------------------------
-:::GENERATION: We generate two atoms:
+:::GENERATION of action at controller states
 
     1) policy(State, Action): an action is done in each state (except at goal state)
     2) transition(State, Effect, NextState): State transitions to NextState under the Effect-th (of action at State)
@@ -54,7 +54,7 @@ goalState(numStates).
 %*---------------------------------------------------------------------------------------------------------------
 :::Auxiliary atoms based on transitions.
 
-- succesor(X, Y): Y is a successor of X if there is a transition from X to Y.
+- successor(X, Y): Y is a successor of X if there is a transition from X to Y.
 - sibling(X, Y): X and Y are two successor of the same parent, that is, two effects of the same action execution
 ---------------------------------------------------------------------------------------------------------------*%
 successor(X, Y) :- transition(X, _, Y).
@@ -92,7 +92,7 @@ P1. If a tuple (S, A) is in the policy and a variable Var has value Val in actio
 %  If J is a successor of I, then all non-sibling states K of I, that come before I (K < I), cannot connect to J.
 -successor(K, J) :- successor(I, J), not sibling(K, I), J > I, not goalState(J), state(K), 1 < K < I. % S1
 
-% If I connects to non-goal J, here must be some K <= I that connects to J-1 (we don´t skip states)
+% If I connects to non-goal J, there must be some K <= I that connects to J-1 (we don´t skip states)
 :- successor(I, J), not goalState(J), J > I, J > 1, {successor(K, J-1): state(K), state(J-1), K <= I} = 0.
 
 %*---------------------------------------------------------------------------------------------------------------
