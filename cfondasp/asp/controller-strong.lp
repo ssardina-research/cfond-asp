@@ -76,19 +76,14 @@ P1. If a tuple (S, A) is in the policy and a variable Var has value Val in actio
 %*---------------------------------------------------------------------------------------------------------------
 :::Symmetry breaking based on directed graphs.
     Symmetry breaking puts constraints on how nodes are connected.
-    The constraint is (ni , nj ) -> k≤i \/ (nk , nl), where j > 1, l=j-1, and ni , nj , nl are not goal states.
     Intuition is that a state ni should connect to ni+l only if states nj where j ≤ i are unavailable.
-
-Note: The symmetry breaking produces a labelling as per breadth first search.
-S1. If J is a successor of I, then all non-sibling states K, where K < I, cannot connect to J.
-S2. If J is a successor of I, then all states K, where K <= I, should not have connection to J-1.
-S3. Siblings should obey lexicographic ordering (two siblings version)
-S4. Siblings should obey lexicographic ordering (more than two siblings version)
+    The constraint is (ni , nj ) -> k ≤ i \/ (nk , nl), where j > 1, l = j-1, and ni, nj , nl are not goal states.
 ---------------------------------------------------------------------------------------------------------------*%
+%  If J is a successor of I, then all non-sibling states K of I, that come before I (K < I), cannot connect to J.
 -successor(K, J) :- successor(I, J), not sibling(K, I), J > I, not goalState(J), state(K), 1 < K < I. % S1
-:- successor(I, J), not goalState(J), J>I, J>1, {successor(K, J-1):state(K), state(J-1), K <= I} 0. % S2
 
-:- precedence(E1, E2), transition(S, E1, J1), transition(S, E2, J2), S < J2 < J1, not goalState(J1), {transition(S, E3, J2): precedence(E3, E2), not goalState(J2)}=0. % S5
+% S2. If I connects to non-goal J, here must be some K <= I that connects to J-1 (we don´t skip states)
+:- successor(I, J), not goalState(J), J > I, J > 1, {successor(K, J-1): state(K), state(J-1), K <= I} = 0.
 
 %*---------------------------------------------------------------------------------------------------------------
 :::Propagation of negative conditions.
