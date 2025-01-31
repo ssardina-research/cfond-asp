@@ -1,3 +1,13 @@
+#
+# Copyright 2023-2025 Sebastian Sardina & Nitin Yadav
+#
+# ------------------------------
+#
+# This file is part of cfond-asp.
+#
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
 import argparse
 from pathlib import Path
 import coloredlogs

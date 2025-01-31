@@ -1,3 +1,24 @@
+"""Main script to run the planner. Entry point of the CFOND-ASP planner
+
+CFOND-ASP is a FOND planner for comapct controllers via ASP.
+It borrows ideas from FOND-SAT and PRP, and was first published in:
+
+* Nitin Yadav, Sebastian Sardiña: [A Declarative Approach to Compact Controllers for FOND
+Planning via Answer Set Programming](https://doi.org/10.3233/FAIA230593). ECAI 2023: 2818-2825
+
+
+
+Copyright 2023-2025 Sebastian Sardina & Nitin Yadav
+
+------------------------------
+
+This file is part of cfond-asp.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+"""
+
 import argparse
 from pathlib import Path
 import coloredlogs
