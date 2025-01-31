@@ -1,9 +1,7 @@
 %*---------------------------------------------------------------------------------------------------------------
 ASP based encoding for computing a FOND controller, inspired by FondSat, fueled by Clingo.
 ---------------------------------------------------------------------------------------------------------------*%
-
 #include "controller-common.lp".
-
 
 %*---------------------------------------------------------------------------------------------------------------
 :::GENERATION: The term holds(S, Var, Val) implies that variable Var has value Val in state S.
@@ -26,19 +24,6 @@ P1. If a tuple (S, A) is in the policy and a variable Var has value Val in actio
 
 % NOTE: this should be equivalent? seems to run a bit slower (10s vs 8s)
 % holds(State, Variable, Value) :- policy(State, Action), precondition(Action, Variable, Value).
-
-%*---------------------------------------------------------------------------------------------------------------
-::: SYMMETRY BREAKING BASED ON DIRECTED GRAPHS.
-
-    Symmetry breaking puts constraints on how nodes are connected.
-    Intuition is that a state ni should connect to ni+l only if states nj where j ≤ i are unavailable.
-    The constraint is (ni , nj ) -> k ≤ i \/ (nk , nl), where j > 1, l = j-1, and ni, nj , nl are not goal states.
----------------------------------------------------------------------------------------------------------------*%
-%  If J is a successor of I, then all non-sibling states K of I, that come before I (K < I), cannot connect to J.
-% -successor(K, J) :- successor(I, J), not sibling(K, I), J > I, not goalState(J), state(K), 1 < K < I. % S1
-
-% If I connects to non-goal J, there must be some K <= I that connects to J-1 (we don´t skip states)
-% :- successor(I, J), not goalState(J), J > I, J > 1, {successor(K, J-1): state(K), state(J-1), K <= I} = 0.
 
 %*---------------------------------------------------------------------------------------------------------------
 ::: PROPAGATION OF NEGATIVE CONDITIONS.
