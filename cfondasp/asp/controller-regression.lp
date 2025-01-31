@@ -102,12 +102,17 @@ Note: The symmetry breaking produces a labelling as per breadth first search.
 % S2. If I connects to non-goal J, there must be some K <= I that connects to J-1 (we don´t skip states)
 :- successor(I, J), not goalState(J), J > I, J > 1, {successor(K, J-1): state(K), state(J-1), K <= I} 0.
 
-% S3. Siblings should obey lexicographic ordering (two siblings version)
-:- maxND(N), N < 3, precedence(E1, E2), transition(S, E1, J1), J1 > S, not goalState(J1),
-    1 {transition(S, E2, J2): J2 < J1, J2 > S, not goalState(J2)}.
+% S3. siblings effects should obey lexicographic ordering (two siblings version)
+% :- maxND(N), N < 3, precedence(E1, E2), transition(S, E1, J1), S1 > S, not goalState(S1),
+%     1 {transition(S, E2, S2): S1 > S2 > S, not goalState(S2)}.
+
+% should be equivalent to move precedence to the cardibality constraint right where it is used, right?
+% :- maxND(N), N < 3, transition(S, E1, J1), S1 > S, not goalState(S1),
+%     1 {transition(S, E2, S2): precedence(E1, E2), S1 > S2 > S, not goalState(S2)}.
+
 % this integrity constraint should be equivalent? but a bit slower?
-% :- maxND(N), N < 3, precedence(E1, E2), transition(S, E1, J1), J1 > S, not goalState(J1),
-%     transition(S, E2, J2), J2 > S, J2 < J1.
+:- maxND(N), N < 3, transition(S, E1, S1), S1 > S, not goalState(S1),
+    precedence(E1, E2), transition(S, E2, S2), S < S2 < S1.
 
 % S4. Siblings should obey lexicographic ordering (more than two siblings version)
 :- maxND(N), N > 2, precedence(E1, E2), transition(S, E1, J1), transition(S, E2, J2), S < J2 < J1, not goalState(J1),
