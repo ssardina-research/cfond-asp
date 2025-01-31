@@ -49,16 +49,23 @@ goalState(numStates).
 {transition(State, Effect, NextState): state(NextState),  maxND(L), NextState <= (State+1) * L} = 1 :-
     policy(State, Action), actionEffect(Action, Effect).
 
-
 %*---------------------------------------------------------------------------------------------------------------
-:::Auxiliary atoms based on transitions.
+:::Auxiliary derived atoms
 
-- successor(X, Y): Y is a successor of X if there is a transition from X to Y.
-- sibling(X, Y): X and Y are two successor of the same parent, that is, two effects of the same action execution
----------------------------------------------------------------------------------------------------------------*%
+    These are used by other rules
+--------------------------------------------------------------------------------------------------------------*%
+% Y is a successor of X if there is a transition from X to Y.
 successor(X, Y) :- transition(X, _, Y).
+
+% X and Y are two successor of the same parent, that is, two effects of the same action execution
 sibling(X, Y) :- successor(Z, X), successor(Z, Y), X != Y.
 
+% state S1 has used by (connected from) some state before S2
+usedBefore(S1, S2) :- state(S1), state(S2), successor(S, S1), S < S2.
+
+% transitive clousure on precedence/2: effect E1 is before E2
+precedenceStar(E1, E2) :- precedence(E1, E2).
+precedenceStar(E1, E2) :- precedence(E1, E3), precedenceStar(E3, E2).
 
 %*---------------------------------------------------------------------------------------------------------------
 ::: holds(State, Variable, Value): Variable must have value Value in state State.
@@ -88,35 +95,33 @@ holds(State, Variable, Value) :-
 
 %*---------------------------------------------------------------------------------------------------------------
 :::SYMMETRY BREAKING BASED ON DIRECTED GRAPHS.
-    Symmetry breaking puts constraints on how nodes are connected.
-    The constraint is (ni , nj ) -> k≤i \/ (nk , nl), where j > 1, l=j-1, and ni , nj , nl are not goal states.
-    Intuition is that a state ni should connect to ni+l only if states nj where j ≤ i are unavailable.
+    Symmetry breaking puts constraints on how nodes are connected/allocated.
 
-Note: The symmetry breaking produces a labelling as per breadth first search.
+    1. If we connect state N from K, either K or someone before K has already used (connected to) N-1
+    2. Within an action, when using fresh new states, we connect effect E1 before E2 if E1 is a predecessor of E2.
+        - E2 can come before E1 if E2 is reusing some previous effect transition.
+            Say E1 --> 50, E2 --> 51, E3 --> 50 (that is OK bc E3 is reusing 50 used by E1)
+        - Also, enforce this if the next states are NEW fresh states (not used by previous controller states)
 ---------------------------------------------------------------------------------------------------------------*%
 
 % S1. If J is a successor of I, then all non-sibling states K, where K < I, cannot connect to J.
 % Left out; seems to be making it slower
 % -successor(K, J) :- successor(I, J), not sibling(K, I), J > I, not goalState(J), state(K), 1 < K < I.
 
-% S2. If I connects to non-goal J, there must be some K <= I that connects to J-1 (we don´t skip states)
+% S2. NO SKIP STATES - If I connects to non-goal J, there must be some K <= I that connects to J-1
 :- successor(I, J), not goalState(J), J > I, J > 1, {successor(K, J-1): state(K), state(J-1), K <= I} 0.
 
-% S3. siblings effects should obey lexicographic ordering (two siblings version)
-% :- maxND(N), N < 3, precedence(E1, E2), transition(S, E1, J1), S1 > S, not goalState(S1),
-%     1 {transition(S, E2, S2): S1 > S2 > S, not goalState(S2)}.
-
-% should be equivalent to move precedence to the cardibality constraint right where it is used, right?
-% :- maxND(N), N < 3, transition(S, E1, J1), S1 > S, not goalState(S1),
-%     1 {transition(S, E2, S2): precedence(E1, E2), S1 > S2 > S, not goalState(S2)}.
-
-% this integrity constraint should be equivalent? but a bit slower?
-:- maxND(N), N < 3, transition(S, E1, S1), S1 > S, not goalState(S1),
-    precedence(E1, E2), transition(S, E2, S2), S < S2 < S1.
-
-% S4. Siblings should obey lexicographic ordering (more than two siblings version)
-:- maxND(N), N > 2, precedence(E1, E2), transition(S, E1, J1), transition(S, E2, J2), S < J2 < J1, not goalState(J1),
-     {transition(S, E3, J2): precedence(E3, E2), not goalState(J2)} = 0.
+% S3. ORDER EFFECTS: siblings effects should obey lexicographic ordering (two siblings version)
+% S3.1. Special case for ND of 2 (allocate E1 before E2)
+:- maxND(2), transition(S, E1, S1), not goalState(S1),
+    precedence(E1, E2), transition(S, E2, S2), S < S2 < S1, % order broken E2 before E1!
+    not usedBefore(S1, S), not usedBefore(S2, S). % next states not used before S (fresh S1 and S2!)
+% S3.2. General case for any number of ND
+:- precedence(E1, E2), transition(S, E1, S1), transition(S, E2, S2),
+    S > S2 > S1, % effect ordering broken - E1 connects further away than E2!
+    not usedBefore(S1, S), not usedBefore(S2, S), % next states not used before S (fresh S1 and S2!)
+    not goalState(S1), % hence S2 wont be goal state either as it is lower in the order
+    {transition(S, E3, S2): precedenceStar(E3, E2)} = 0. % E2 is re-using an effect-successor
 
 %*---------------------------------------------------------------------------------------------------------------
 :::MUTEX (derived from SAS encoding).
