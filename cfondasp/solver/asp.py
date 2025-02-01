@@ -232,6 +232,7 @@ async def solve_asp_iteratively_async(fond_problem, min_states):
                 )
                 continue
             if "SATISFIABLE" in stdout and "UNSATISFIABLE" not in stdout:
+                _logger.info("Solution found!")
                 return True  # yes, found solution!
 
             # not a solution yet, keep looping with more controller states
@@ -347,6 +348,7 @@ def solve_asp_iteratively(fond_problem : FONDProblem, min_states):
                 )
                 continue
             if "SATISFIABLE" in stdout and "UNSATISFIABLE" not in stdout:
+                _logger.info("Solution found!")
                 return True  # yes, found solution!
 
             # not a solution yet, keep looping with more controller states
