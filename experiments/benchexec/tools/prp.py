@@ -44,6 +44,7 @@ class Tool(BaseTool2):
         self._output_dir = "./benchexec_output/prp"
 
     def executable(self, tool_locator):
+        # this is the executable binary of the solver
         return tool_locator.find_executable("prp")
 
     def name(self):

@@ -1,10 +1,7 @@
 """
-INFO Solution found for instance (/Users/nitiny/Work/Software/cfond-asp-private/benchmarks/acrobatics/domain.pddl, /Users/nitiny/Work/Software/cfond-asp-private/benchmarks/acrobatics/p03.pddl)!
-INFO Number of states in controller: 16
-INFO Output folder: /Users/nitiny/Work/Software/cfond-asp-private/output
-INFO Time taken: 2.087560167070478
+This is the tool for benchexec (https://github.com/sosy-lab/benchexec) 
+for CFOND-ASP planner (https://github.com/ssardina-research/cfond-asp)
 """
-
 from benchexec.tools.template import BaseTool2
 import benchexec.result as result
 
@@ -15,6 +12,7 @@ class Tool(BaseTool2):
         self._output_dir = "./benchexec_output/cfondasp"
 
     def executable(self, tool_locator):
+        # this is the executable binary of the solver
         return tool_locator.find_executable("cfond-asp")
 
     def name(self):
@@ -27,7 +25,9 @@ class Tool(BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         """
-        ./src/cfondasp ./benchmarks/acrobatics/domain.pddl ./benchmarks/acrobatics/p03.pddl --model fondsat --use-backbone --filter_undo --clingo-args "-t 2" --output ./output 
+        Example:
+        
+        cfond-asp ./benchmarks/acrobatics/domain.pddl ./benchmarks/acrobatics/p03.pddl --model fondsat --use-backbone --filter_undo --clingo-args "-t 2" --output ./output 
         """
         use_control_kb = False
         new_options = []
