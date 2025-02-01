@@ -79,13 +79,16 @@ positional arguments:
 
 ### SAS translator setup
 
-The CFOND-ASP planner requires the SAS translator (adapted for FOND) to be available.  It is the resulting [SAS encoding](https://www.fast-downward.org/TranslatorOutputFormat) what is actually translated into an ASP problem.
+The CFOND-ASP planner requires the SAS translator (adapted for FOND) to be available. It is the resulting [SAS encoding](https://www.fast-downward.org/TranslatorOutputFormat) what is actually translated into an ASP problem.
 
 By default, the planner will assume the binary `translate.py` is in the path, but its specific path can be set via `--translator-path` option.
 
 The SAS translator used is a modified version of the classical SAS translator shipped with [downward](https://github.com/aibasel/downward) planning framework (located under [src/translate](https://github.com/aibasel/downward/tree/main/src/translate). The minor modification done to such translation involves always keeping (never simplifying) any action that resulted from the determinization of a FOND planning domain. The planner determinizes a FOND domain using the [fond-utils]([fond-utils](https://github.com/AI-Planning/fond-utils)) and annotates every resulting operator from a determinization with the suffix `DETUP` which are always kept by the modified translator, even if they end up being trivial no-op actions.
 
-There are two ways to obtain the modified translator. The simplest way is to get it from the [translator-fond](https://github.com/ssardina-research/translator-fond) repo (under `translate/` folder).
+There are two ways to obtain the modified translator. The simplest way is to get it from the [translator-fond](https://github.com/ssardina-research/translator-fond/tree/main/translate) repo.
+
+>[!IMPORTANT]
+> You should use the translator that does NOT perform determinization (which is done separately via [fond-utils](https://github.com/AI-Planning/fond-utils) library at the PDDL level), that is, the one under `translate/` folder.
 
 The second way is to get the `src/translate` folder from [downward](https://github.com/aibasel/downward) and apply the corresponding patch:
 
