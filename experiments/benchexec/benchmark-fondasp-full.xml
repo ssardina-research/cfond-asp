@@ -7,46 +7,52 @@ BenchExec experiment definition to test CFOND-ASP planner (https://github.com/ss
 <!-- Example file for benchmark definition for BenchExec. -->
 <benchmark tool="tools.cfondasp"
   displayName="CFOND-ASP Tool"
-  timelimit="3600s"
+  timelimit="3600s" 
   hardtimelimit="3605s"
   memlimit="4096 MB">
 
   <!-- SOLVER CONFIGURATIONS TO RUN ON THE TASKS -->
 
   <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
-  <rundefinition name="cfondasp-fsat">
+  <rundefinition name="cfondasp1-fsat">
     <!-- command-line options to send to the solver -->
     <option name="--model">fondsat</option>
-    <option name="--clingo-args">"-t 2"</option>
-    <option name="--max-states">100</option>
+    <option name="--max_states">100</option>
   </rundefinition>
 
   <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
-  <rundefinition name="cfondasp-reg">
+  <rundefinition name="cfondasp1-reg">
     <!-- command-line options to send to the solver -->
     <option name="--model">regression</option>
-    <option name="--clingo-args">"-t 2"</option>
-    <option name="--max-states">100</option>
+    <option name="--max_states">100</option>
+  </rundefinition>
+
+  <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
+  <rundefinition name="cfondasp2-fsat">
+    <!-- command-line options to send to the solver -->
+    <option name="--model">fondsat</option>
+    <option name="--max_states">100</option>
+    <option name="--clingo_args">"-t 2"</option>
+    <option name="--use_backbone"></option>
+    <option name="--use_ckb"></option>
+  </rundefinition>
+
+  <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
+  <rundefinition name="cfondasp2-reg">
+    <!-- command-line options to send to the solver -->
+    <option name="--model">regression</option>
+    <option name="--max_states">100</option>
+    <option name="--clingo_args">"-t 2"</option>
+    <option name="--use_backbone"></option>
+    <option name="--use_ckb"></option>
   </rundefinition>
 
   <!-- NOW THE DIFFERENT TASK BENCHMARK SETS WE MAY WANT TO USE -->
 
   <!-- <tasks> defines a set of tasks (can appear multiple times). -->
   <tasks name="FOND">
-    <include>tasks/acrob*.yml</include>
+    <include>tasks/*_01.yml</include>
   </tasks>
-
-  <!-- <tasks> defines a set of tasks (can appear multiple times). -->
-  <tasks name="MINER-SMALL">
-    <include>tasks/miner_0*.yml</include>
-  </tasks>
-
-  <!-- <tasks> defines a set of tasks (can appear multiple times). -->
-  <tasks name="MINER">
-    <include>tasks/miner_*.yml</include>
-  </tasks>
-
-
 
   <columns>
     <!-- <column> tags may be used to define columns in the result tables with data from the tool
