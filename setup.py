@@ -30,6 +30,7 @@ install_requires = [
     "mdurl",
     "networkit",
     "numpy==1.26.4",
+    "pandas",
     "psutil",
     "py-cpuinfo",
     "pddl",
