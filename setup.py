@@ -17,26 +17,16 @@ with open("README.md", "r") as fh:
 
 install_requires = [
     "async-timeout",
-    "cffi",
     "clingo",
-    "cmake",
     "coloredlogs",
-    "Cython",
     "fond-utils",
     "graphviz",
-    "humanfriendly",
-    "lxml",
-    "markdown-it-py",
-    "mdurl",
     "networkit",
-    "numpy==1.26.4",
-    "pandas",
+    "numpy<2",
+    "pddl",
     "psutil",
     "py-cpuinfo",
-    "pddl",
-    "Pygments",
-    "rich",
-    "scipy",
+    "Pygments"
 ]
 
 setup(
