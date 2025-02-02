@@ -11,56 +11,65 @@ As of July 2024, experiments were re-done using the [Benchexec](https://github.c
   - [Installation and setup](#installation-and-setup)
   - [Configuring an experiment benchmark: Tools + Tasks](#configuring-an-experiment-benchmark-tools--tasks)
   - [Running a benchmark experiment](#running-a-benchmark-experiment)
+    - [Setting environment variables](#setting-environment-variables)
+    - [Running an experiment](#running-an-experiment)
     - [Output of benchexec](#output-of-benchexec)
     - [Runexec tool: single benchexec runs](#runexec-tool-single-benchexec-runs)
-    - [Running in NECTAR cluster](#running-in-nectar-cluster)
-  - [Analysis of experiments](#analysis-of-experiments)
-    - [Extract Benchexec CSV stats tables](#extract-benchexec-csv-stats-tables)
+  - [Example under NECTAR cluster](#example-under-nectar-cluster)
     - [Genearte coverage plots](#genearte-coverage-plots)
 
 ## Installation and setup
 
 Details on its installation and its working can be found [here](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md). Please note that Benchexec works better with Linux kernel 6.1+.
 
-The instructions for Ubuntu-based system is to install Benchexec from its [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
+The recommneded instructions for Ubuntu-based system is to install Benchexec from its [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) system-wide:
 
 ```shell
 $ sudo add-apt-repository ppa:sosy-lab/benchmarking
 $ sudo apt update
 $ sudo apt install Benchexec
-$ sudo apt install python3-pystemd  # for Benchexec to set-up cgroups automatically
+...
+The following additional packages will be installed:                       
+  python3-coloredlogs python3-humanfriendly python3-pystemd            
+Recommended packages:                                                                     
+  cpu-energy-meter fuse-overlayfs                                                         
+The following NEW packages will be installed:                  
+  benchexec python3-coloredlogs python3-humanfriendly python3-pystemd 
 ```
 
-The problem with this is that one would also need to have installed all other Python modules required to run the various solvers, like `python3-cpuinfo` or `async-timeout`. Unfortunately, not every used model is available as an Ubuntu package, such as `pddl`.
+As you can see, this will automatically install three more packages, including `python3-pystemd` that will set-up cgroups automatically. By doing this the benchexec package should be available system-wide and from all Python virtual environments used (check [this explanation](https://medium.com/@sachinsoni600517/how-python-search-for-imported-module-package-76cf0da5f690)).
 
-So, the best approach is to create a Python virtual environment which contains Benchexec and all other requirements, and run the experiments within that environment:
+After that, _create a virtual environment_ sandbox for the project, for example using `venv` we create it inside the main project folder `/mnt/projects/fondasp`:
 
 ```shell
-$ python -m venv ~/virtualenv/p10
-$ source ~/virtualenv/p10bin/activate
-$ pip install -r requirements.txt   # this will install Benchexec and all necessary
-$ pip install benchexec[systemd]
-cd exp
-$ which benchexec
-/home/ssardina/virtualenv/app/bin/benchexec
+# create virtual environment in project folder
+$ python -m venv /mnt/projects/fondasp/cfond-p10
+
+# activate virtual environment
+$ source /mnt/projects/fondasp/cfond-p10/bin/activate
 ```
 
-Note the `benchexec\[systemd\]` in the requirements file allows Benchexec to set-up `cgroups` automatically.
-
-Remember to make sure you are in the `p10` virtual environment before running Benchexec:
+Next, we install CFOND-ASP planner in the just created environment as a package:
 
 ```shell
-$ source ~/virtualenv/p10/bin/activate
+$ pip install git+https://github.com/ssardina-research/cfond-asp
 ```
+
+This will make the CFOND-ASP binary (`cfond-asp`) available.
+
+> [!TIP]
+> If you need a new install of Python (beyond just a virtual environment), consider using [pyenv](https://github.com/pyenv/pyenv) which will allow you to localy install any Python version and corresponding virtual environments.
 
 ## Configuring an experiment benchmark: Tools + Tasks
+
+The above has set-up Benchexec and the planner CFOND-ASP. We assume we  the virtual environment created is active, that we have already cloned the CFOND-ASP repo somewhere (in our NecTAR setup, it is in `/mnt/projects/fondasp/cfond-asp.git`). The experimental framework for Benchexec is located in folder `experiments/benchexec`.
 
 To benchmark a particular solver (possibly under different settings/configurations), we provide:
 
 1. A **solver tool** Python script, defining the solver that will be benchmarked. This includes the executable of the solver and the processing of its output (e.g., to extract policy size).
    * Tool definitions for the solvers used can be found under [benchexec/tools](benchexec/tools).
 2. A set of **tasks** defining each instance to be solved, as an YAML file specifying input files (domain and problem) and output folder.
-   * Tasks for our problems can be found under [benchexec/tasks](benchexec/tasks/).
+   * Tasks for the plannig problems instances in the planner `benchmark/` folder can be found under [benchexec/tasks](benchexec/tasks/).
    * These tasks have been generated automatically using script [benchexe/gen_tasks.py](benchexec/gen_tasks.py). From `experiments/` folder:
 
       ```shell
@@ -75,24 +84,48 @@ To benchmark a particular solver (possibly under different settings/configuratio
 
 More explanation on this can be found [here](https://github.com/sosy-lab/benchexec/blob/main/doc/benchexec.md) and definition of other terms can be found in the [Glossary](https://github.com/sosy-lab/benchexec/blob/main/doc/INDEX.md).
 
-Before running the benchmarks we need to make sure the various _tool_ definitions (as used in the XML benchmark definitions) are available. This can be done by changing variable [PYTHONPATH](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH) so that module `benchexec` can be found by Python:
-
-```shell
-$ export PYTHONPATH=$PWD/experiments/benchexec
-```
-
-To make sure Benchexec has access to all binaries used by the various tools (e.g., planning systems), you can use `--tool-directory` (see below) or set them all available under a `bin/` folder (e.g., via symbolic links) and then set:
-
-```shell
-$ export PATH=$PATH:$PWD/bin
-```
+> [!NOTE]
+> The experiments provided uses the benchmark set shiped with the CFOND-ASP planner. A more "official" and comprehensive set of FOND planning problems can be found in repo [AI-Planning/fond-domains/](https://github.com/AI-Planning/fond-domains/).
 
 ## Running a benchmark experiment
 
-Finally, to benchmark a solver one passes the main benchmark definition XML file with the required arguments. For example, the command below runs the PRP tool on 3 APP problems in parallel (`-N 3`) with one core per problem (`-c 1`):
+We assume we are in a folder where we want the data of Benchexec to be left, and that the project Python environment as above is active.
+
+In our example, we are in folder `/mnt/data/fondasp/benchexec-exp`.
+
+### Setting environment variables
+
+We first need to make sure the various _tool_ Python modules/classes (as used in the XML benchmark definitions) are available. This can be done by changing variable [PYTHONPATH](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH) so that module `benchexec` can be found by Python (note that we are in a folder different from the CFOND-ASP local copy, so need to give the full path):
 
 ```shell
-$ benchexec experiments/benchexec/benchmark-prp.xml -t test -N 3 -c 1 --tool-directory ./bin --read-only-dir / --overlay-dir /home
+$ export PYTHONPATH=/mnt/projects/fondasp/cfond-asp-private.git/experiments/benchexec/
+```
+
+Second, we need to make sure that Benchexec has access to all binaries used by the various tools (e.g., planning systems). One way is to make all those tools available in the `PATH`, but this can be cumbersome. A cleaner way is to setup a `bin/` folder containing symbolic links to all the solver binaries used and then use option `--tool-directory` (see below), which tells Benchexec where the tools' _executables_ (e.g., the `prp` binary) are located. 
+
+> [!NOTE]
+> If this parameter is not given, Benchexec searches in the directories of the `PATH` environment variable and in the current directory. So an alternative is to add the `bin/` folder created in the `PATH` via `export PATH=$PATH:$PWD/bin`
+
+
+>[!IMPORTANT]
+> For CFOND-ASP, its corresponding tool `cfondasp.py` assumes the planner has been installed as a package and hence the binary `cfond-asp` available in the Python virtual environment. The name of the binary for the other solvers can be found in function `executable` of each tool definition. We have already installed the planner above in the current virtual environment.
+
+Finally, make sure the [SAS translator for FOND](https://github.com/ssardina-research/translator-fond/tree/main/translate) is available in the `PATH`, either by setting a symbolic link to `translate.py` under the above `bin/` folder or adding it to the path:
+
+```shell
+$ export PATH=$PATH:/path/to/translator-fond/translate/translate/translate.py
+```
+
+At this point the Benchexec framework has access to the Python tool modules, the tool executable themselves, and the SAS translator for FOND.
+
+### Running an experiment
+
+To benchmark a solver one passes the main benchmark definition XML file with the required arguments.
+
+For example, the command below runs the PRP tool on 3 problems in parallel (`-N 3`) with one core per problem (`-c 1`):
+
+```shell
+$ benchexec /path/to/cfondasp/experiments/benchexec/benchmark-prp.xml -t test -N 3 -c 1 --tool-directory ./bin --read-only-dir / --overlay-dir /home
 executing run set 'prp.FOND'     (9 files)
 17:54:06   starting   blocksworld-ipc08_01.yml
 17:54:06   starting   blocksworld-ipc08_02.yml
@@ -208,7 +241,7 @@ pressure-memory-some=0.000186s
 If we use the `--no-tmpfs` option, we are telling benchexec to NOT use RAMDISK and use the actual hard drive; file writting does not count towards memory usage.
 
 
-### Running in NECTAR cluster
+## Example under NECTAR cluster
 
 We used the Australian [NECTAR cluster infrastructure](https://ardc.edu.au/services/ardc-nectar-research-cloud/) to run the experiments. The CPUs are as follows:
 
@@ -221,14 +254,60 @@ model name	: AMD EPYC-Rome Processor
 stepping	: 0
 ```
 
-While the machines have many cores, we found that running more than 8 experiments at the same time yields high-variance, non-replicable, performance. So we only run 8 tasks in parallel. See [this isue](https://github.com/ssardina-research/app/discussions/97).
+> [!WARNING]
+> While the machines have many cores, we found that running more than 8 experiments at the same time yields high-variance, non-replicable, performance. So we only run 8 tasks in parallel. See [this isue](https://github.com/ssardina-research/app/discussions/97).
 
-Code itself is located in network drive `/mnt/projects/fondasp/cfond-asp-private`. However, the data was saved under local filesystem `/mnt/data/cfondasp`, which is faster than the project folder which is a networking device.
+Code itself is located in network drive `/mnt/projects/fondasp/cfond-asp-private.git`. 
 
-So, for example, this was the command for stating the experiments for CFOND-ASP solver:
+However, we save the output dataunder local filesystem `/mnt/data/cfondasp/`, which is faster than the project folder (which is a networking device).
+
+Let us see how to benchmark CFOND-ASP planner on Python 3.12.7 (latest on Feb 1, 2025!).
+
+First, setup a new Python version for it via [pyenv](https://github.com/pyenv/pyenv):
 
 ```shell
-$ cd /mnt/projects/fondasp/cfond-asp-private
+# setup new Python version and install all dependencies
+$ pyenv install 3.12.7  # will install fresh Python under ~/.pyenv
+$ pyenv shell 3.12.7  # activate python version (all)
+
+$ pip install git+https://github.com/ssardina-research/cfond-asp  # install cfond-asp planner
+$ pip install benchexec\[systemd\]  # install benchexec package
+$ which benchexec
+/home/ssardina/.pyenv/shims/benchexec
+```
+
+> [!NOTE]
+> Same process can be done by just creating a virtual environment with the Python available in the system 
+
+
+Next, let us create a folder to store all results and get into it:
+
+```shell
+$ cd /mnt/data/fondasp/
+$ mkdir cfondasp-25-02-01
+$ cd cfondasp-25-02-01
+```
+
+Test CFOND-ASP is correctly installed (note how the path to the SAS translator is explicitly specified):
+
+```shell
+$ cfond-asp ~/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/domain.pddl ~/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/p01.pddl --translator-path /mnt/projects/fondasp/translator-fond.git/translate/translate/translate.py
+```
+
+As we can see `cfond-asp` is already available in the path.
+
+Next, set the path for Python to find the tools used:
+
+```shell
+$ export PYTHONPATH=/mnt/projects/fondasp/cfond-asp-private.git//experiments/benchexec
+```
+
+Finally, make the SAS translator available in the path:
+
+```shell
+$ export PATH=$PATH:$HOME/projects/fondasp/translator-fond.git/translate/translate
+```
+
 
 $ benchexec experiments/benchexec/benchmark-fondasp.xml -N 8 -c 1 --read-only-dir / --overlay-dir /home -o /mnt/data/cfondasp/cfondasp-21-07-24
 ```
@@ -334,3 +413,7 @@ $ R < plots.R --no-save
 The result is saved in file [stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_R.png](stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_R.png):
 
 ![plot](stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_R.png)
+
+
+
+

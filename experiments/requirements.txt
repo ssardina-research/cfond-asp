@@ -1,10 +1,4 @@
-async-timeout
-humanfriendly
-lxml
-markdown-it-py
-numpy
-psutil
-py-cpuinfo
-rich
-scipy
 benchexec[systemd]
+coloredlogs
+lxcfs
+pandas
