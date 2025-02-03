@@ -9,14 +9,16 @@ As of July 2024, experiments were re-done using the [Benchexec](https://github.c
 
 - [Experiments](#experiments)
   - [Installation and setup](#installation-and-setup)
+    - [Install alternative Pythonv ersions](#install-alternative-pythonv-ersions)
   - [Configuring an experiment benchmark: Tools + Tasks](#configuring-an-experiment-benchmark-tools--tasks)
   - [Running a benchmark experiment](#running-a-benchmark-experiment)
     - [Setting environment variables](#setting-environment-variables)
     - [Running an experiment](#running-an-experiment)
     - [Output of benchexec](#output-of-benchexec)
     - [Runexec tool: single benchexec runs](#runexec-tool-single-benchexec-runs)
-  - [Example under NECTAR cluster](#example-under-nectar-cluster)
-    - [Genearte coverage plots](#genearte-coverage-plots)
+  - [Analysis of experiments](#analysis-of-experiments)
+    - [Extract Benchexec CSV stats tables](#extract-benchexec-csv-stats-tables)
+    - [Generate coverage plots](#generate-coverage-plots)
 
 ## Installation and setup
 
@@ -60,6 +62,16 @@ This will make the CFOND-ASP binary (`cfond-asp`) available.
 > [!TIP]
 > If you need a new install of Python (beyond just a virtual environment), consider using [pyenv](https://github.com/pyenv/pyenv) which will allow you to localy install any Python version and corresponding virtual environments.
 
+### Install alternative Pythonv ersions
+
+You can setup a new Python version for it via [pyenv](https://github.com/pyenv/pyenv):
+
+```shell
+# setup new Python version and install all dependencies
+$ pyenv install 3.12.7  # will install fresh Python under ~/.pyenv
+$ pyenv shell 3.12.7  # activate python version (all)
+```
+
 ## Configuring an experiment benchmark: Tools + Tasks
 
 The above has set-up Benchexec and the planner CFOND-ASP. We assume we  the virtual environment created is active, that we have already cloned the CFOND-ASP repo somewhere (in our NecTAR setup, it is in `/mnt/projects/fondasp/cfond-asp.git`). The experimental framework for Benchexec is located in folder `experiments/benchexec`.
@@ -89,32 +101,51 @@ More explanation on this can be found [here](https://github.com/sosy-lab/benchex
 
 ## Running a benchmark experiment
 
-We assume we are in a folder where we want the data of Benchexec to be left, and that the project Python environment as above is active.
+Here we will demonstrate how we ran our experiments using the Australian [NECTAR cluster infrastructure](https://ardc.edu.au/services/ardc-nectar-research-cloud/). The CPUs are as follows:
 
-In our example, we are in folder `/mnt/data/fondasp/benchexec-exp`.
+```
+processor	: 31
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD EPYC-Rome Processor
+stepping	: 0
+```
+
+> [!WARNING]
+> While the machines have many cores, we found that running more than 8 experiments at the same time yields high-variance, non-replicable, performance. So we only run 8 tasks in parallel. See [this isue](https://github.com/ssardina-research/app/discussions/97).
+
+In the explanations below, the CFOND-ASP repo was cloned in `/mnt/projects/fondasp/cfond-asp.git`, which is a network filesystem. However, we save the output data in the _local_ filesystem `/mnt/data/fondasp/benchexec-exp`, which is faster than the project folder.
 
 ### Setting environment variables
 
-We first need to make sure the various _tool_ Python modules/classes (as used in the XML benchmark definitions) are available. This can be done by changing variable [PYTHONPATH](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH) so that module `benchexec` can be found by Python (note that we are in a folder different from the CFOND-ASP local copy, so need to give the full path):
+We first need to make sure the **various _tool_ Python modules/classes** (as used in the XML benchmark definitions) **are available**. This can be done by changing variable [PYTHONPATH](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH) so that module `benchexec` can be found by Python (note that we are in a folder different from the CFOND-ASP local copy, so need to give the full path):
 
 ```shell
-$ export PYTHONPATH=/mnt/projects/fondasp/cfond-asp-private.git/experiments/benchexec/
+$ export PYTHONPATH=/mnt/projects/fondasp/cfond-asp.git/experiments/benchexec/
 ```
 
-Second, we need to make sure that Benchexec has access to all binaries used by the various tools (e.g., planning systems). One way is to make all those tools available in the `PATH`, but this can be cumbersome. A cleaner way is to setup a `bin/` folder containing symbolic links to all the solver binaries used and then use option `--tool-directory` (see below), which tells Benchexec where the tools' _executables_ (e.g., the `prp` binary) are located. 
+Second, we need to make sure that **Benchexec has access to all binaries** used by the various tools (e.g., planning systems). One way is to make all those tools available in the `PATH`, but this can be cumbersome. A cleaner way is to setup a `bin/` folder containing symbolic links to all the solver binaries used and then use option `--tool-directory` (see below), which tells Benchexec where the tools' _executables_ (e.g., the `prp` binary) are located. 
 
 > [!NOTE]
 > If this parameter is not given, Benchexec searches in the directories of the `PATH` environment variable and in the current directory. So an alternative is to add the `bin/` folder created in the `PATH` via `export PATH=$PATH:$PWD/bin`
 
 
->[!IMPORTANT]
-> For CFOND-ASP, its corresponding tool `cfondasp.py` assumes the planner has been installed as a package and hence the binary `cfond-asp` available in the Python virtual environment. The name of the binary for the other solvers can be found in function `executable` of each tool definition. We have already installed the planner above in the current virtual environment.
+For CFOND-ASP, its corresponding tool `cfondasp.py` assumes the planner has been installed as a package and hence the binary `cfond-asp` available in the Python virtual environment. The name of the binary for the other solvers can be found in function `executable` of each tool definition. We have already installed the planner above in the current virtual environment.
 
-Finally, make sure the [SAS translator for FOND](https://github.com/ssardina-research/translator-fond/tree/main/translate) is available in the `PATH`, either by setting a symbolic link to `translate.py` under the above `bin/` folder or adding it to the path:
+Finally, make sure the **[SAS translator for FOND](https://github.com/ssardina-research/translator-fond/tree/main/translate) is available in the `PATH`**, either by setting a symbolic link to `translate.py` under the above `bin/` folder or adding it to the path:
 
 ```shell
-$ export PATH=$PATH:/path/to/translator-fond/translate/translate/translate.py
+$ export PATH=$PATH:/mnt/projects/fondasp/translator-fond.git/translate/translate
 ```
+
+To double check, test a run of CFOND-ASP:
+
+```shell
+$ cfond-asp ~/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/domain.pddl ~/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/p01.pddl 
+```
+
+The successful run will leave the output files under `output/`.
 
 At this point the Benchexec framework has access to the Python tool modules, the tool executable themselves, and the SAS translator for FOND.
 
@@ -122,67 +153,96 @@ At this point the Benchexec framework has access to the Python tool modules, the
 
 To benchmark a solver one passes the main benchmark definition XML file with the required arguments.
 
-For example, the command below runs the PRP tool on 3 problems in parallel (`-N 3`) with one core per problem (`-c 1`):
+Let us run a "test" benchexec run. The following command below runs the `MINER-SMALL` set of tasks in the CFOND-ASP tool (`benchmark-fondasp.xml`), running 8 problems in parallel (`-N 8`) with two cores per problem (`-c 2`):
 
 ```shell
-$ benchexec /path/to/cfondasp/experiments/benchexec/benchmark-prp.xml -t test -N 3 -c 1 --tool-directory ./bin --read-only-dir / --overlay-dir /home
-executing run set 'prp.FOND'     (9 files)
-17:54:06   starting   blocksworld-ipc08_01.yml
-17:54:06   starting   blocksworld-ipc08_02.yml
-17:54:06   starting   blocksworld-ipc08_03.yml
-17:54:06              blocksworld-ipc08_02.yml    true                         0.10    0.10
-17:54:06              blocksworld-ipc08_03.yml    true                         0.10    0.10
-17:54:06              blocksworld-ipc08_01.yml    true                         0.10    0.10
-17:54:06   starting   blocksworld-ipc08_04.yml
-17:54:06   starting   blocksworld-ipc08_05.yml
-17:54:06   starting   blocksworld-ipc08_06.yml
-17:54:06              blocksworld-ipc08_06.yml    true                         0.11    0.11
-17:54:06              blocksworld-ipc08_05.yml    true                         0.11    0.11
-17:54:06   starting   blocksworld-ipc08_07.yml
-17:54:06   starting   blocksworld-ipc08_08.yml
-17:54:06              blocksworld-ipc08_04.yml    true                         0.12    0.12
-17:54:06   starting   blocksworld-ipc08_09.yml
-17:54:06              blocksworld-ipc08_07.yml    true                         0.11    0.11
-17:54:06              blocksworld-ipc08_08.yml    true                         0.11    0.11
-17:54:06              blocksworld-ipc08_09.yml    true                         0.12    0.12
-
-Statistics:              9 Files
-  correct:               0
-    correct true:        0
-    correct false:       0
-  incorrect:             0
-    incorrect true:      0
-    incorrect false:     0
-  unknown:               0
-
-In order to get HTML and CSV tables, run
-table-generator results/benchmark-prp.2024-07-20_17-54-06.results.prp.FOND.xml.bz2
+$ benchexec /mnt/projects/fondasp/cfond-asp-private.git/experiments/benchexec/benchmark-fondasp.xml -t MINER-SMALL -N 8 -c 2 --read-only-dir / --overlay-dir /mnt/data/fondasp
+2025-02-03 21:51:52 - WARNING - No propertyfile specified. Score computation will ignore the results.                                                                                        
+2025-02-03 21:51:52 - INFO - Unable to find pqos_wrapper, please install it for cache allocation and monitoring if your CPU supports Intel RDT (cf. https://gitlab.com/sosy-lab/software/pqos
+-wrapper).                                                                                                                                                                                   
+                                                                                                                                                                                             
+executing run set 'cfondasp-fsat.MINER-SMALL'     (9 files)                                                                                                                                  
+21:51:52   starting   miner_01.yml                                                                                                                                                           
+21:51:52   starting   miner_02.yml                                                                                                                                                           
+21:51:52   starting   miner_03.yml                                                                                                                                                           
+21:51:52   starting   miner_04.yml                                                                                                                                                           
+21:51:52   starting   miner_05.yml                                                                                                                                                           
+21:51:52   starting   miner_06.yml                                                                                                                                                           
+21:51:52   starting   miner_07.yml                                                                                                                                                           
+21:51:52   starting   miner_08.yml                                                                                                                                                           
+21:51:59              miner_02.yml            true                         7.31    6.41                                                                                                      
+21:51:59   starting   miner_09.yml                                                                                                                                                           
+21:52:00              miner_01.yml            true                         8.26    7.10                                                                                                      
+21:52:00              miner_03.yml            true                         7.94    7.12                                                                                                      
+21:52:17              miner_04.yml            true                        27.72   24.43                                                                                                      
+21:52:17              miner_05.yml            true                        29.59   24.64                                                                                                      
+21:52:22              miner_06.yml            true                        33.96   29.21                                                                                                      
+21:52:29              miner_08.yml            true                        42.66   36.55                                                                                                      
+21:52:44              miner_07.yml            true                        63.27   51.69                                                                                                      
+21:52:50              miner_09.yml            true                        59.50   50.87                                                                                                      
+                                                                                                                                                                                             
+executing run set 'cfondasp-reg.MINER-SMALL'     (9 files)                                                                                                                                   
+21:52:50   starting   miner_01.yml                                                                                                                                                           
+21:52:50   starting   miner_02.yml                                                                                                                                                           
+21:52:50   starting   miner_03.yml                                                                                                                                                           
+21:52:50   starting   miner_04.yml                                                                                                                                                           
+21:52:50   starting   miner_05.yml                                                                                                                                                           
+21:52:50   starting   miner_06.yml                                                                                                                                                           
+21:52:50   starting   miner_07.yml                                                                                                                                                           
+21:52:50   starting   miner_08.yml                                                                                                                                                           
+21:52:55              miner_02.yml            true                         5.88    4.56                                                                                                      
+21:52:55   starting   miner_09.yml                                                                                                                                                           
+21:52:56              miner_03.yml            true                         6.87    5.42                                                                                                      
+21:52:56              miner_01.yml            true                         7.34    5.43                                                                                                      
+21:53:10              miner_04.yml            true                        26.61   19.64                                                                                                      
+21:53:12              miner_05.yml            true                        31.48   21.33                                                                                                      
+21:53:18              miner_06.yml            true                        41.04   28.14                                                                                                      
+21:53:26              miner_08.yml            true                        52.32   36.25                                                                                                      
+21:53:42              miner_07.yml            true                        79.34   51.77                                                                                                      
+21:53:42              miner_09.yml            true                        69.72   47.35                                                                                                      
+                                                                                                                                                                                             
+Statistics:             18 Files                                                                                                                                                             
+  correct:               0                                                                                                                                                                   
+    correct true:        0                                                                                                                                                                   
+    correct false:       0                                                                                                                                                                   
+  incorrect:             0                                                                                                                                                                   
+    incorrect true:      0                                                                                                                                                                   
+    incorrect false:     0                                                                                                                                                                   
+  unknown:               0                                                                                                                                                                   
+                                                                                                                                                                                             
+In order to get HTML and CSV tables, run                                                                                                                                                     
+table-generator results/benchmark-fondasp.2025-02-03_21-51-52.results.cfondasp-fsat.MINER-SMALL.xml.bz2 results/benchmark-fondasp.2025-02-03_21-51-52.results.cfondasp-reg.MINER-SMALL.xml.bz
+2
 ```
 
-The `---tool-directory` tells Benchexec where the tools' _executables_ (e.g., the `prp` binary) are located. If this parameter is not given, Benchexec searches in the directories of the `PATH` environment variable and in the current directory.
+The above shows that two run-sets (CFOND-ASP under two configurations) were run on 9 instances for Miner, which they are all accessible. The `true` labels signal that the problem was solved succesfully. The last two column
+report CPU time and walltime (note CPU time is larger as each instance is using two cores; both metrics would be the same if `-c 1` is used).
 
-If you get error:
+>[!NOTE]
+> We have not used `--tool-directory` because the executable `cfond-asp` is in the `PATH` already.
+> If instead, we would run `benchmark-prp.xml` benchmark, we would use `--tool-directory ./bin` assumming `prp` executable has beebn linked in that folder. If this parameter is not given, Benchexec searches in the directories of the `PATH` environment variable and in the current directory.
 
-```shell
-Unsupported tool "tools.prp" specified. ImportError: No module named 'tools'
-```
+> [!WARNING] 
+> If you get error `Unsupported tool "tools.prp" specified. ImportError: No module named 'tools'`
+> it is because the XML definition couldn't find the tool Python module. Remember to set the environment variable `PYTHONPATH` to make sure `benchexec/tools` is found by Python.
 
-it is because the XML definition couldn't find the tool Python module. Remember to set the environment variable `PYTHONPATH` to make sure `benchexec/tools` is found by Python.
+The following options refer to [container configurations](https://github.com/sosy-lab/benchexec/blob/main/doc/container.md#container-configuration):
 
-The last three options refer to [container configurations](https://github.com/sosy-lab/benchexec/blob/main/doc/container.md#container-configuration):
-
-* `--read-only-dir /`: allows the container to access all the file-system in read mode
-* `--overlay-dir /home`: allows Benchexec to access all `/home/` as an overlay transparent file system:
-  * All the existing data there is accessible for read unless it is hidden via `--hidden-dir`.
+* `--read-only-dir /`: allows the container to access all the file-system in _read_ mode.
+* `--overlay-dir /mnt/data/fondasp`: allows Benchexec to access all `/mnt/data/fondasp` as an overlay transparent file system:
+  * All the existing data there is accessible for read (unless explicitly hidden via `--hidden-dir`).
   * _New_ data/files can be written (e.g., log files of the run), but it will be done on RAMDISK and hence will be counted towards memory usage, unless `--no-tmpfs` option is used, in which case writes will go to disk and NOT counted as memory usage (note that even in this case, Linux may still write to cache memory if available! see thread discussion we had in issue [#1025](https://github.com/sosy-lab/benchexec/issues/1025)).
   * If we want to retrieve anything that is written by the execution, it has to be specified in the `<resultsfiles>` section in the XML configuration files. The retrieved files will be accessible under the Benchexec result folder (but by just a bulk copy a the end of the execution, not by writing directly there while running!).
 * `--hidden-dir`: the host directory specified will be hidden in the container. This allows the process to use that directory "fresh" without clashing with whatever is already there in the host. In our case, we hide the directory where the output of the solver is meant to be located, in case such folder already exists in the host. If it does and we don't hide it, the solver will try to re-create the folder but since it does exist in the overlay in read-mode, the solver will crash with I/O error because it cannot remove a folder that is in already in the host.
 
-By default, the container then runs in isolation, with writes to file system done in RAM memory. If we want to give the container full direct access to some part of the file-system, we can use for example `--full-access-dir /home/$USER`. Then, anything that is done under `/home/$USER` will be as if running in the host directly.
+> [!IMPORTANT] 
+> By default, the container runs in isolation, with **writes to filesystem done in RAM memory**. If we want to give the container full direct access to some part of the file-system, we can use for example `--full-access-dir /home/$USER`. Then, anything that is done under `/home/$USER` will be as if running in the host directly. Not recommended!
 
 Note that the `--overlay-dir` does give access to the host file system in the container, but only on read-mode for what already exists.
 
-**NOTE:** while in principle one should be able to use any overlay directory, it seems Benchexec creates a virtual home folder under `home/benchexec`, so it is hard-coded. See [this code](https://github.com/sosy-lab/benchexec/blob/64d73c47e05a1487727c4777e23863ce4ed4851a/benchexec/container.py#L55). So, if we give say `/home/ssardina`, Benchexec complains it cannot create such `home/benchexec`.
+> [!WARNING]
+> **[THIS MAY BE OLD INFO IN JAN 2025]**
+> While in principle one should be able to use any overlay directory, it seems Benchexec creates a virtual home folder under `home/benchexec`, so it is hard-coded. See [this code](https://github.com/sosy-lab/benchexec/blob/64d73c47e05a1487727c4777e23863ce4ed4851a/benchexec/container.py#L55). So, if we give say `/home/ssardina`, Benchexec complains it cannot create such `home/benchexec`.
 
 ### Output of benchexec
 
@@ -192,11 +252,9 @@ Refer below to understand how to extract state tables into CSV and HTML files an
 
 ### Runexec tool: single benchexec runs
 
-We can use the [`runexec`](https://github.com/sosy-lab/benchexec/blob/main/doc/runexec.md) tool to run a particular script/program on the spot once (i.e., without XML, tools, etc. configurations).
+We can use the [`runexec`](https://github.com/sosy-lab/benchexec/blob/main/doc/runexec.md) tool to run/test a particular script/program on the spot once (i.e., without XML, tools, etc. configurations).
 
-Some simple scripts for testing were done in the context of issue [#1025](https://github.com/sosy-lab/benchexec/issues/1025) in folder [`experiments/benchexe/benchexec-test/`](experiments/benchexe/benchexec-test/).
-
-Script `benchexec.sh` basically writes a dummy 500MB file. Let us see how much memory it uses.
+Issue [#1025](https://github.com/sosy-lab/benchexec/issues/1025) discusses _When exactly is data written to disk by a process contained in the memory measurement?_
 
 We can do a run on container (default) mode that also recovers all the output files:
 
@@ -241,77 +299,6 @@ pressure-memory-some=0.000186s
 If we use the `--no-tmpfs` option, we are telling benchexec to NOT use RAMDISK and use the actual hard drive; file writting does not count towards memory usage.
 
 
-## Example under NECTAR cluster
-
-We used the Australian [NECTAR cluster infrastructure](https://ardc.edu.au/services/ardc-nectar-research-cloud/) to run the experiments. The CPUs are as follows:
-
-```
-processor	: 31
-vendor_id	: AuthenticAMD
-cpu family	: 23
-model		: 49
-model name	: AMD EPYC-Rome Processor
-stepping	: 0
-```
-
-> [!WARNING]
-> While the machines have many cores, we found that running more than 8 experiments at the same time yields high-variance, non-replicable, performance. So we only run 8 tasks in parallel. See [this isue](https://github.com/ssardina-research/app/discussions/97).
-
-Code itself is located in network drive `/mnt/projects/fondasp/cfond-asp-private.git`. 
-
-However, we save the output dataunder local filesystem `/mnt/data/cfondasp/`, which is faster than the project folder (which is a networking device).
-
-Let us see how to benchmark CFOND-ASP planner on Python 3.12.7 (latest on Feb 1, 2025!).
-
-First, setup a new Python version for it via [pyenv](https://github.com/pyenv/pyenv):
-
-```shell
-# setup new Python version and install all dependencies
-$ pyenv install 3.12.7  # will install fresh Python under ~/.pyenv
-$ pyenv shell 3.12.7  # activate python version (all)
-
-$ pip install git+https://github.com/ssardina-research/cfond-asp  # install cfond-asp planner
-$ pip install benchexec\[systemd\]  # install benchexec package
-$ which benchexec
-/home/ssardina/.pyenv/shims/benchexec
-```
-
-> [!NOTE]
-> Same process can be done by just creating a virtual environment with the Python available in the system 
-
-
-Next, let us create a folder to store all results and get into it:
-
-```shell
-$ cd /mnt/data/fondasp/
-$ mkdir cfondasp-25-02-01
-$ cd cfondasp-25-02-01
-```
-
-Test CFOND-ASP is correctly installed (note how the path to the SAS translator is explicitly specified):
-
-```shell
-$ cfond-asp ~/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/domain.pddl ~/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/p01.pddl --translator-path /mnt/projects/fondasp/translator-fond.git/translate/translate/translate.py
-```
-
-As we can see `cfond-asp` is already available in the path.
-
-Next, set the path for Python to find the tools used:
-
-```shell
-$ export PYTHONPATH=/mnt/projects/fondasp/cfond-asp-private.git//experiments/benchexec
-```
-
-Finally, make the SAS translator available in the path:
-
-```shell
-$ export PATH=$PATH:$HOME/projects/fondasp/translator-fond.git/translate/translate
-```
-
-
-$ benchexec experiments/benchexec/benchmark-fondasp.xml -N 8 -c 1 --read-only-dir / --overlay-dir /home -o /mnt/data/cfondasp/cfondasp-21-07-24
-```
-
 ## Analysis of experiments
 
 ### Extract Benchexec CSV stats tables
@@ -330,9 +317,9 @@ table-generator results/benchmark-prp.2024-07-20_18-01-50.results.prp.test.xml.b
 But it can also also be run later and on different `xml.bz2` files. The table generator will require access to the tools used so make sure you have set `PYTHONPATH` to point to where the `tools` Python module is located, for example:
 
 ```shell
-$ export PYTHONPATH=$PWD/../../../benchexec/
+$ export PYTHONPATH=/mnt/projects/fondasp/cfond-asp-private.git/experiments/benchexec/
 $ echo $PYTHONPATH
-/home/ssardina/PROJECTS/planning/FOND/cfond-asp/cfond-asp-private.git/experiments/stats/july24-redo-benchexec/../../benchexec/
+/mnt/projects/fondasp/cfond-asp-private.git/experiments/benchexec/
 ```
 
 The following generates the tables for the `PRP.FOND` run:
@@ -375,7 +362,7 @@ Besides the stat tables, if the XML definition states that some files/folders ne
 
 To learn about the outputs left by Benchexec, please check [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/benchexec.md#benchexec-results).
 
-### Genearte coverage plots
+### Generate coverage plots
 
 Frist, we can take Benchexec tables and process them via notebook [process_benchexec.ipynb](process_benchexec.ipynb) to extract two CSV files:
 
