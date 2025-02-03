@@ -33,12 +33,7 @@ BenchExec experiment definition to test CFOND-ASP planner (https://github.com/ss
 
   <!-- <tasks> defines a set of tasks (can appear multiple times). -->
   <tasks name="FOND">
-    <include>tasks/acrob*.yml</include>
-  </tasks>
-
-  <!-- <tasks> defines a set of tasks (can appear multiple times). -->
-  <tasks name="MINER-SMALL">
-    <include>tasks/miner_0*.yml</include>
+    <include>tasks/*.yml</include>
   </tasks>
 
   <!-- <tasks> defines a set of tasks (can appear multiple times). -->
@@ -47,6 +42,10 @@ BenchExec experiment definition to test CFOND-ASP planner (https://github.com/ss
   </tasks>
 
 
+  <!-- <tasks> defines a set of tasks (can appear multiple times). -->
+  <tasks name="MINER-SMALL">
+    <include>tasks/miner_0*.yml</include>
+  </tasks>
 
   <columns>
     <!-- <column> tags may be used to define columns in the result tables with data from the tool
