@@ -89,6 +89,7 @@ def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
     if entails(initial_state, goal_state):
         _logger.info("Goal met in the initial state!")
         _logger.info("Solution found!")
+        _logger.info(f"Number of states in controller: 1")
         return
 
     # 3. generate ASP instance
@@ -233,6 +234,7 @@ async def solve_asp_iteratively_async(fond_problem, min_states):
                 continue
             if "SATISFIABLE" in stdout and "UNSATISFIABLE" not in stdout:
                 _logger.info("Solution found!")
+                _logger.info(f"Number of states in controller: {num_states+1}")
                 return True  # yes, found solution!
 
             # not a solution yet, keep looping with more controller states
@@ -349,6 +351,7 @@ def solve_asp_iteratively(fond_problem : FONDProblem, min_states):
                 continue
             if "SATISFIABLE" in stdout and "UNSATISFIABLE" not in stdout:
                 _logger.info("Solution found!")
+                _logger.info(f"Number of states in controller: {num_states+1}")
                 return True  # yes, found solution!
 
             # not a solution yet, keep looping with more controller states
