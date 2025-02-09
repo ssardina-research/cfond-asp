@@ -151,9 +151,9 @@ At this point the Benchexec framework has access to the Python tool modules, the
 
 ### Running an experiment
 
-To benchmark a solver one passes the main benchmark definition XML file with the required arguments.
+To benchmark a solver one passes the main benchmark definition XML file with the required arguments. We shall use below `benchmark-fondasp.xml` to benchmark CFOND-ASP. 
 
-Let us run a "test" benchexec run. The following command below runs the `MINER-SMALL` set of tasks in the CFOND-ASP tool (`benchmark-fondasp.xml`), running 8 problems in parallel (`-N 8`) with two cores per problem (`-c 2`):
+The following command benchmarks the solver against the `MINER-SMALL` tasks set (defined in the XML file and containing the first nine problem instances in the miner domain), running 8 instances in in parallel (`-N 8`) with two cores per problem (`-c 2`):
 
 ```shell
 $ benchexec /mnt/projects/fondasp/cfond-asp-private.git/experiments/benchexec/benchmark-fondasp.xml -t MINER-SMALL -N 8 -c 2 --read-only-dir / --overlay-dir /mnt/data/fondasp
@@ -246,7 +246,9 @@ Note that the `--overlay-dir` does give access to the host file system in the co
 
 ### Output of benchexec
 
-Benchexec reports stats, logs, and corresponding out files for every executed run; check [here](https://github.com/sosy-lab/benchexec/blob/main/doc/run-results.md). All outputs will be placed under folder `results/` and run values are stored in files `<run name>.xml.bz2`
+Benchexec reports stats, logs, and corresponding out files for every executed run; check [here](https://github.com/sosy-lab/benchexec/blob/main/doc/run-results.md). 
+
+All output files and folders will be placed under folder `results/` in the current directory unless explicitly specified otherwise via option `-o DIRECTORY`. All files will have the XML experiment filename as prefixes; and run values are stored in compressed files `.xml.bz2`
 
 Refer below to understand how to extract state tables into CSV and HTML files and then process them via notebooks.
 
@@ -256,32 +258,32 @@ We can use the [`runexec`](https://github.com/sosy-lab/benchexec/blob/main/doc/r
 
 Issue [#1025](https://github.com/sosy-lab/benchexec/issues/1025) discusses _When exactly is data written to disk by a process contained in the memory measurement?_
 
-We can do a run on container (default) mode that also recovers all the output files:
+For example, the following runs PRP planner on container mode (default) and also recovers all the output files (note we run it from `$HOME/tmp` with 12MB memory limit):
 
 ```shell
-$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 12331392  ./path-prp/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
-2024-07-20 18:44:45 - INFO - Starting command ./bin/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
-2024-07-20 18:44:45 - INFO - Writing output to output.log and result files to output.files
-2024-07-20 18:44:49 - WARNING - System has swapped during benchmarking. Benchmark results are unreliable!
-starttime=2024-07-20T18:44:45.368472+10:00
-returnvalue=8
-walltime=4.5116885360002925s
-cputime=4.510404s
-memory=22323200B
+$ cd $HOME/tmp
+$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 12331392 /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl 
+2025-02-09 18:14:13 - INFO - Starting command /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl
+2025-02-09 18:14:13 - INFO - Writing output to output.log and result files to output.files
+starttime=2025-02-09T18:14:13.784618+11:00
+returnvalue=0
+walltime=8.464726964011788s
+cputime=8.448107s
+memory=11874304B
 blkio-read=0B
 blkio-write=0B
-pressure-cpu-some=0.000658s
-pressure-io-some=0s
+pressure-cpu-some=0.000959s
+pressure-io-some=0.000844s
 pressure-memory-some=0s
 ```
 
-The standard output will be saved into `output.log` and all files will be retrived into `output.files/` folder. As we can see, all resources used are reported, stating that the run took 4+ seconds and used 22323200 bytes, that is, 22MB.
+The standard output will be saved into `output.log` and all files will be retrived into `output.files/` folder. As we can see, all resources used are reported, stating that the run took 8+ seconds and used 11874304 bytes, that is, 11MB.
 
-If we specify a limit of 20MB, then it will fail and report memory termination:
+If we specify a limit of 9MB, then it will fail and report memory termination (signal 9):
 
 ```shell
-$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 20000000  ./bin/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
-2024-07-20 19:08:18 - INFO - Starting command ./bin/prp benchmarks/beam-walk/domain.pddl benchmarks/beam-walk/p09.pddl
+$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 9000000  /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl 
+2024-07-20 19:08:18 - INFO - Starting command /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl
 2024-07-20 19:08:18 - INFO - Writing output to output.log and result files to output.files
 starttime=2024-07-20T19:08:18.170010+10:00
 terminationreason=memory
@@ -296,7 +298,18 @@ pressure-io-some=0s
 pressure-memory-some=0.000186s
 ```
 
-If we use the `--no-tmpfs` option, we are telling benchexec to NOT use RAMDISK and use the actual hard drive; file writting does not count towards memory usage.
+Sometimes, it reports signal 9 (out of memory) as follows:
+
+```shell
+$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 8331392 /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl
+2025-02-09 18:17:17 - INFO - Starting command /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl
+2025-02-09 18:17:17 - INFO - Writing output to output.log and result files to output.files
+2025-02-09 18:17:17 - CRITICAL - Error while starting '/mnt/projects/fondasp/planners/prp/src/prp' in '.': [Errno 0] Child process of RunExecutor terminated with exit signal 9.
+terminationreason=failed
+```
+
+> [!NOTE]
+> If we use the `--no-tmpfs` option, we are telling benchexec to NOT use RAMDISK and use the actual hard drive; file writting does not count towards memory usage.
 
 
 ## Analysis of experiments
