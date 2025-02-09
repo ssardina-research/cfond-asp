@@ -1,4 +1,6 @@
-benchexec[systemd]
+# benchexec[systemd] # better if installed via apt globally (see instructions)
 coloredlogs
-lxcfs
+#lxcfs  # cannot find it?
 pandas
+ipykernel
+seaborn
