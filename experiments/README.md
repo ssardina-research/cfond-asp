@@ -383,16 +383,20 @@ If more than on run definition has been processed (more than one `xml.bz2`), the
 
 Finally, besides the CSV/HTML stat tables, if the XML definition states that some files/folders need to be recovered from the overlay (via the tag `<resultfiles>`), they will be also dumped into the  `results/` folder, with recovered data stored where the `output:` option field in the task YAML definitions specifies.
 
+The output of our running example can be found in folder [stats/cfondasp-miner-small/](stats/cfondasp-miner-small/)
+
 To learn about the outputs left by Benchexec, please check [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/benchexec.md#benchexec-results).
 
 ### Generate coverage plots
 
-Frist, we can take Benchexec tables and process them via notebook [process_benchexec.ipynb](process_benchexec.ipynb) to extract two CSV files:
+This is a two-step process.
+
+First, **we process the Benchexec tables** via notebook [process_benchexec.ipynb](process_benchexec.ipynb) to extract two CSV files:
 
 1. A flat table of stats, that can be used for further analysis and plotting, with the solver being recorded in a new column. Benchexec tables are not flatten and each run set contains its own columns.
 2. A coverage table per domain and solver, typically reported in papers.
 
-Finally, we use the Python notebook or R script available in [coverage-plots](https://github.com/ssardina-research/coverage-plots) repo to plot integrated time-coverage plots:
+Second, we use **plot integrated time-coverage plots** using the Python notebook or R script available in [coverage-plots](https://github.com/ssardina-research/coverage-plots) repo.
 
 ![plot](stats/ecai23-redo-benchexec-jul24/cfond_benchexec_stats_plot_PRP.jpg)
 
