@@ -9,13 +9,13 @@ As of July 2024, experiments were re-done using the [Benchexec](https://github.c
 
 - [Experiments](#experiments)
   - [Installation and setup](#installation-and-setup)
-    - [Install alternative Pythonv ersions](#install-alternative-pythonv-ersions)
+    - [Install alternative Python versions](#install-alternative-python-versions)
   - [Configuring an experiment benchmark: Tools + Tasks](#configuring-an-experiment-benchmark-tools--tasks)
   - [Running a benchmark experiment](#running-a-benchmark-experiment)
     - [Setting environment variables](#setting-environment-variables)
     - [Running an experiment](#running-an-experiment)
     - [Output of benchexec](#output-of-benchexec)
-    - [Runexec tool: single benchexec runs](#runexec-tool-single-benchexec-runs)
+  - [Runexec tool: testing a single benchexec runs](#runexec-tool-testing-a-single-benchexec-runs)
   - [Analysis of experiments](#analysis-of-experiments)
     - [Extract Benchexec CSV stats tables](#extract-benchexec-csv-stats-tables)
     - [Generate coverage plots](#generate-coverage-plots)
@@ -62,7 +62,7 @@ This will make the CFOND-ASP binary (`cfond-asp`) available.
 > [!TIP]
 > If you need a new install of Python (beyond just a virtual environment), consider using [pyenv](https://github.com/pyenv/pyenv) which will allow you to localy install any Python version and corresponding virtual environments.
 
-### Install alternative Pythonv ersions
+### Install alternative Python versions
 
 You can setup a new Python version for it via [pyenv](https://github.com/pyenv/pyenv):
 
@@ -142,7 +142,7 @@ $ export PATH=$PATH:/mnt/projects/fondasp/translator-fond.git/translate/translat
 To double check, test a run of CFOND-ASP:
 
 ```shell
-$ cfond-asp ~/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/domain.pddl ~/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/p01.pddl 
+$ cfond-asp /mnt/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/domain.pddl /mnt/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/p01.pddl 
 ```
 
 The successful run will leave the output files under `output/`.
@@ -252,7 +252,7 @@ All output files and folders will be placed under folder `results/` in the curre
 
 Refer below to understand how to extract state tables into CSV and HTML files and then process them via notebooks.
 
-### Runexec tool: single benchexec runs
+## Runexec tool: testing a single benchexec runs
 
 We can use the [`runexec`](https://github.com/sosy-lab/benchexec/blob/main/doc/runexec.md) tool to run/test a particular script/program on the spot once (i.e., without XML, tools, etc. configurations).
 
@@ -316,62 +316,72 @@ terminationreason=failed
 
 ### Extract Benchexec CSV stats tables
 
-Benchexec will leave all outputs will be placed under folder `results/`.
+Benchexec will leave all outputs under folder `results/` (unless specified otherwise via `-o` option) and with prefix `<XML experiment file>.<DATE>`:
 
-Importantly, you can generate CSV and HTML table from the results in files `*.<run name>.xml.bz2` for further analysis, for example via Pandas. Check how to generate these tables [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/table-generator.md).
+- `*.files` folder contains the run output files that were extracted as per `resultfiles` in the XML file.
+- `*.logfiles.zip` contains the console output of each run
+- `*.<rundefinition>.<task>.xml.bz2` contains the statistics for each run on task executed.
+- `*.results.txt` contains the textual summary of the whole experiment ran.
 
-When benchexec finishes it will print a message stating what command needs to be run to generate the standard tables:
+For example:
 
+```shell
+$ ls -la results
+total 56
+drwxrwxr-x 3 ssardina ssardina  4096 Feb  9 20:01 .
+drwxrwxr-x 4 ssardina ssardina  4096 Feb  9 19:59 ..
+drwxrwxr-x 4 ssardina ssardina  4096 Feb  9 20:01 benchmark-fondasp.2025-02-09_19-59-41.files
+-rw-rw-r-- 1 ssardina ssardina 17627 Feb  9 20:01 benchmark-fondasp.2025-02-09_19-59-41.logfiles.zip
+-rw-rw-r-- 1 ssardina ssardina  5549 Feb  9 20:01 benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-fsat.MINER-SMALL.xml.bz2
+-rw-rw-r-- 1 ssardina ssardina  5511 Feb  9 20:01 benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-reg.MINER-SMALL.xml.bz2
+-rw-rw-r-- 1 ssardina ssardina  4540 Feb  9 20:01 benchmark-fondasp.2025-02-09_19-59-41.results.txt
 ```
+
+You can generate a CSV/HTML table from the results in files `*.xml.bz2` for further analysis, for example via Pandas. Check how to generate these tables [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/table-generator.md).
+
+When benchexec finishes it will print a message stating what command needs to be run to generate the standard CSV stat tables:
+
+```shell
 In order to get HTML and CSV tables, run
-table-generator results/benchmark-prp.2024-07-20_18-01-50.results.prp.test.xml.bz2
+table-generator results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-fsat.MINER-SMALL.xml.bz2 results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-reg.MINER-SMALL.xml.bz2
 ```
 
-But it can also also be run later and on different `xml.bz2` files. The table generator will require access to the tools used so make sure you have set `PYTHONPATH` to point to where the `tools` Python module is located, for example:
+In our example:
 
 ```shell
-$ export PYTHONPATH=/mnt/projects/fondasp/cfond-asp-private.git/experiments/benchexec/
-$ echo $PYTHONPATH
-/mnt/projects/fondasp/cfond-asp-private.git/experiments/benchexec/
-```
-
-The following generates the tables for the `PRP.FOND` run:
-
-```shell
-$ table-generator prp-19-07-24/benchmark-prp.2024-07-19_17-59-23.results.prp.FOND.xml.bz2
-INFO:     prp-19-07-24/benchmark-prp.2024-07-19_17-59-23.results.prp.FOND.xml.bz2
+$ table-generator results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-fsat.MINER-SMALL.xml.bz2 results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-reg.MINER-SMALL.xml.bz2 
+INFO:     results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-fsat.MINER-SMALL.xml.bz2
+INFO:     results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-reg.MINER-SMALL.xml.bz2
 INFO: Merging results...
-INFO: The resulting table will have 590 rows and 6 columns (in 1 run sets).
+INFO: The resulting table will have 9 rows and 12 columns (in 2 run sets).
+INFO: ---> NO DIFFERENCE FOUND IN SELECTED COLUMNS
 INFO: Generating table...
-INFO: Writing HTML into prp-19-07-24/benchmark-prp.2024-07-19_17-59-23.results.prp.FOND.html ...
-INFO: Writing CSV  into prp-19-07-24/benchmark-prp.2024-07-19_17-59-23.results.prp.FOND.csv ...
+INFO: Writing HTML into results/results.2025-02-09_20-04-14.table.html ...
+INFO: Writing CSV  into results/results.2025-02-09_20-04-14.table.csv ...
 INFO: done
+
+$ l results/*.csv
+-rw-rw-r-- 1 ssardina ssardina 2.0K Feb  9 20:04 results/results.2025-02-09_20-04-14.table.csv
 ```
 
-Here the resulting CSV has the states of that single run definition. In contrast, the following command generates a CSV table for four run sets all together (i.e., `cfondasp1-fsat.FOND`, `cfondasp1-reg.FOND`, `cfondasp2-fsat.FOND`, and `cfondasp2-reg.FOND`):
+> [!WARNING]
+> The generate CSV tables, the generator will require access to the tools used, so make sure you have set `PYTHONPATH` to point to where the `tools` Python module is located; [see above](#setting-environment-variables).
 
-```shell
-$ table-generator cfondasp-21-07-24/*.xml.bz2
-INFO:     cfondasp-21-07-24/benchmark-fondasp.2024-07-21_19-59-00.results.cfondasp1-fsat.FOND.xml.bz2
-INFO:     cfondasp-21-07-24/benchmark-fondasp.2024-07-21_19-59-00.results.cfondasp1-reg.FOND.xml.bz2
-INFO:     cfondasp-21-07-24/benchmark-fondasp.2024-07-21_19-59-00.results.cfondasp2-fsat.FOND.xml.bz2
-INFO:     cfondasp-21-07-24/benchmark-fondasp.2024-07-21_19-59-00.results.cfondasp2-reg.FOND.xml.bz2
-INFO: Merging results...
-INFO: The resulting table will have 590 rows and 24 columns (in 4 run sets).
-INFO: The difference table will have 559 rows.
-INFO: Generating table...
-INFO: Writing HTML into cfondasp-21-07-24/results.2024-07-29_21-53-42.table.html ...
-INFO: Writing CSV  into cfondasp-21-07-24/results.2024-07-29_21-53-42.table.csv ...
-INFO: Writing HTML into cfondasp-21-07-24/results.2024-07-29_21-53-42.diff.html ...
-INFO: Writing CSV  into cfondasp-21-07-24/results.2024-07-29_21-53-42.diff.csv ...
-INFO: done
+
+Note that the resulting CSV table will contain stats for two run definitions, `cfondasp-fsat` and `cfondasp-reg`. In those tables, each row is a _task_ and columns record the results on each _run definition_ (in our example, two). This means that for each run definition, there will be a set of columns with the same header. If you want to later analyse it or plot charts, you may need to pivot all these set of columns using a distinguish column to identify runs. The example says that there are 9 rows (9 tasks corresponding to the 9 planning instances), and 12 columns over 2 run sets, that is, each run definition will have 6 columns: `status`, `cputime (s)`, `walltime (s)`, ` memory (MB)`, `planner_time`, and `policy_size`. Observe the first four are experiment independent and will always be provided by Benchexec; the last two are experiment dependent and correspond to the `columns` section in the exeperiment XML file:
+
+```xml
+ <columns>
+    <!-- <column> tags may be used to define columns in the result tables with data from the tool
+    output. -->
+    <column title="policy_size">policy_size</column>
+    <column title="planner_time">planner_time</column>
+  </columns>
 ```
 
-Note that besides generating the states table (`cfondasp-21-07-24/results.2024-07-29_21-53-42.table.csv`), which will contain 24 columns across 4 run sets, it also generates _difference_ tables (`cfondasp-21-07-24/results.2024-07-29_21-53-42.table.csv`) that includes all rows the `status` column differ. In this case, there are a total of 590 rows in the run set, of which 559 have different results wrt the 4 run sets.
+If more than on run definition has been processed (more than one `xml.bz2`), the table generator may also generate a _difference_ table `*.diff.csv` that includes all the rows where the `status` column differ across run definitions. In our example, there were no differences (both solver configurations had the same status), as reported with `INFO: ---> NO DIFFERENCE FOUND IN SELECTED COLUMNS` in the console. However, you can check difference table [stats/ecai23-redo-benchexec-jul24/cfondasp-23-08-24/results.2024-09-02_07-34-19.diff.csv](stats/ecai23-redo-benchexec-jul24/cfondasp-23-08-24/results.2024-09-02_07-34-19.diff.csv) where it reports a total of 590 rows in the run set, of which 559 have different results wrt the four run definitions executed.
 
-Note that in the generated table, each row is a _task_ and columns record the results for each _run definition_. This means that for each run definition, there will be a set of columns with the same header. If you want to later analyse it or plot charts, you may need to pivot all these set of columns using a distinguish column to identify runs.
-
-Besides the stat tables, if the XML definition states that some files/folders need to be recovered from the overlay (via the tag `<resultfiles>`), they will be also dumped into the  `results/` folder, with recovered data stored where the `output:` option field in the task YAML definitions specifies.
+Finally, besides the CSV/HTML stat tables, if the XML definition states that some files/folders need to be recovered from the overlay (via the tag `<resultfiles>`), they will be also dumped into the  `results/` folder, with recovered data stored where the `output:` option field in the task YAML definitions specifies.
 
 To learn about the outputs left by Benchexec, please check [HERE](https://github.com/sosy-lab/benchexec/blob/main/doc/benchexec.md#benchexec-results).
 
