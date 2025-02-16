@@ -40,9 +40,7 @@ The following software need to be available:
 
 ## Install
 
-The planner is distributed as a package and can then be installed via pip directly.
-
-One can also install it from the repo itself:
+The planner is distributed as a package and can then be installed via pip from the repo as follows:
 
 ```shell
 $ pip install git+https://github.com/ssardina-research/cfond-asp
