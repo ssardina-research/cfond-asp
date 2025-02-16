@@ -120,11 +120,11 @@ $ cfond-asp [options] fond_domain fond_problem
 
 Use `-h` to get all options available.
 
-Note this is equivalent to cloning the planner repo and from tis root folder execute:
+Note this is equivalent to cloning the planner repo and from its root folder execute:
 
 ```shell
 $ python -m cfondasp [options] fond_domain fond_problem
- ```
+```
 
 > [!WARNING]
 > The above assumes the SAS translator is accessible in the path system-wide. In most cases you may want to explicitly specify it via option `--translator-path`, e.g., `--translator-path $HOME/downward/src/translate/translate.py`

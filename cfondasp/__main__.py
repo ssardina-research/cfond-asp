@@ -23,6 +23,8 @@ from .utils.system_utils import get_pkg_root
 from .solver.asp import solve, parse_and_translate, solve
 
 logger: logging.Logger = None
+LOGGER_LEVEL = logging.INFO
+# LOGGER_LEVEL = logging.DEBUG
 
 
 def get_fond_problem(args) -> FONDProblem:
@@ -83,7 +85,7 @@ def main():
     """Main function to run the planner. Entry point of the program."""
     # set logger
     logger = logging.getLogger(__name__)
-    coloredlogs.install(level=logging.DEBUG)
+    coloredlogs.install(level=LOGGER_LEVEL, logger=logger)
 
     # CLI options
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
