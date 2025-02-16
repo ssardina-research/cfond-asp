@@ -53,6 +53,7 @@ USE_ASYNCIO = False
 
 logger: logging.Logger = None
 DEBUG_LEVEL = "INFO"
+# DEBUG_LEVEL = "DEBUG"
 
 
 def solve(fond_problem: FONDProblem, back_bone=False, only_size=False):
@@ -557,7 +558,7 @@ def generate_knowledge(
 
 def _get_logger() -> logging.Logger:
     logger = logging.getLogger(__name__)
-    coloredlogs.install(level=DEBUG_LEVEL)
+    coloredlogs.install(level=DEBUG_LEVEL, logger=logger)
     return logger
 
 
