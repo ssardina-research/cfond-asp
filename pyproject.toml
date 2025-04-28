@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61", "wheel", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cfond-asp"
+description = "Compact FOND ASP Planner"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "Sebastian Sardina", email = "ssardina@gmail.com" },
+  { name = "Nitin Yadav", email = "nitin.yadav@unimelb.edu.au"}
+]
+urls = { "Homepage" = "https://github.com/ssardina-research/cfond-asp" }  # ✏️ Replace from __url__
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux"
+]
+dependencies = [
+    "async-timeout",
+    "clingo",
+    "coloredlogs",
+    "fond-utils",
+    "graphviz",
+    "networkit",
+    "numpy<2",
+    "pddl",
+    "psutil",
+    "py-cpuinfo",
+    "Pygments"
+]
+dynamic = ["version"]
+# enable this if you want to generate the version from a file
+# [tool.setuptools_scm]
+# version_file = "fondutils/__version__.py"
+
+[tool.setuptools_scm]
+tag_regex = "^v(?P<version>.*)$"  # version tag regex v1.0.0 (with a v in front
+
+
+[project.scripts]
+cfond-asp = "cfondasp.__main__:main"
+cfond-asp-verify = "cfondasp.__verify__:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+include = ["cfondasp*"]
+
+[tool.setuptools.package-data]
+"cfondasp" = ["asp/**/*.lp"]
