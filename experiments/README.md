@@ -29,17 +29,23 @@ The recommneded instructions for Ubuntu-based system is to install Benchexec fro
 ```shell
 $ sudo add-apt-repository ppa:sosy-lab/benchmarking
 $ sudo apt update
-$ sudo apt install Benchexec
-...
-The following additional packages will be installed:                       
-  python3-coloredlogs python3-humanfriendly python3-pystemd            
-Recommended packages:                                                                     
-  cpu-energy-meter fuse-overlayfs                                                         
-The following NEW packages will be installed:                  
-  benchexec python3-coloredlogs python3-humanfriendly python3-pystemd 
+$ sudo apt install benchexec fuse-overlayfs
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  fuse-overlayfs lxcfs python3-coloredlogs python3-humanfriendly python3-pystemd
+Recommended packages:
+  cpu-energy-meter
+The following NEW packages will be installed:
+  benchexec fuse-overlayfs lxcfs python3-coloredlogs python3-humanfriendly python3-pystemd
+0 upgraded, 6 newly installed, 0 to remove and 3 not upgraded.
+Need to get 1,127 kB of archives.
+After this operation, 7,226 kB of additional disk space will be used.
+Do you want to continue? [Y/n] Y
 ```
 
-As you can see, this will automatically install three more packages, including `python3-pystemd` that will set-up cgroups automatically. By doing this the benchexec package should be available system-wide and from all Python virtual environments used (check [this explanation](https://medium.com/@sachinsoni600517/how-python-search-for-imported-module-package-76cf0da5f690)).
+As you can see, this will automatically install four more packages, including `python3-pystemd` that will set-up cgroups automatically. By doing this the benchexec package should be available system-wide and from all Python virtual environments used (check [this explanation](https://medium.com/@sachinsoni600517/how-python-search-for-imported-module-package-76cf0da5f690)). Also very important is package `fuse-overlayfs`.
 
 After that, _create a virtual environment_ sandbox for the project, for example using `venv` we create it inside the main project folder `/mnt/projects/fondasp`:
 
@@ -125,7 +131,7 @@ We first need to make sure the **various _tool_ Python modules/classes** (as use
 $ export PYTHONPATH=/mnt/projects/fondasp/cfond-asp.git/experiments/benchexec/
 ```
 
-Second, we need to make sure that **Benchexec has access to all binaries** used by the various tools (e.g., planning systems). One way is to make all those tools available in the `PATH`, but this can be cumbersome. A cleaner way is to setup a `bin/` folder containing symbolic links to all the solver binaries used and then use option `--tool-directory` (see below), which tells Benchexec where the tools' _executables_ (e.g., the `prp` binary) are located. 
+Second, we need to make sure that **Benchexec has access to all binaries** used by the various tools (e.g., planning systems). One way is to make all those tools available in the `PATH`, but this can be cumbersome. A cleaner way is to setup a `bin/` folder containing symbolic links to all the solver binaries used and then use option `--tool-directory` (see below), which tells Benchexec where the tools' _executables_ (e.g., the `prp` binary) are located.
 
 > [!NOTE]
 > If this parameter is not given, Benchexec searches in the directories of the `PATH` environment variable and in the current directory. So an alternative is to add the `bin/` folder created in the `PATH` via `export PATH=$PATH:$PWD/bin`
@@ -142,7 +148,7 @@ $ export PATH=$PATH:/mnt/projects/fondasp/translator-fond.git/translate/translat
 To double check, test a run of CFOND-ASP:
 
 ```shell
-$ cfond-asp /mnt/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/domain.pddl /mnt/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/p01.pddl 
+$ cfond-asp /mnt/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/domain.pddl /mnt/projects/fondasp/cfond-asp-private.git/benchmarks/acrobatics/p01.pddl
 ```
 
 The successful run will leave the output files under `output/`.
@@ -151,66 +157,66 @@ At this point the Benchexec framework has access to the Python tool modules, the
 
 ### Running an experiment
 
-To benchmark a solver one passes the main benchmark definition XML file with the required arguments. We shall use below `benchmark-fondasp.xml` to benchmark CFOND-ASP. 
+To benchmark a solver one passes the main benchmark definition XML file with the required arguments. We shall use below `benchmark-fondasp.xml` to benchmark CFOND-ASP.
 
 The following command benchmarks the solver against the `MINER-SMALL` tasks set (defined in the XML file and containing the first nine problem instances in the miner domain), running 8 instances in in parallel (`-N 8`) with two cores per problem (`-c 2`):
 
 ```shell
 $ benchexec /mnt/projects/fondasp/cfond-asp-private.git/experiments/benchexec/benchmark-fondasp.xml -t MINER-SMALL -N 8 -c 2 --read-only-dir / --overlay-dir /mnt/data/fondasp
-2025-02-03 21:51:52 - WARNING - No propertyfile specified. Score computation will ignore the results.                                                                                        
+2025-02-03 21:51:52 - WARNING - No propertyfile specified. Score computation will ignore the results.
 2025-02-03 21:51:52 - INFO - Unable to find pqos_wrapper, please install it for cache allocation and monitoring if your CPU supports Intel RDT (cf. https://gitlab.com/sosy-lab/software/pqos
--wrapper).                                                                                                                                                                                   
-                                                                                                                                                                                             
-executing run set 'cfondasp-fsat.MINER-SMALL'     (9 files)                                                                                                                                  
-21:51:52   starting   miner_01.yml                                                                                                                                                           
-21:51:52   starting   miner_02.yml                                                                                                                                                           
-21:51:52   starting   miner_03.yml                                                                                                                                                           
-21:51:52   starting   miner_04.yml                                                                                                                                                           
-21:51:52   starting   miner_05.yml                                                                                                                                                           
-21:51:52   starting   miner_06.yml                                                                                                                                                           
-21:51:52   starting   miner_07.yml                                                                                                                                                           
-21:51:52   starting   miner_08.yml                                                                                                                                                           
-21:51:59              miner_02.yml            true                         7.31    6.41                                                                                                      
-21:51:59   starting   miner_09.yml                                                                                                                                                           
-21:52:00              miner_01.yml            true                         8.26    7.10                                                                                                      
-21:52:00              miner_03.yml            true                         7.94    7.12                                                                                                      
-21:52:17              miner_04.yml            true                        27.72   24.43                                                                                                      
-21:52:17              miner_05.yml            true                        29.59   24.64                                                                                                      
-21:52:22              miner_06.yml            true                        33.96   29.21                                                                                                      
-21:52:29              miner_08.yml            true                        42.66   36.55                                                                                                      
-21:52:44              miner_07.yml            true                        63.27   51.69                                                                                                      
-21:52:50              miner_09.yml            true                        59.50   50.87                                                                                                      
-                                                                                                                                                                                             
-executing run set 'cfondasp-reg.MINER-SMALL'     (9 files)                                                                                                                                   
-21:52:50   starting   miner_01.yml                                                                                                                                                           
-21:52:50   starting   miner_02.yml                                                                                                                                                           
-21:52:50   starting   miner_03.yml                                                                                                                                                           
-21:52:50   starting   miner_04.yml                                                                                                                                                           
-21:52:50   starting   miner_05.yml                                                                                                                                                           
-21:52:50   starting   miner_06.yml                                                                                                                                                           
-21:52:50   starting   miner_07.yml                                                                                                                                                           
-21:52:50   starting   miner_08.yml                                                                                                                                                           
-21:52:55              miner_02.yml            true                         5.88    4.56                                                                                                      
-21:52:55   starting   miner_09.yml                                                                                                                                                           
-21:52:56              miner_03.yml            true                         6.87    5.42                                                                                                      
-21:52:56              miner_01.yml            true                         7.34    5.43                                                                                                      
-21:53:10              miner_04.yml            true                        26.61   19.64                                                                                                      
-21:53:12              miner_05.yml            true                        31.48   21.33                                                                                                      
-21:53:18              miner_06.yml            true                        41.04   28.14                                                                                                      
-21:53:26              miner_08.yml            true                        52.32   36.25                                                                                                      
-21:53:42              miner_07.yml            true                        79.34   51.77                                                                                                      
-21:53:42              miner_09.yml            true                        69.72   47.35                                                                                                      
-                                                                                                                                                                                             
-Statistics:             18 Files                                                                                                                                                             
-  correct:               0                                                                                                                                                                   
-    correct true:        0                                                                                                                                                                   
-    correct false:       0                                                                                                                                                                   
-  incorrect:             0                                                                                                                                                                   
-    incorrect true:      0                                                                                                                                                                   
-    incorrect false:     0                                                                                                                                                                   
-  unknown:               0                                                                                                                                                                   
-                                                                                                                                                                                             
-In order to get HTML and CSV tables, run                                                                                                                                                     
+-wrapper).
+
+executing run set 'cfondasp-fsat.MINER-SMALL'     (9 files)
+21:51:52   starting   miner_01.yml
+21:51:52   starting   miner_02.yml
+21:51:52   starting   miner_03.yml
+21:51:52   starting   miner_04.yml
+21:51:52   starting   miner_05.yml
+21:51:52   starting   miner_06.yml
+21:51:52   starting   miner_07.yml
+21:51:52   starting   miner_08.yml
+21:51:59              miner_02.yml            true                         7.31    6.41
+21:51:59   starting   miner_09.yml
+21:52:00              miner_01.yml            true                         8.26    7.10
+21:52:00              miner_03.yml            true                         7.94    7.12
+21:52:17              miner_04.yml            true                        27.72   24.43
+21:52:17              miner_05.yml            true                        29.59   24.64
+21:52:22              miner_06.yml            true                        33.96   29.21
+21:52:29              miner_08.yml            true                        42.66   36.55
+21:52:44              miner_07.yml            true                        63.27   51.69
+21:52:50              miner_09.yml            true                        59.50   50.87
+
+executing run set 'cfondasp-reg.MINER-SMALL'     (9 files)
+21:52:50   starting   miner_01.yml
+21:52:50   starting   miner_02.yml
+21:52:50   starting   miner_03.yml
+21:52:50   starting   miner_04.yml
+21:52:50   starting   miner_05.yml
+21:52:50   starting   miner_06.yml
+21:52:50   starting   miner_07.yml
+21:52:50   starting   miner_08.yml
+21:52:55              miner_02.yml            true                         5.88    4.56
+21:52:55   starting   miner_09.yml
+21:52:56              miner_03.yml            true                         6.87    5.42
+21:52:56              miner_01.yml            true                         7.34    5.43
+21:53:10              miner_04.yml            true                        26.61   19.64
+21:53:12              miner_05.yml            true                        31.48   21.33
+21:53:18              miner_06.yml            true                        41.04   28.14
+21:53:26              miner_08.yml            true                        52.32   36.25
+21:53:42              miner_07.yml            true                        79.34   51.77
+21:53:42              miner_09.yml            true                        69.72   47.35
+
+Statistics:             18 Files
+  correct:               0
+    correct true:        0
+    correct false:       0
+  incorrect:             0
+    incorrect true:      0
+    incorrect false:     0
+  unknown:               0
+
+In order to get HTML and CSV tables, run
 table-generator results/benchmark-fondasp.2025-02-03_21-51-52.results.cfondasp-fsat.MINER-SMALL.xml.bz2 results/benchmark-fondasp.2025-02-03_21-51-52.results.cfondasp-reg.MINER-SMALL.xml.bz
 2
 ```
@@ -222,7 +228,7 @@ report CPU time and walltime (note CPU time is larger as each instance is using 
 > We have not used `--tool-directory` because the executable `cfond-asp` is in the `PATH` already.
 > If instead, we would run `benchmark-prp.xml` benchmark, we would use `--tool-directory ./bin` assumming `prp` executable has beebn linked in that folder. If this parameter is not given, Benchexec searches in the directories of the `PATH` environment variable and in the current directory.
 
-> [!WARNING] 
+> [!WARNING]
 > If you get error `Unsupported tool "tools.prp" specified. ImportError: No module named 'tools'`
 > it is because the XML definition couldn't find the tool Python module. Remember to set the environment variable `PYTHONPATH` to make sure `benchexec/tools` is found by Python.
 
@@ -235,7 +241,7 @@ The following options refer to [container configurations](https://github.com/sos
   * If we want to retrieve anything that is written by the execution, it has to be specified in the `<resultsfiles>` section in the XML configuration files. The retrieved files will be accessible under the Benchexec result folder (but by just a bulk copy a the end of the execution, not by writing directly there while running!).
 * `--hidden-dir`: the host directory specified will be hidden in the container. This allows the process to use that directory "fresh" without clashing with whatever is already there in the host. In our case, we hide the directory where the output of the solver is meant to be located, in case such folder already exists in the host. If it does and we don't hide it, the solver will try to re-create the folder but since it does exist in the overlay in read-mode, the solver will crash with I/O error because it cannot remove a folder that is in already in the host.
 
-> [!IMPORTANT] 
+> [!IMPORTANT]
 > By default, the container runs in isolation, with **writes to filesystem done in RAM memory**. If we want to give the container full direct access to some part of the file-system, we can use for example `--full-access-dir /home/$USER`. Then, anything that is done under `/home/$USER` will be as if running in the host directly. Not recommended!
 
 Note that the `--overlay-dir` does give access to the host file system in the container, but only on read-mode for what already exists.
@@ -246,7 +252,7 @@ Note that the `--overlay-dir` does give access to the host file system in the co
 
 ### Output of benchexec
 
-Benchexec reports stats, logs, and corresponding out files for every executed run; check [here](https://github.com/sosy-lab/benchexec/blob/main/doc/run-results.md). 
+Benchexec reports stats, logs, and corresponding out files for every executed run; check [here](https://github.com/sosy-lab/benchexec/blob/main/doc/run-results.md).
 
 All output files and folders will be placed under folder `results/` in the current directory unless explicitly specified otherwise via option `-o DIRECTORY`. All files will have the XML experiment filename as prefixes; and run values are stored in compressed files `.xml.bz2`
 
@@ -262,7 +268,7 @@ For example, the following runs PRP planner on container mode (default) and also
 
 ```shell
 $ cd $HOME/tmp
-$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 12331392 /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl 
+$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 12331392 /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl
 2025-02-09 18:14:13 - INFO - Starting command /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl
 2025-02-09 18:14:13 - INFO - Writing output to output.log and result files to output.files
 starttime=2025-02-09T18:14:13.784618+11:00
@@ -282,7 +288,7 @@ The standard output will be saved into `output.log` and all files will be retriv
 If we specify a limit of 9MB, then it will fail and report memory termination (signal 9):
 
 ```shell
-$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 9000000  /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl 
+$ runexec --read-only-dir / --overlay-dir /home/ --result-files "*" --memlimit 9000000  /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl
 2024-07-20 19:08:18 - INFO - Starting command /mnt/projects/fondasp/planners/prp/src/prp /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/domain.pddl /mnt/projects/fondasp/fond-domains.git/benchmarks/beam-walk/p5.pddl
 2024-07-20 19:08:18 - INFO - Writing output to output.log and result files to output.files
 starttime=2024-07-20T19:08:18.170010+10:00
@@ -349,7 +355,7 @@ table-generator results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-f
 In our example:
 
 ```shell
-$ table-generator results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-fsat.MINER-SMALL.xml.bz2 results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-reg.MINER-SMALL.xml.bz2 
+$ table-generator results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-fsat.MINER-SMALL.xml.bz2 results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-reg.MINER-SMALL.xml.bz2
 INFO:     results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-fsat.MINER-SMALL.xml.bz2
 INFO:     results/benchmark-fondasp.2025-02-09_19-59-41.results.cfondasp-reg.MINER-SMALL.xml.bz2
 INFO: Merging results...
@@ -418,7 +424,7 @@ The benchmark used are the same as in the ECAI23 paper, which includes that used
 > The set of FOND benchmarks includes the new domains introduced in [13], namely DOORS, ISLANDS, MINER, TIREWORLD-SPIKY, and TIREWORLD-TRUCK . The other classical FOND domains tested include ACROBATICS , BEAM-WALK , BLOCKSWORLD, CHAIN-OF-ROOMS, EARTH-OBSERVATION, ELEVATORS, FAULTS, FIRST-RESPONDERS, TIREWORLD, TRIANGLE-TIREWORLD, and ZENOTRAVEL. We only considered planning instances that are solvable. The total number of solvable instances are 210 for the new FOND domains and 348 for the classical FOND domains.
 
 
-To run the R script in Linux: 
+To run the R script in Linux:
 
 ```shell
 $ R < plots.R --no-save
